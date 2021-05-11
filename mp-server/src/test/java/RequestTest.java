@@ -2,6 +2,7 @@ import cn.hutool.core.lang.Dict;
 import cn.hutool.json.JSONUtil;
 import com.happycoding.music.MusicServerApplication;
 import com.happycoding.music.service.NeteaseService;
+import net.sf.jsqlparser.expression.operators.relational.OldOracleJoinBinaryExpression;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,8 @@ public class RequestTest {
 
     @Test
     public void getTopSongTest(){
-        Dict dict = neteaseService.getTopSong(0,100, 0, true);
-//        Dict dict = neteaseService.getHotSearchList();
+//        Dict dict = neteaseService.getTopSong(0,100, 0, true);
+        Object dict = neteaseService.getHotSearchList();
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 }

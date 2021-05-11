@@ -1,7 +1,10 @@
 package com.happycoding.music.model;
 
+import cn.hutool.core.lang.Dict;
 import cn.hutool.json.JSONObject;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @Author: zjf
@@ -13,9 +16,9 @@ import lombok.Data;
 public class NeteaseResponse {
     private int code;
 
-    private String msg;
+    private String message;
 
-    private String[] cookie;
+    private List<String> cookie;
 
-    private JSONObject body;
+    private Object body;
 }

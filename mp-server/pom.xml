@@ -169,7 +169,7 @@
     </distributionManagement>
 
     <build>
-        <finalName>rule-engine</finalName>
+        <finalName>mix-music</finalName>
         <resources>
             <resource>
                 <directory>src/main/java</directory><!--所在的目录-->

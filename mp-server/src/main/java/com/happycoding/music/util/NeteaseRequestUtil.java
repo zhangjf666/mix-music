@@ -1,11 +1,14 @@
 package com.happycoding.music.util;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Dict;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.happycoding.music.common.model.ResponseCode;
 import com.happycoding.music.model.NeteaseOption;
 import com.happycoding.music.model.NeteaseResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -13,10 +16,11 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author: zjf
@@ -53,7 +57,7 @@ public class NeteaseRequestUtil {
 
     public static NeteaseResponse getResponse(String method, String url, Map data, NeteaseOption options){
         String finalUrl = url;
-        Map<String, Object> header = new HashMap<>();
+        Map<String, String> header = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
         header.put("User-Agent", userAgentList[RandomUtil.randomInt(userAgentList.length)]);
         if("POST".equals(method.toUpperCase())){
@@ -126,45 +130,52 @@ public class NeteaseRequestUtil {
 
         NeteaseResponse response = new NeteaseResponse();
         try {
-            ResponseEntity responseEntity = null;
-            HttpResponse httpResponse = null;
+            ResponseEntity<String> responseEntity = null;
             if("POST".equals(method.toUpperCase())){
-                httpResponse = HttpClientUtil.httpPostRequestResponse(finalUrl, header, param);
+                responseEntity = RestTemplateUtils.post(finalUrl, header, getParams(param), String.class, new HashMap<>());
             } else {
-                httpResponse = HttpClientUtil.httpGetRequestResponse(finalUrl, header, param);
+                responseEntity = RestTemplateUtils.get(finalUrl, header, String.class, param);
             }
-            if(httpResponse.getEntity() == null){
-                throw new Exception("response is null");
+            String body = responseEntity.getBody();
+            List<String> cookies = responseEntity.getHeaders().get("set-cookie");
+            if(cookies != null && !cookies.isEmpty()){
+                cookies = cookies.stream().map(s -> s.replaceAll("\\s*Domain=[^(;|$)]+;*", "")).collect(Collectors.toList());
             }
-            String body = EntityUtils.toString(httpResponse.getEntity());
-            Header[] headers = httpResponse.getHeaders("set-cookie");
-            String[] cookie = new String[headers.length];
-            for (int i = 0; i < headers.length; i++) {
-                cookie[i] = headers[i].getValue().replaceAll("\\s*Domain=[^(;|$)]+;*", "");
-            }
-            response.setCookie(cookie);
+            response.setCookie(cookies);
 
             JSONObject bodyJson = null;
             if(NeteaseCryptoUtil.EAPI_TYPE.equals(options.getCrypto())){
-                bodyJson = JSONUtil.parseObj(NeteaseCryptoUtil.eapiDecrypt(body));
+                bodyJson = JSON.parseObject(NeteaseCryptoUtil.eapiDecrypt(body));
             } else {
-                bodyJson = JSONUtil.parseObj(body);
+                bodyJson = JSON.parseObject(body);
             }
-            response.setBody(bodyJson);
 
-            response.setCode(bodyJson.containsKey("code")? bodyJson.getInt("code") :
-                    httpResponse.getStatusLine().getStatusCode());
-            if("201,302,400,800,801,802,803".contains(bodyJson.getStr("code"))){
+            response.setCode(bodyJson.containsKey("code")? bodyJson.getInteger("code") :
+                    responseEntity.getStatusCodeValue());
+            if("201,302,400,800,801,802,803".contains(bodyJson.getString("code"))){
                 response.setCode(200);
             }
 
             response.setCode(100 < response.getCode() && response.getCode() < 600 ? response.getCode() : 400);
+            if(response.getCode() == 200){
+                response.setBody(JSON.parseObject(JSON.toJSONString(bodyJson.get("data")), List.class));
+            }
             return response;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            response.setCode(502);
-            response.setMsg(e.getMessage());
+            response.setCode(ResponseCode.INTERNAL_SERVER_ERROR.getCode());
+            response.setMessage(e.getMessage());
             return response;
         }
+    }
+
+    private static MultiValueMap<String, Object> getParams(Map<String, Object> param) {
+        MultiValueMap<String, Object> ret = new LinkedMultiValueMap<>();
+        for (Map.Entry<String, Object> entry : param.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            ret.put(key, Collections.singletonList(value));
+        }
+        return ret;
     }
 }

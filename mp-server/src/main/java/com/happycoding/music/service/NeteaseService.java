@@ -2,6 +2,7 @@ package com.happycoding.music.service;
 
 import cn.hutool.core.lang.Dict;
 import cn.hutool.json.JSONUtil;
+import com.happycoding.music.common.exception.BusinessException;
 import com.happycoding.music.model.NeteaseOption;
 import com.happycoding.music.model.NeteaseResponse;
 import com.happycoding.music.util.NeteaseRequestUtil;
@@ -19,7 +20,7 @@ import java.util.Map;
 @Service
 public class NeteaseService {
 
-    public Dict getTopSong(int areaId, int limit, int offset, boolean total){
+    public Object getTopSong(int areaId, int limit, int offset, boolean total){
         Map<String, Object> data = new HashMap<>();
         data.put("areaId", areaId);
         data.put("limit", limit);
@@ -31,18 +32,24 @@ public class NeteaseService {
 
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://music.163.com/weapi/v1/discovery/new/songs", data, option);
-        Dict dict = JSONUtil.toBean(response.getBody(), Dict.class);
-        return dict;
+        checkError(response);
+        return response.getBody();
     }
 
-    public Dict getHotSearchList(){
+    public Object getHotSearchList(){
         Map<String, Object> data = new HashMap<>();
         NeteaseOption option = new NeteaseOption();
         option.setCrypto("weapi");
 
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://music.163.com/weapi/hotsearchlist/get", data, option);
-        Dict dict = JSONUtil.toBean(response.getBody(), Dict.class);
-        return dict;
+        checkError(response);
+        return response.getBody();
+    }
+
+    private void checkError(NeteaseResponse response){
+        if(response.getCode() != 200){
+            throw new BusinessException(response.getCode(), response.getMessage());
+        }
     }
 }

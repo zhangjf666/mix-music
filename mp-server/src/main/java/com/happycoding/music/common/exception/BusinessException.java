@@ -24,6 +24,11 @@ public class BusinessException extends BaseException {
         this.errorCode = code.getCode();
     }
 
+    public BusinessException(int code, String message) {
+        super(message);
+        this.errorCode = code;
+    }
+
     public BusinessException(String message) {
         super(message);
     }
