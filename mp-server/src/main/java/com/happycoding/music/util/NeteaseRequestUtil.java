@@ -1,11 +1,21 @@
 package com.happycoding.music.util;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.http.Header;
-import cn.hutool.http.HttpRequest;
+import cn.hutool.core.util.ReUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.happycoding.music.model.NeteaseOption;
+import com.happycoding.music.model.NeteaseResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
+import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,6 +24,7 @@ import java.util.Map;
  * @Description:
  * @Date: 2021/5/10 15:28
  */
+@Slf4j
 public class NeteaseRequestUtil {
 
     private static String[] userAgentList = {
@@ -40,7 +51,8 @@ public class NeteaseRequestUtil {
             // Linux 就算了
     };
 
-    public String getResponse(String method, String url, Map data, Map<String,Object> options){
+    public static NeteaseResponse getResponse(String method, String url, Map data, NeteaseOption options){
+        String finalUrl = url;
         Map<String, Object> header = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
         header.put("User-Agent", userAgentList[RandomUtil.randomInt(userAgentList.length)]);
@@ -50,29 +62,109 @@ public class NeteaseRequestUtil {
         if(url.contains("music.163.com")){
             header.put("Referer", "https://music.163.com");
         }
-        return "";
-    }
+        if(options.getCookie() != null && !options.getCookie().isEmpty()){
+            StringBuilder sb = new StringBuilder();
+            for (Map.Entry<String,String> entry: options.getCookie().entrySet()) {
+                sb.append(entry.getKey());
+                sb.append("=");
+                sb.append(entry.getValue());
+                sb.append(";");
+            }
+            header.put("Cookie", sb.substring(0, sb.length() - 1));
+        }
+        if(!header.containsKey("Cookie")){
+            header.put("Cookie", options.getToken());
+        }
+        if(NeteaseCryptoUtil.WEAPI_TYPE.equals(options.getCrypto())){
+            List<String> csrfTokens = ReUtil.findAll("_csrf=([^(;|$)]+)", (String) header.get("Cookie"),0);
+            data.put("csrf_token", csrfTokens.isEmpty() ? "" : csrfTokens.get(1));
+            param = NeteaseCryptoUtil.weapiEncrypt(data);
+            finalUrl = finalUrl.replaceAll("\\w*api","weapi");
+        } else if(NeteaseCryptoUtil.LINUXAPI_TYPE.equals(options.getCrypto())){
+            finalUrl = finalUrl.replaceAll("\\w*api","api");
+            Map newdata = new HashMap();
+            newdata.put("method", method);
+            newdata.put("url", finalUrl);
+            newdata.put("params", data);
+            param = NeteaseCryptoUtil.linuxapi(newdata);
+            header.put("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) " +
+                    "Chrome/60.0.3112.90 Safari/537.36");
+            finalUrl = "https://music.163.com/api/linux/forward";
+        } else if(NeteaseCryptoUtil.EAPI_TYPE.equals(options.getCrypto())){
+            Map<String,String> cookie = options.getCookie();
+            Map<String, Object> eHeader = new HashMap<>();
+            header.put("osver", cookie.get("osver"));
+            header.put("deviceId", cookie.get("deviceId"));
+            header.put("appver", cookie.getOrDefault("appver", "8.0.0"));
+            header.put("versioncode", cookie.getOrDefault("versioncode", "140"));
+            header.put("mobilename", cookie.get("mobilename"));
+            header.put("buildver", cookie.getOrDefault("buildver", DateUtil.today()));
+            header.put("resolution", cookie.getOrDefault("resolution", "1920x1080"));
+            header.put("__csrf", cookie.get("__csrf"));
+            header.put("os", cookie.getOrDefault("os", "android"));
+            header.put("channel", cookie.get("channel"));
+            header.put("requestId", StrUtil.format("{}_{}",DateUtil.now(),
+                    StrUtil.padPre(String.valueOf(RandomUtil.randomInt(1000)), 4, '0')));
+            if(cookie.containsKey("MUSIC_U")){
+                header.put("MUSIC_U", cookie.get("MUSIC_U"));
+            }
+            if(cookie.containsKey("MUSIC_A")){
+                header.put("MUSIC_A", cookie.get("MUSIC_A"));
+            }
+            StringBuilder sb = new StringBuilder();
+            for (Map.Entry<String,String> entry: options.getCookie().entrySet()) {
+                sb.append(entry.getKey());
+                sb.append("=");
+                sb.append(entry.getValue());
+                sb.append(";");
+            }
+            header.put("Cookie", sb.substring(0, sb.length() - 1));
+            data.put("header", header);
+            param = NeteaseCryptoUtil.eapi(options.getUrl(), data);
+            finalUrl = finalUrl.replaceAll("\\w*api","eapi");
+        }
 
-    public static String testRequest(String id){
-        Map data = new HashMap();
-//        data.put("s", "吻别");
-//        data.put("type", "1");
-//        data.put("limit", 30);
-//        data.put("offset", 0);
-        data.put("csrf_token", "");
+        NeteaseResponse response = new NeteaseResponse();
+        try {
+            ResponseEntity responseEntity = null;
+            HttpResponse httpResponse = null;
+            if("POST".equals(method.toUpperCase())){
+                httpResponse = HttpClientUtil.httpPostRequestResponse(finalUrl, header, param);
+            } else {
+                httpResponse = HttpClientUtil.httpGetRequestResponse(finalUrl, header, param);
+            }
+            if(httpResponse.getEntity() == null){
+                throw new Exception("response is null");
+            }
+            String body = EntityUtils.toString(httpResponse.getEntity());
+            Header[] headers = httpResponse.getHeaders("set-cookie");
+            String[] cookie = new String[headers.length];
+            for (int i = 0; i < headers.length; i++) {
+                cookie[i] = headers[i].getValue().replaceAll("\\s*Domain=[^(;|$)]+;*", "");
+            }
+            response.setCookie(cookie);
 
-        Map edata = NeteaseCryptoUtil.weapiEncrypt(data);
+            JSONObject bodyJson = null;
+            if(NeteaseCryptoUtil.EAPI_TYPE.equals(options.getCrypto())){
+                bodyJson = JSONUtil.parseObj(NeteaseCryptoUtil.eapiDecrypt(body));
+            } else {
+                bodyJson = JSONUtil.parseObj(body);
+            }
+            response.setBody(bodyJson);
 
-        String res =
-                HttpRequest.post("https://music.163.com/weapi/hotsearchlist/get")
-                        .header(Header.USER_AGENT,
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.30" +
-                        " Safari/537.36")
-                        .header(Header.REFERER,"https://music.163.com")
-                        .header(Header.CONTENT_TYPE,"application/x-www-form-urlencoded")
-                        .form(edata)
-                        .execute()
-                        .body();
-        return res;
+            response.setCode(bodyJson.containsKey("code")? bodyJson.getInt("code") :
+                    httpResponse.getStatusLine().getStatusCode());
+            if("201,302,400,800,801,802,803".contains(bodyJson.getStr("code"))){
+                response.setCode(200);
+            }
+
+            response.setCode(100 < response.getCode() && response.getCode() < 600 ? response.getCode() : 400);
+            return response;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            response.setCode(502);
+            response.setMsg(e.getMessage());
+            return response;
+        }
     }
 }

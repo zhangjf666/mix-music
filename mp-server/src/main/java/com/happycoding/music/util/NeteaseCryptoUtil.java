@@ -10,8 +10,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +24,10 @@ import java.util.Map;
  */
 @Slf4j
 public class NeteaseCryptoUtil {
+    public final static String WEAPI_TYPE = "weapi";
+    public final static String EAPI_TYPE = "eapi";
+    public final static String LINUXAPI_TYPE = "linuxapi";
+
     private final static String PUBLIC_KEY = "00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7" +
             "b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280" +
             "104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932" +
@@ -60,7 +64,7 @@ public class NeteaseCryptoUtil {
     public static Map linuxapi(Map data) {
         try {
             String text = JSONUtil.toJsonStr(data);
-            SecretKeySpec skeySpec = new SecretKeySpec(LINUX_API_KEY.getBytes("UTF-8"), "AES");
+            SecretKeySpec skeySpec = new SecretKeySpec(LINUX_API_KEY.getBytes(StandardCharsets.UTF_8), "AES");
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
             byte[] out = cipher.doFinal(text.getBytes());
@@ -80,7 +84,7 @@ public class NeteaseCryptoUtil {
             String message = StrUtil.format("nobody{}use{}md5forencrypt", url, text);
             message = MD5.create().digestHex(message);
             message = StrUtil.format("{}-36cd479b6b5-{}-36cd479b6b5-{}",url, text, message);
-            SecretKeySpec skeySpec = new SecretKeySpec(EAPI_KEY.getBytes("UTF-8"), "AES");
+            SecretKeySpec skeySpec = new SecretKeySpec(EAPI_KEY.getBytes(StandardCharsets.UTF_8), "AES");
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
             byte[] out = cipher.doFinal(message.getBytes());
@@ -94,10 +98,23 @@ public class NeteaseCryptoUtil {
         }
     }
 
+    public static String eapiDecrypt(String body){
+        try {
+            SecretKeySpec skeySpec = new SecretKeySpec(EAPI_KEY.getBytes(StandardCharsets.UTF_8), "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+            byte[] out = cipher.doFinal(body.getBytes());
+            return new String(out);
+        } catch (Exception e) {
+            log.error("eapi解密出错:{}",e.getMessage());
+            return "";
+        }
+    }
+
     private static String aesEncrypt(String text, String key) {
         try {
-            IvParameterSpec iv = new IvParameterSpec(IV_STR.getBytes("UTF-8"));
-            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+            IvParameterSpec iv = new IvParameterSpec(IV_STR.getBytes(StandardCharsets.UTF_8));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
             byte[] encrypted = cipher.doFinal(text.getBytes());

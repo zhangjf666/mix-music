@@ -56,6 +56,68 @@ public class HttpClientUtil {
         return builder.build();
     }
 
+    public static HttpResponse httpGetRequestResponse(String url)throws URISyntaxException {
+        return httpGetRequestResponse(url,null,null);
+    }
+
+    public static HttpResponse httpGetRequestResponse(String url, Map<String, Object> params) throws URISyntaxException {
+        return httpGetRequestResponse(url,null,params);
+    }
+
+    public static HttpResponse httpGetRequestResponse(String url, Map<String, Object> headers, Map<String, Object> params)
+            throws URISyntaxException {
+        URIBuilder ub = new URIBuilder();
+        ub.setPath(url);
+        if(params != null && !params.isEmpty()){
+            ArrayList<NameValuePair> pairs = covertParams2NVPS(params);
+            ub.setParameters(pairs);
+        }
+        HttpGet httpGet = new HttpGet(ub.build());
+        if(headers != null && !headers.isEmpty()){
+            for (Map.Entry<String, Object> header : headers.entrySet()) {
+                httpGet.addHeader(header.getKey(), String.valueOf(header.getValue()));
+            }
+        }
+        return getResponse(httpGet);
+    }
+
+    public static HttpResponse httpPostRequestResponse(String url, String json) {
+        return httpPostRequestResponse(url,null, json);
+    }
+
+    public static HttpResponse httpPostRequestResponse(String url, Map<String, Object> headers,String json) {
+        HttpPost httpPost = new HttpPost(url);
+        if (headers != null && !headers.isEmpty()) {
+            for (Map.Entry<String, Object> param : headers.entrySet()) {
+                httpPost.addHeader(param.getKey(), String.valueOf(param.getValue()));
+            }
+        }
+        StringEntity entity = new StringEntity(json,"utf-8");//解决中文乱码问题
+        entity.setContentEncoding("UTF-8");
+        entity.setContentType("application/json");
+        httpPost.setEntity(entity);
+        return getResponse(httpPost);
+    }
+
+    public static HttpResponse httpPostRequestResponse(String url, Map<String, Object> params) throws UnsupportedEncodingException {
+        return httpPostRequestResponse(url,null, params);
+    }
+
+    public static HttpResponse httpPostRequestResponse(String url, Map<String, Object> headers, Map<String, Object> params)
+            throws UnsupportedEncodingException {
+        HttpPost httpPost = new HttpPost(url);
+        if(params != null && !params.isEmpty()){
+            ArrayList<NameValuePair> pairs = covertParams2NVPS(params);
+            httpPost.setEntity(new UrlEncodedFormEntity(pairs, UTF_8));
+        }
+        if(headers != null && !headers.isEmpty()){
+            for (Map.Entry<String, Object> param : headers.entrySet()) {
+                httpPost.addHeader(param.getKey(), String.valueOf(param.getValue()));
+            }
+        }
+        return getResponse(httpPost);
+    }
+
     /**
      * @param url
      * @return
@@ -70,19 +132,7 @@ public class HttpClientUtil {
 
     public static String httpGetRequest(String url, Map<String, Object> headers, Map<String, Object> params)
             throws URISyntaxException {
-        URIBuilder ub = new URIBuilder();
-        ub.setPath(url);
-        if(params != null && !params.isEmpty()){
-            ArrayList<NameValuePair> pairs = covertParams2NVPS(params);
-            ub.setParameters(pairs);
-        }
-        HttpGet httpGet = new HttpGet(ub.build());
-        if(headers != null && !headers.isEmpty()){
-            for (Map.Entry<String, Object> header : headers.entrySet()) {
-                httpGet.addHeader(header.getKey(), String.valueOf(header.getValue()));
-            }
-        }
-        return getResult(httpGet);
+        return getResult(httpGetRequestResponse(url, headers, params));
     }
 
     public static String httpPostRequest(String url, String json) {
@@ -90,17 +140,7 @@ public class HttpClientUtil {
     }
 
     public static String httpPostRequest(String url, Map<String, Object> headers,String json) {
-        HttpPost httpPost = new HttpPost(url);
-        if (headers != null && !headers.isEmpty()) {
-            for (Map.Entry<String, Object> param : headers.entrySet()) {
-                httpPost.addHeader(param.getKey(), String.valueOf(param.getValue()));
-            }
-        }
-        StringEntity entity = new StringEntity(json,"utf-8");//解决中文乱码问题
-        entity.setContentEncoding("UTF-8");
-        entity.setContentType("application/json");
-        httpPost.setEntity(entity);
-        return getResult(httpPost);
+        return getResult(httpPostRequestResponse(url, headers, json));
     }
 
     public static String httpPostRequest(String url, Map<String, Object> params) throws UnsupportedEncodingException {
@@ -109,17 +149,7 @@ public class HttpClientUtil {
 
     public static String httpPostRequest(String url, Map<String, Object> headers, Map<String, Object> params)
             throws UnsupportedEncodingException {
-        HttpPost httpPost = new HttpPost(url);
-        if(params != null && !params.isEmpty()){
-            ArrayList<NameValuePair> pairs = covertParams2NVPS(params);
-            httpPost.setEntity(new UrlEncodedFormEntity(pairs, UTF_8));
-        }
-        if(headers != null && !headers.isEmpty()){
-            for (Map.Entry<String, Object> param : headers.entrySet()) {
-                httpPost.addHeader(param.getKey(), String.valueOf(param.getValue()));
-            }
-        }
-        return getResult(httpPost);
+        return getResult(httpPostRequestResponse(url, headers, params));
     }
 
     private static ArrayList<NameValuePair> covertParams2NVPS(Map<String, Object> params) {
@@ -131,17 +161,13 @@ public class HttpClientUtil {
     }
 
     /**
-     * 处理Http请求
+     * 处理Http请求获取Response
      */
-    private static String getResult(HttpRequestBase request) {
+    private static CloseableHttpResponse getResponse(HttpRequestBase request) {
         CloseableHttpClient httpClient = getHttpClient();
         CloseableHttpResponse response = null;
         try {
             response = httpClient.execute(request);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                return EntityUtils.toString(entity);
-            }
         } catch (IOException e) {
             log.error(e.getMessage());
         } finally {
@@ -153,6 +179,21 @@ public class HttpClientUtil {
             } catch (IOException e) {
                 log.error(e.getMessage());
             }
+        }
+        return response;
+    }
+
+    /**
+     * 处理Http请求获取字符串结果
+     */
+    private static String getResult(HttpResponse response) {
+        try {
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                return EntityUtils.toString(entity);
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage());
         }
         return EMPTY_STR;
     }
