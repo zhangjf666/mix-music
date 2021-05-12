@@ -1,6 +1,5 @@
 package com.happycoding.music.controller;
 
-import cn.hutool.core.lang.Dict;
 import com.happycoding.music.common.model.Response;
 import com.happycoding.music.service.NeteaseService;
 import io.swagger.annotations.Api;
@@ -36,7 +35,7 @@ public class TestController {
     @ApiOperation("测试新歌速递")
     @GetMapping("/topSong")
     public Response testTopSong(int areaId, int limit, int offset, boolean total){
-        Object dict = neteaseService.getTopSong(areaId, limit, offset, total);
+        Object dict = neteaseService.topSong(areaId, limit, offset, total);
         return Response.ok(dict);
     }
 }

@@ -1,25 +1,23 @@
 package com.happycoding.music.util;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.Dict;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.happycoding.music.common.model.ResponseCode;
 import com.happycoding.music.model.NeteaseOption;
 import com.happycoding.music.model.NeteaseResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -97,33 +95,35 @@ public class NeteaseRequestUtil {
         } else if(NeteaseCryptoUtil.EAPI_TYPE.equals(options.getCrypto())){
             Map<String,String> cookie = options.getCookie();
             Map<String, Object> eHeader = new HashMap<>();
-            header.put("osver", cookie.get("osver"));
-            header.put("deviceId", cookie.get("deviceId"));
-            header.put("appver", cookie.getOrDefault("appver", "8.0.0"));
-            header.put("versioncode", cookie.getOrDefault("versioncode", "140"));
-            header.put("mobilename", cookie.get("mobilename"));
-            header.put("buildver", cookie.getOrDefault("buildver", DateUtil.today()));
-            header.put("resolution", cookie.getOrDefault("resolution", "1920x1080"));
-            header.put("__csrf", cookie.get("__csrf"));
-            header.put("os", cookie.getOrDefault("os", "android"));
-            header.put("channel", cookie.get("channel"));
-            header.put("requestId", StrUtil.format("{}_{}",DateUtil.now(),
+            eHeader.put("osver", cookie.get("osver"));
+            eHeader.put("deviceId", cookie.get("deviceId"));
+            eHeader.put("appver", cookie.getOrDefault("appver", "8.0.0"));
+            eHeader.put("versioncode", cookie.getOrDefault("versioncode", "140"));
+            eHeader.put("mobilename", cookie.get("mobilename"));
+            eHeader.put("buildver", cookie.getOrDefault("buildver", DateUtil.today()));
+            eHeader.put("resolution", cookie.getOrDefault("resolution", "1920x1080"));
+            eHeader.put("__csrf", cookie.get("__csrf"));
+            eHeader.put("os", cookie.getOrDefault("os", "android"));
+            eHeader.put("channel", cookie.get("channel"));
+            eHeader.put("requestId", StrUtil.format("{}_{}",DateUtil.now(),
                     StrUtil.padPre(String.valueOf(RandomUtil.randomInt(1000)), 4, '0')));
             if(cookie.containsKey("MUSIC_U")){
-                header.put("MUSIC_U", cookie.get("MUSIC_U"));
+                eHeader.put("MUSIC_U", cookie.get("MUSIC_U"));
             }
             if(cookie.containsKey("MUSIC_A")){
-                header.put("MUSIC_A", cookie.get("MUSIC_A"));
+                eHeader.put("MUSIC_A", cookie.get("MUSIC_A"));
             }
-            StringBuilder sb = new StringBuilder();
-            for (Map.Entry<String,String> entry: options.getCookie().entrySet()) {
-                sb.append(entry.getKey());
-                sb.append("=");
-                sb.append(entry.getValue());
-                sb.append(";");
+            if(options.getCookie() != null && !options.getCookie().isEmpty()){
+                StringBuilder sb = new StringBuilder();
+                for (Map.Entry<String,String> entry: options.getCookie().entrySet()) {
+                    sb.append(entry.getKey());
+                    sb.append("=");
+                    sb.append(entry.getValue());
+                    sb.append(";");
+                }
+                eHeader.put("Cookie", sb.substring(0, sb.length() - 1));
             }
-            header.put("Cookie", sb.substring(0, sb.length() - 1));
-            data.put("header", header);
+            data.put("header", eHeader);
             param = NeteaseCryptoUtil.eapi(options.getUrl(), data);
             finalUrl = finalUrl.replaceAll("\\w*api","eapi");
         }
@@ -143,12 +143,13 @@ public class NeteaseRequestUtil {
             }
             response.setCookie(cookies);
 
-            JSONObject bodyJson = null;
-            if(NeteaseCryptoUtil.EAPI_TYPE.equals(options.getCrypto())){
-                bodyJson = JSON.parseObject(NeteaseCryptoUtil.eapiDecrypt(body));
-            } else {
-                bodyJson = JSON.parseObject(body);
-            }
+            JSONObject bodyJson = JSON.parseObject(body);
+            //暂时没发现eapi需要解密
+//            if(NeteaseCryptoUtil.EAPI_TYPE.equals(options.getCrypto())){
+//                bodyJson = JSON.parseObject(NeteaseCryptoUtil.eapiDecrypt(body));
+//            } else {
+//                bodyJson = JSON.parseObject(body);
+//            }
 
             response.setCode(bodyJson.containsKey("code")? bodyJson.getInteger("code") :
                     responseEntity.getStatusCodeValue());
@@ -158,7 +159,7 @@ public class NeteaseRequestUtil {
 
             response.setCode(100 < response.getCode() && response.getCode() < 600 ? response.getCode() : 400);
             if(response.getCode() == 200){
-                response.setBody(JSON.parseObject(JSON.toJSONString(bodyJson.get("data")), List.class));
+                response.setBody(bodyJson);
             }
             return response;
         } catch (Exception e) {

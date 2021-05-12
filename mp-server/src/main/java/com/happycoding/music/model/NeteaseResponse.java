@@ -1,7 +1,6 @@
 package com.happycoding.music.model;
 
-import cn.hutool.core.lang.Dict;
-import cn.hutool.json.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 
 import java.util.List;
@@ -20,5 +19,5 @@ public class NeteaseResponse {
 
     private List<String> cookie;
 
-    private Object body;
+    private JSONObject body;
 }
