@@ -1,8 +1,10 @@
 package com.happycoding.music.util;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Preconditions;
 import com.happycoding.music.common.model.ResponseCode;
 import com.happycoding.music.model.MiguOption;
 import com.happycoding.music.model.MiguResponse;
@@ -10,10 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author: zjf
@@ -48,26 +53,22 @@ public class MiguRequestUtil {
             // Linux 就算了
     };
 
-    public static MiguResponse getResoponse(String method, String url, Map data, MiguOption options){
-        Map<String, String> header = options.getHeader() != null? options.getHeader() : new HashMap<>();
+    public static MiguResponse getResoponse(String method, String url, Map data){
+        Map<String, String> header = new HashMap<>();
         Map<String, Object> param = data;
         MiguResponse response = new MiguResponse();
         try {
             header.put("User-Agent", userAgentList[RandomUtil.randomInt(userAgentList.length)]);
             if(!header.containsKey("Referer")){
-                header.put("Referer", "http://m.music.migu.cn/v3");
+                header.put("Referer", "https://m.music.migu.cn/");
             }
 
-            String finalUrl = url;
+            String finalUrl = handleUrlParameters(url, param);
             ResponseEntity<String> responseEntity = null;
-            if("POST".equals(method.toUpperCase())){
-                responseEntity = RestTemplateUtils.post(finalUrl, header, getParams(param), String.class, new HashMap<>());
-            } else {
-                responseEntity = RestTemplateUtils.get(finalUrl, header, String.class, param);
-            }
+            responseEntity = RestTemplateUtils.get(finalUrl, header, String.class, param);
 
             String body = responseEntity.getBody();
-            body = body.replaceAll("/callback\\(|MusicJsonCallback\\(|jsonCallback\\(|\\)$/g", "");
+//            body = body.replaceAll("/callback\\(|MusicJsonCallback\\(|jsonCallback\\(|\\)$/g", "");
             JSONObject bodyJson = JSON.parseObject(body);
 
             response.setCode(200);
@@ -81,13 +82,24 @@ public class MiguRequestUtil {
         }
     }
 
-    private static MultiValueMap<String, Object> getParams(Map<String, Object> param) {
-        MultiValueMap<String, Object> ret = new LinkedMultiValueMap<>();
-        for (Map.Entry<String, Object> entry : param.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            ret.put(key, Collections.singletonList(value));
+    /**
+     * 拼接get参数
+     *
+     * @param baseUrl      baseUrl
+     * @param parameterMap parameter map
+     **/
+    private static String handleUrlParameters(String baseUrl, Map<String, Object> parameterMap) {
+        Preconditions.checkArgument(StringUtils.hasText(baseUrl), "Error: url不能为空");
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        if (CollectionUtil.isNotEmpty(parameterMap)) {
+            parameterMap.forEach((key, value) -> {
+                if(Objects.nonNull(value)){
+                    params.put(key, Collections.singletonList(String.valueOf(value)));
+                }
+            });
         }
-        return ret;
+        return builder.queryParams(params).build().encode().toUriString();
     }
 }

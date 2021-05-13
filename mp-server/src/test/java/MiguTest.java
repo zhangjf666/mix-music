@@ -26,4 +26,46 @@ public class MiguTest {
         Object dict = service.personalized(1,100, "1");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
+
+    //歌单信息
+    @Test
+    public void playListTest(){
+        Object dict = service.playList("179812779");
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //歌单中歌曲信息
+    @Test
+    public void playListSongsTest(){
+        Object dict = service.playListSongs("179812779", 30);
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //获取歌词
+    @Test
+    public void lyricTest(){
+        Object dict = service.lyric("6005663ENDM");
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //搜索
+    @Test
+    public void searchTest(){
+        Object dict = service.search("吻别", 2, 30, 1);
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //歌曲信息
+    @Test
+    public void songTest(){
+        Object dict = service.song("6005663ENDM");
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //歌曲url
+    @Test
+    public void songUrlTest(){
+        Object dict = service.songUrl("6005663ENDM");
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
 }
