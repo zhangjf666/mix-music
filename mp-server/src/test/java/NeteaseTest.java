@@ -15,7 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @SpringBootTest(classes = MusicServerApplication.class)
 @RunWith(SpringJUnit4ClassRunner.class)
-public class RequestTest {
+public class NeteaseTest {
 
     @Autowired
     private NeteaseService neteaseService;
