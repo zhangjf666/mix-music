@@ -44,7 +44,7 @@ public class NeteaseTest {
     //歌单详情
     @Test
     public void topPlayListDetailTest(){
-        Object dict = neteaseService.playListDetail(6747879769L);
+        Object dict = neteaseService.playListDetail("6752075988");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
@@ -58,14 +58,14 @@ public class NeteaseTest {
     //歌曲详情
     @Test
     public void songDetailTest(){
-        Object dict = neteaseService.songDetail(new Long[]{1433934518L});
+        Object dict = neteaseService.songDetail("441491828");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
     //歌曲url
     @Test
     public void songUrlTest(){
-        Object dict = neteaseService.songUrl(new Long[]{1433934518L});
+        Object dict = neteaseService.songUrl(new String[]{"441491828"});
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 

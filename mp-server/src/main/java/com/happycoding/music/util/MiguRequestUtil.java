@@ -54,6 +54,10 @@ public class MiguRequestUtil {
     };
 
     public static MiguResponse getResoponse(String method, String url, Map data){
+        return getResoponse(method, url, data, false);
+    }
+
+    public static MiguResponse getResoponse(String method, String url, Map data, boolean isRaw){
         Map<String, String> header = new HashMap<>();
         Map<String, Object> param = data;
         MiguResponse response = new MiguResponse();
@@ -69,7 +73,14 @@ public class MiguRequestUtil {
 
             String body = responseEntity.getBody();
 //            body = body.replaceAll("/callback\\(|MusicJsonCallback\\(|jsonCallback\\(|\\)$/g", "");
-            JSONObject bodyJson = JSON.parseObject(body);
+            JSONObject bodyJson = null;
+            if(isRaw){
+                bodyJson = new JSONObject();
+                bodyJson.put("code", 200);
+                bodyJson.put("html", body);
+            } else {
+                bodyJson = JSON.parseObject(body);
+            }
 
             response.setCode(200);
             response.setBody(bodyJson);

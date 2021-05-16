@@ -1,7 +1,12 @@
 package com.happycoding.music.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.happycoding.music.common.exception.BusinessException;
+import com.happycoding.music.dto.PlayListDto;
+import com.happycoding.music.dto.SongInfoDto;
+import com.happycoding.music.model.MusicPlatform;
 import com.happycoding.music.model.NeteaseOption;
 import com.happycoding.music.model.NeteaseResponse;
 import com.happycoding.music.util.NeteaseRequestUtil;
@@ -27,7 +32,7 @@ public class NeteaseService {
      * @param limit
      * @return
      */
-    public Object personalized(Integer limit){
+    public List<PlayListDto> personalized(Integer limit){
         Map<String, Object> data = new HashMap<>();
         data.put("limit", limit != null ? limit : 30);
         data.put("total", true);
@@ -39,7 +44,25 @@ public class NeteaseService {
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://music.163.com/weapi/personalized/playlist", data, option);
         checkError(response);
-        return response.getBody();
+
+        JSONArray list = response.getBody().getJSONArray("result");
+        List<PlayListDto> playList = new ArrayList<>();
+        if(list == null || list.isEmpty()){
+            return playList;
+        }
+        for (Object o : list) {
+            JSONObject jo = (JSONObject)o;
+            PlayListDto dto = new PlayListDto();
+            dto.setMusicPlatform(MusicPlatform.Netease);
+            dto.setId(jo.getString("id"));
+            dto.setName(jo.getString("name"));
+            dto.setPicUrl(jo.getString("picUrl"));
+            dto.setSummary(jo.getString("copywriter"));
+            dto.setPlayCount(jo.getLong("playCount"));
+            dto.setTrackCount(jo.getLong("trackCount"));
+            playList.add(dto);
+        }
+        return playList;
     }
 
     /**
@@ -47,7 +70,7 @@ public class NeteaseService {
      * @param id
      * @return
      */
-    public Object lyric(Long id){
+    public JSONObject lyric(Long id){
         Map<String, Object> data = new HashMap<>();
         data.put("id", id);
         data.put("lv", -1);
@@ -69,7 +92,7 @@ public class NeteaseService {
      * @param type
      * @return
      */
-    public Object searchMultiMatch(String keywords,String type){
+    public JSONObject searchMultiMatch(String keywords,String type){
         Map<String, Object> data = new HashMap<>();
         data.put("s", keywords);
         data.put("type", type);
@@ -89,7 +112,7 @@ public class NeteaseService {
      * @param type
      * @return
      */
-    public Object searchSuggest(String keywords,String type){
+    public JSONObject searchSuggest(String keywords,String type){
         Map<String, Object> data = new HashMap<>();
         data.put("s", keywords);
 
@@ -107,7 +130,7 @@ public class NeteaseService {
      * 热搜列表(详细)
      * @return
      */
-    public Object searchHotDetail(){
+    public JSONObject searchHotDetail(){
         Map<String, Object> data = new HashMap<>();
 
         NeteaseOption option = new NeteaseOption();
@@ -128,7 +151,7 @@ public class NeteaseService {
      * @param total
      * @return
      */
-    public Object cloudSearch(String keywords, String type, long limit, long offset, boolean total){
+    public JSONObject cloudSearch(String keywords, String type, long limit, long offset, boolean total){
         Map<String, Object> data = new HashMap<>();
         data.put("s", keywords);
         data.put("type", StringUtils.isNotBlank(type) ? type : "1");
@@ -150,7 +173,7 @@ public class NeteaseService {
      * @param ids
      * @return
      */
-    public Object songUrl(Long[] ids){
+    public JSONObject songUrl(String[] ids){
         Map<String, Object> data = new HashMap<>();
         data.put("ids", ids);
         data.put("br", 999000);
@@ -170,10 +193,11 @@ public class NeteaseService {
      * @param ids
      * @return
      */
-    public Object songDetail(Long[] ids){
-        List<Map<String,Long>> idsd = new ArrayList<>();
-        for (Long id:ids) {
-            Map<String, Long> song = new HashMap<>();
+    public List<SongInfoDto> songDetail(String ids){
+        List<Map<String,String>> idsd = new ArrayList<>();
+        String[] songIds = ids.split(",");
+        for (String id:songIds) {
+            Map<String, String> song = new HashMap<>();
             song.put("id", id);
             idsd.add(song);
         }
@@ -187,7 +211,29 @@ public class NeteaseService {
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://music.163.com/api/v3/song/detail", data, option);
         checkError(response);
-        return response.getBody();
+
+        JSONArray songs = response.getBody().getJSONArray("songs");
+        if(songs != null && !songs.isEmpty()){
+            List<SongInfoDto> songInfos = new ArrayList<>();
+            for (int i = 0; i < songs.size(); i++) {
+                JSONObject song = songs.getJSONObject(i);
+                SongInfoDto info = new SongInfoDto();
+                info.setId(song.getString("id"));
+                info.setDuration(song.getLong("dt"));
+                info.setMusicPlatform(MusicPlatform.Netease);
+                info.setName(song.getString("name"));
+                info.setSingerId(song.getJSONArray("ar").getJSONObject(0).getString("id"));
+                info.setSingerName(song.getJSONArray("ar").getJSONObject(0).getString("name"));
+                if(song.containsKey("al") && song.getJSONObject("al") != null){
+                    info.setPicUrl(song.getJSONObject("al").getString("picUrl"));
+                    info.setAlbumId(song.getJSONObject("al").getString("id"));
+                    info.setAlbumName(song.getJSONObject("al").getString("name"));
+                }
+                songInfos.add(info);
+            }
+            return songInfos;
+        }
+        return null;
     }
 
     /**
@@ -195,7 +241,7 @@ public class NeteaseService {
      * @param id
      * @return
      */
-    public Object checkMusic(Long[] id){
+    public JSONObject checkMusic(Long[] id){
         Map<String, Object> data = new HashMap<>();
         data.put("ids", id);
         data.put("br", 999000);
@@ -214,7 +260,7 @@ public class NeteaseService {
      * @param id
      * @return
      */
-    public Object playListDetail(Long id){
+    public JSONObject playListDetail(String id){
         Map<String, Object> data = new HashMap<>();
         data.put("id", id);
         data.put("n", 100000);
@@ -237,7 +283,7 @@ public class NeteaseService {
      * @param total
      * @return
      */
-    public Object topPlayListHighquality(String cat, int limit, int before, boolean total){
+    public JSONObject topPlayListHighquality(String cat, int limit, int before, boolean total){
         Map<String, Object> data = new HashMap<>();
         data.put("cat", cat);
         data.put("limit", limit);
@@ -262,7 +308,7 @@ public class NeteaseService {
      * @param total
      * @return
      */
-    public Object topPlayList(String cat, String order, int limit, int offset, boolean total){
+    public JSONObject topPlayList(String cat, String order, int limit, int offset, boolean total){
         Map<String, Object> data = new HashMap<>();
         data.put("cat", cat);
         data.put("order", order);
@@ -287,7 +333,7 @@ public class NeteaseService {
      * @param total
      * @return
      */
-    public Object topSong(int areaId, int limit, int offset, boolean total){
+    public JSONObject topSong(int areaId, int limit, int offset, boolean total){
         Map<String, Object> data = new HashMap<>();
         data.put("areaId", areaId);
         data.put("limit", limit);
