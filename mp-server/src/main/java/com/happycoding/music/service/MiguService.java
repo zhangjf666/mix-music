@@ -6,9 +6,10 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.happycoding.music.common.exception.BusinessException;
+import com.happycoding.music.dto.PlayListDetailDto;
 import com.happycoding.music.dto.PlayListDto;
 import com.happycoding.music.dto.SongInfoDto;
-import com.happycoding.music.model.MiguOption;
+import com.happycoding.music.dto.SongUrlDto;
 import com.happycoding.music.model.MiguResponse;
 import com.happycoding.music.model.MusicPlatform;
 import com.happycoding.music.util.MiguRequestUtil;
@@ -43,7 +44,7 @@ public class MiguService {
      * 搜索
      * @return
      */
-    public JSONObject search(String keyword, int type, int rows, int pgc){
+    public List<SongInfoDto> search(String keyword, int type, int rows, int pgc){
         Map<String, Object> param = new HashMap<>();
         param.put("keyword", keyword);
         param.put("rows", rows);
@@ -53,7 +54,25 @@ public class MiguService {
         MiguResponse response = MiguRequestUtil.getResoponse("GET",
                 "https://m.music.migu.cn/migu/remoting/scr_search_tag", param);
         checkError(response);
-        return response.getBody();
+
+        JSONArray musics = response.getBody().getJSONArray("musics");
+        List<SongInfoDto> songInfoDtoList = new ArrayList<>();
+        if(musics != null && !musics.isEmpty()){
+            for (int i = 0; i < musics.size(); i++) {
+                JSONObject song = musics.getJSONObject(i);
+                SongInfoDto info = new SongInfoDto();
+                info.setId(song.getString("copyrightId"));
+                info.setName(song.getString("songName"));
+                info.setAlbumId(song.getString("albumId"));
+                info.setAlbumName(song.getString("albumName"));
+                info.setSingerId(song.getString("singerId"));
+                info.setSingerName(song.getString("singerName"));
+                info.setPicUrl(song.getString("cover"));
+                info.setMusicPlatform(MusicPlatform.Migu);
+                songInfoDtoList.add(info);
+            }
+        }
+        return songInfoDtoList;
     }
 
     /**
@@ -62,7 +81,7 @@ public class MiguService {
      * @param br 品质(LQ,HQ,SQ,ZQ)
      * @return
      */
-    public JSONObject songUrl(String cid, String br){
+    public SongUrlDto songUrl(String cid, String br){
         Map<String, Object> param = new HashMap<>();
         param.put("copyrightId", cid);
         param.put("resourceType", 2);
@@ -73,31 +92,33 @@ public class MiguService {
 
         JSONArray data = response.getBody().getJSONArray("resource");
         JSONObject res = data.getJSONObject(0);
-        String url = "";
+        SongUrlDto dto = new SongUrlDto();
+        dto.setBr(br);
         JSONArray rateFormats = res.getJSONArray("newRateFormats");
         if(rateFormats == null || rateFormats.isEmpty()){
             rateFormats = res.getJSONArray("rateFormats");
         }
-        url = findUrl(rateFormats, br);
-        System.out.println(url);
-        return response.getBody();
+        findUrl(rateFormats, dto);
+        return dto;
     }
 
-    private String findUrl(JSONArray rateFormats, String br){
+    private void findUrl(JSONArray rateFormats, SongUrlDto dto){
         String url = "";
         String insteadUrl = "https://freetyst.nf.migu.cn";
         String reg = "ftp://(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d):\\d+";
         for (Object rate: rateFormats) {
             JSONObject obj = (JSONObject)rate;
             String formatType = obj.getString("formatType");
-            if(br.equals(formatType)){
+            if(dto.getBr().equals(formatType)){
                 url = obj.getString("url").replaceAll(reg,insteadUrl);
+                dto.setUrl(url);
+                break;
             }
         }
-        if(StringUtils.isBlank(url) && !"LQ".equals(br)){
-            url = findUrl(rateFormats, getPreBr(br));
+        if(StringUtils.isBlank(url) && !"LQ".equals(dto.getBr())){
+            dto.setBr(getPreBr(dto.getBr()));
+            findUrl(rateFormats, dto);
         }
-        return url;
     }
 
     private String getPreBr(String br){
@@ -123,7 +144,7 @@ public class MiguService {
      * 获取歌曲信息
      * @return
      */
-    public List<SongInfoDto> song(String cids){
+    public List<SongInfoDto> songInfo(String cids){
         Map<String, Object> param = new HashMap<>();
         param.put("copyrightId", cids);
         param.put("type", 1);
@@ -132,47 +153,49 @@ public class MiguService {
                 "https://music.migu.cn/v3/api/music/audioPlayer/songs", param);
         checkError(response);
 
-        JSONArray songs = response.getBody().getJSONArray("items");
-        if(songs != null && !songs.isEmpty()){
+        JSONArray msongs =  response.getBody().getJSONArray("items");
+        if(msongs != null && !msongs.isEmpty()) {
             List<SongInfoDto> songInfos = new ArrayList<>();
-            for (int i = 0; i <songs.size() ; i++) {
-                JSONObject song = songs.getJSONObject(i);
-                SongInfoDto info = new SongInfoDto();
-                info.setId(song.getString("copyrightId"));
+            for (int i = 0; i < msongs.size(); i++) {
+                JSONObject song = msongs.getJSONObject(i);
+                SongInfoDto sid = new SongInfoDto();
+                sid.setId(song.getString("copyrightId"));
                 DateTime length = DateUtil.parseTime(song.getString("length"));
                 int duration = length.minute() * 60000 + length.second() * 1000 + length.millsecond();
-                info.setDuration(duration);
-                info.setMusicPlatform(MusicPlatform.Migu);
-                info.setName(song.getString("songName"));
+                sid.setDuration(duration);
+                sid.setMusicPlatform(MusicPlatform.Migu);
+                sid.setName(song.getString("songName"));
 
                 JSONObject singer = song.getJSONArray("singers").getJSONObject(0);
-                info.setSingerId(singer.getString("artistId"));
-                info.setSingerName(singer.getString("artistName"));
+                sid.setSingerId(singer.getString("artistId"));
+                sid.setSingerName(singer.getString("artistName"));
 
-                if(song.containsKey("albums") && song.getJSONArray("albums") != null && !song.getJSONArray("albums").isEmpty()){
+                if (song.containsKey("albums") && song.getJSONArray("albums") != null && !song.getJSONArray("albums").isEmpty()) {
                     JSONObject albums = song.getJSONArray("albums").getJSONObject(0);
-                    info.setAlbumId(albums.getString("albumId"));
-                    info.setAlbumName(albums.getString("albumName"));
+                    sid.setAlbumId(albums.getString("albumId"));
+                    sid.setAlbumName(albums.getString("albumName"));
                 }
-                songInfos.add(info);
+                songInfos.add(sid);
             }
             return songInfos;
         }
-        return null;
+        return new ArrayList<>();
     }
 
     /**
-     * 获取歌单中歌曲信息
+     * 获取歌曲详情(包括url和歌词)
+     * @param songInfo 歌曲信息
      * @return
      */
-    public JSONObject playListDetails(String id, int limit){
-        Map<String, Object> param = new HashMap<>();
-        param.put("playListType", 2);
-        param.put("playListId", id);
-        param.put("contentCount", limit);
-        String url = "https://m.music.migu.cn/migu/remoting/playlistcontents_query_tag";
-
-        return null;
+    public SongInfoDto songDetail(SongInfoDto songInfo){
+        //获取url
+        SongUrlDto urlDto = songUrl(songInfo.getId(), "HQ");
+        songInfo.setUrl(urlDto.getUrl());
+        songInfo.setBr(urlDto.getBr());
+        //获取歌词
+        String lyric = lyric(songInfo.getId());
+        songInfo.setLyric(lyric);
+        return songInfo;
     }
 
     private List<String> songCidInPlayList(String playListId, int contentCount){
@@ -198,7 +221,7 @@ public class MiguService {
      * 获取歌单信息
      * @return
      */
-    public JSONObject playList(String id){
+    public PlayListDetailDto playListDetail(String id){
         Map<String,Object> param = new HashMap<>();
         param.put("playListId", id);
 
@@ -208,28 +231,34 @@ public class MiguService {
 
         String code = response.getBody().getJSONObject("rsp").getString("code");
         if("000000".equals(code)){
+            PlayListDetailDto playListDetailDto = new PlayListDetailDto();
             JSONObject playList = response.getBody().getJSONObject("rsp").getJSONArray("playList").getJSONObject(0);
+            PlayListDto playListDto = getPlayListDto(playList);
+            playListDetailDto.setPlayList(playListDto);
+
             int contentCount = playList.getInteger("contentCount");
             List<String> cids = songCidInPlayList(id, contentCount);
             String cidsStr = String.join(",", cids);
-            List<SongInfoDto> songInfos = song(cidsStr);
-            return response.getBody();
+            List<SongInfoDto> songInfos = songInfo(cidsStr);
+            playListDetailDto.setSongInfo(songInfos);
+            return playListDetailDto;
         }
-        return response.getBody();
+        return null;
     }
 
     /**
      * 获取歌词
      * @return
      */
-    public JSONObject lyric(String cid){
+    public String lyric(String cid){
         Map<String,Object> param = new HashMap<>();
         param.put("copyrightId", cid);
 
         MiguResponse response = MiguRequestUtil.getResoponse("GET",
                 "http://music.migu.cn/v3/api/music/audioPlayer/getLyric", param);
         checkError(response);
-        return response.getBody();
+        String lyric = response.getBody().getString("lyric");
+        return lyric;
     }
 
     /**
@@ -256,16 +285,26 @@ public class MiguService {
         }
         for (Object o : list) {
             JSONObject jo = (JSONObject)o;
-            PlayListDto dto = new PlayListDto();
-            dto.setMusicPlatform(MusicPlatform.Migu);
-            dto.setId(jo.getString("playListId"));
-            dto.setName(jo.getString("playListName"));
-            dto.setPicUrl(jo.getString("image"));
-            dto.setSummary(jo.getString("summary"));
-            dto.setPlayCount(jo.getLong("playCount"));
-            dto.setTrackCount(jo.getLong("contentCount"));
+            PlayListDto dto = getPlayListDto(jo);
             playList.add(dto);
         }
         return playList;
+    }
+
+    /**
+     * 提取歌单信息
+     * @param jo
+     * @return
+     */
+    private PlayListDto getPlayListDto(JSONObject jo) {
+        PlayListDto dto = new PlayListDto();
+        dto.setMusicPlatform(MusicPlatform.Migu);
+        dto.setId(jo.getString("playListId"));
+        dto.setName(jo.getString("playListName"));
+        dto.setPicUrl(jo.getString("image"));
+        dto.setSummary(jo.getString("summary"));
+        dto.setPlayCount(jo.getLong("playCount"));
+        dto.setTrackCount(jo.getLong("contentCount"));
+        return dto;
     }
 }

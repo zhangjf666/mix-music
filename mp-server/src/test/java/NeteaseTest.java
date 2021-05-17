@@ -44,7 +44,7 @@ public class NeteaseTest {
     //歌单详情
     @Test
     public void topPlayListDetailTest(){
-        Object dict = neteaseService.playListDetail("6752075988");
+        Object dict = neteaseService.playListDetail("6676993022");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
@@ -58,21 +58,21 @@ public class NeteaseTest {
     //歌曲详情
     @Test
     public void songDetailTest(){
-        Object dict = neteaseService.songDetail("441491828");
+        Object dict = neteaseService.songInfo("441491828");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
     //歌曲url
     @Test
     public void songUrlTest(){
-        Object dict = neteaseService.songUrl(new String[]{"441491828"});
+        Object dict = neteaseService.songUrl(new String[]{"307472"});
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
     //搜索
     @Test
     public void cloudSearchTest(){
-        Object dict = neteaseService.cloudSearch("吻别", "1", 30, 0, true);
+        Object dict = neteaseService.cloudSearch("一天 许巍", "1", 30, 0, true);
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
@@ -100,7 +100,7 @@ public class NeteaseTest {
     //歌词
     @Test
     public void lyricTest(){
-        Object dict = neteaseService.lyric(5249737L);
+        Object dict = neteaseService.lyric("5249737");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 

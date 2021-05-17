@@ -1,6 +1,7 @@
 package com.happycoding.music.controller;
 
 import com.happycoding.music.common.model.Response;
+import com.happycoding.music.dto.PlayListDetailDto;
 import com.happycoding.music.dto.PlayListDto;
 import com.happycoding.music.dto.SongInfoDto;
 import com.happycoding.music.model.MusicPlatform;
@@ -21,7 +22,7 @@ import java.util.List;
 /**
  * @Author: zjf
  * @Email: junfeng1987@163.com
- * @Description:
+ * @Description: 歌曲平台接口
  * @Date: 2021/5/10 11:04
  */
 @Slf4j
@@ -51,27 +52,98 @@ public class PlatformController {
                 playList.addAll(neteaseService.personalized(30));
                 playList.addAll(miguService.personalized(1, 30, "1"));
                 break;
-
         }
         return Response.ok(playList);
     }
 
-    @ApiOperation("歌曲信息")
-    @GetMapping("/song")
-    public Response<List<SongInfoDto>> getRecommendPlayList(String songIds, MusicPlatform musicPlatform){
-        List<SongInfoDto> info = new ArrayList<>();
+    @ApiOperation("歌单信息")
+    @GetMapping("/playlist")
+    public Response<PlayListDetailDto> getPlayListDetail(String playListId, MusicPlatform musicPlatform){
+        PlayListDetailDto playListDetail = null;
         switch (musicPlatform){
             case Netease:
-                info = neteaseService.songDetail(songIds);
+                playListDetail = neteaseService.playListDetail(playListId);
                 break;
             case Migu:
-                info = miguService.song(songIds);
+                playListDetail = miguService.playListDetail(playListId);
                 break;
             case All:
             default:
                 break;
 
         }
-        return Response.ok(info);
+        return Response.ok(playListDetail);
+    }
+
+    @ApiOperation("歌曲信息")
+    @GetMapping("/song")
+    public Response<List<SongInfoDto>> getSongInfo(String songIds, MusicPlatform musicPlatform){
+        List<SongInfoDto> songInfoDtoList = new ArrayList<>();
+        switch (musicPlatform){
+            case Netease:
+                songInfoDtoList = neteaseService.songInfo(songIds);
+                break;
+            case Migu:
+                songInfoDtoList = miguService.songInfo(songIds);
+                break;
+            case All:
+            default:
+                break;
+        }
+        return Response.ok(songInfoDtoList);
+    }
+
+    @ApiOperation("获取歌词")
+    @GetMapping("/lyric")
+    public Response<String> getLyric(String songId, MusicPlatform musicPlatform){
+        String lyric = "";
+        switch (musicPlatform){
+            case Netease:
+                lyric = neteaseService.lyric(songId);
+                break;
+            case Migu:
+                lyric = miguService.lyric(songId);
+                break;
+            case All:
+            default:
+                break;
+        }
+        return Response.ok(lyric);
+    }
+
+    @ApiOperation("获取歌曲详情(包括url和歌词)")
+    @GetMapping("/songDetail")
+    public Response<SongInfoDto> getSongDetail(SongInfoDto songInfo){
+        switch (songInfo.getMusicPlatform()){
+            case Netease:
+                songInfo = neteaseService.songDetail(songInfo);
+                break;
+            case Migu:
+                songInfo = miguService.songDetail(songInfo);
+                break;
+            case All:
+            default:
+                break;
+        }
+        return Response.ok(songInfo);
+    }
+
+    @ApiOperation("搜索")
+    @GetMapping("/search")
+    public Response<List<SongInfoDto>> search(String keyword, MusicPlatform musicPlatform){
+        List<SongInfoDto> songInfoDtoList = new ArrayList<>();
+        switch (musicPlatform){
+            case Netease:
+                songInfoDtoList.addAll(neteaseService.cloudSearch(keyword, "1", 30, 0, true));
+                break;
+            case Migu:
+                songInfoDtoList.addAll(miguService.search(keyword,2, 30, 3));
+                break;
+            case All:
+            default:
+                songInfoDtoList.addAll(miguService.search(keyword,2, 30, 3));
+                break;
+        }
+        return Response.ok(songInfoDtoList);
     }
 }

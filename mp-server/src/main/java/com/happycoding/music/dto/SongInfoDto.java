@@ -50,7 +50,7 @@ public class SongInfoDto {
     /**
      * 歌词
      */
-    String lyricUrl;
+    String lyric;
 
     /**
      * 属于哪个平台

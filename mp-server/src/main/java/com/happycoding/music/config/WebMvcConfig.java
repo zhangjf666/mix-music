@@ -101,6 +101,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addConverter(localDateTimeConverter());
         registry.addConverter(localDateConverter());
         registry.addConverter(localTimeConverter());
+        registry.addConverterFactory(enumConvertFactory());
+    }
+
+    @Bean
+    public EnumConvertFactory enumConvertFactory(){
+        return new EnumConvertFactory();
     }
 
     /**

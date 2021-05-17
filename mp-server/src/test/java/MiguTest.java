@@ -30,14 +30,7 @@ public class MiguTest {
     //歌单信息
     @Test
     public void playListTest(){
-        Object dict = service.playList("179730639");
-        System.out.println(JSONUtil.toJsonStr(dict));
-    }
-
-    //歌单中歌曲信息
-    @Test
-    public void playListSongsTest(){
-        Object dict = service.playListDetails("179730639", 30);
+        Object dict = service.playListDetail("179730639");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
@@ -51,21 +44,21 @@ public class MiguTest {
     //搜索
     @Test
     public void searchTest(){
-        Object dict = service.search("吻别", 2, 30, 1);
+        Object dict = service.search("现在不跳舞要干嘛 徐佳莹", 2, 30, 1);
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
     //歌曲信息
     @Test
     public void songTest(){
-        Object dict = service.song("6005663ENDM");
+        Object dict = service.songInfo("6005751ECCD");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
     //歌曲url
     @Test
     public void songUrlTest(){
-        Object dict = service.songUrl("6005663ENDM", "HQ");
+        Object dict = service.songUrl("6005751ECCD", "HQ");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 }

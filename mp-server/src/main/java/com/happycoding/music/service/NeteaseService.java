@@ -1,9 +1,11 @@
 package com.happycoding.music.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.happycoding.music.common.exception.BusinessException;
+import com.happycoding.music.dto.PlayListDetailDto;
 import com.happycoding.music.dto.PlayListDto;
 import com.happycoding.music.dto.SongInfoDto;
 import com.happycoding.music.model.MusicPlatform;
@@ -11,6 +13,7 @@ import com.happycoding.music.model.NeteaseOption;
 import com.happycoding.music.model.NeteaseResponse;
 import com.happycoding.music.util.NeteaseRequestUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,6 +29,8 @@ import java.util.Map;
  */
 @Service
 public class NeteaseService {
+    @Autowired
+    private MiguService miguService;
 
     /**
      * 推荐歌单
@@ -45,8 +50,8 @@ public class NeteaseService {
                 "https://music.163.com/weapi/personalized/playlist", data, option);
         checkError(response);
 
-        JSONArray list = response.getBody().getJSONArray("result");
         List<PlayListDto> playList = new ArrayList<>();
+        JSONArray list = response.getBody().getJSONArray("result");
         if(list == null || list.isEmpty()){
             return playList;
         }
@@ -70,7 +75,7 @@ public class NeteaseService {
      * @param id
      * @return
      */
-    public JSONObject lyric(Long id){
+    public String lyric(String id){
         Map<String, Object> data = new HashMap<>();
         data.put("id", id);
         data.put("lv", -1);
@@ -83,7 +88,9 @@ public class NeteaseService {
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://music.163.com/api/song/lyric", data, option);
         checkError(response);
-        return response.getBody();
+
+        String lyric = response.getBody().getJSONObject("lrc").getString("lyric");
+        return lyric;
     }
 
     /**
@@ -151,7 +158,7 @@ public class NeteaseService {
      * @param total
      * @return
      */
-    public JSONObject cloudSearch(String keywords, String type, long limit, long offset, boolean total){
+    public List<SongInfoDto> cloudSearch(String keywords, String type, long limit, long offset, boolean total){
         Map<String, Object> data = new HashMap<>();
         data.put("s", keywords);
         data.put("type", StringUtils.isNotBlank(type) ? type : "1");
@@ -165,7 +172,17 @@ public class NeteaseService {
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://music.163.com/api/cloudsearch/pc", data, option);
         checkError(response);
-        return response.getBody();
+
+        JSONArray songs = response.getBody().getJSONArray("songs");
+        List<SongInfoDto> songInfoDtoList = new ArrayList<>();
+        if(songs != null && !songs.isEmpty()){
+            for (int i = 0; i < songs.size(); i++) {
+                JSONObject song = songs.getJSONObject(i);
+                SongInfoDto info = getSongInfo(song);
+                songInfoDtoList.add(info);
+            }
+        }
+        return songInfoDtoList;
     }
 
     /**
@@ -180,7 +197,7 @@ public class NeteaseService {
 
         NeteaseOption option = new NeteaseOption();
         option.setCrypto("eapi");
-        option.setUrl("/api/song/enhance/player/url");
+        option.setUrl("/api/songInfo/enhance/player/url");
 
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://interface3.music.163.com/eapi/song/enhance/player/url", data, option);
@@ -189,11 +206,11 @@ public class NeteaseService {
     }
 
     /**
-     * 歌曲详情
+     * 歌曲信息
      * @param ids
      * @return
      */
-    public List<SongInfoDto> songDetail(String ids){
+    public List<SongInfoDto> songInfo(String ids){
         List<Map<String,String>> idsd = new ArrayList<>();
         String[] songIds = ids.split(",");
         for (String id:songIds) {
@@ -212,28 +229,67 @@ public class NeteaseService {
                 "https://music.163.com/api/v3/song/detail", data, option);
         checkError(response);
 
+        List<SongInfoDto> songInfoDtoList = new ArrayList<>();
         JSONArray songs = response.getBody().getJSONArray("songs");
         if(songs != null && !songs.isEmpty()){
-            List<SongInfoDto> songInfos = new ArrayList<>();
             for (int i = 0; i < songs.size(); i++) {
                 JSONObject song = songs.getJSONObject(i);
-                SongInfoDto info = new SongInfoDto();
-                info.setId(song.getString("id"));
-                info.setDuration(song.getLong("dt"));
-                info.setMusicPlatform(MusicPlatform.Netease);
-                info.setName(song.getString("name"));
-                info.setSingerId(song.getJSONArray("ar").getJSONObject(0).getString("id"));
-                info.setSingerName(song.getJSONArray("ar").getJSONObject(0).getString("name"));
-                if(song.containsKey("al") && song.getJSONObject("al") != null){
-                    info.setPicUrl(song.getJSONObject("al").getString("picUrl"));
-                    info.setAlbumId(song.getJSONObject("al").getString("id"));
-                    info.setAlbumName(song.getJSONObject("al").getString("name"));
-                }
-                songInfos.add(info);
+                SongInfoDto sid = getSongInfo(song);
+                songInfoDtoList.add(sid);
             }
-            return songInfos;
         }
-        return null;
+        return songInfoDtoList;
+    }
+
+    /**
+     * 提取歌曲信息
+     * @param song
+     * @return
+     */
+    private SongInfoDto getSongInfo(JSONObject song) {
+        SongInfoDto info = new SongInfoDto();
+        //fee 为1和4代表没有播放权限,需要用migu平台替换
+        int fee = song.getInteger("fee");
+        if(fee == 1 || fee == 4){
+            String songName = song.getString("name");
+            String singerName = song.getJSONArray("ar").getJSONObject(0).getString("name");
+            String keyword = StrUtil.format("{} {}", songName, singerName);
+            List<SongInfoDto> list = miguService.search(keyword, 2, 30 , 1);
+            if(!list.isEmpty()){
+                SongInfoDto miguSong = list.get(0);
+                if(songName.equals(miguSong.getName()) && singerName.equals(miguSong.getSingerName())){
+                    return miguSong;
+                }
+            }
+        }
+        info.setId(song.getString("id"));
+        info.setDuration(song.getLong("dt"));
+        info.setMusicPlatform(MusicPlatform.Netease);
+        info.setName(song.getString("name"));
+        info.setSingerId(song.getJSONArray("ar").getJSONObject(0).getString("id"));
+        info.setSingerName(song.getJSONArray("ar").getJSONObject(0).getString("name"));
+        if (song.containsKey("al") && song.getJSONObject("al") != null) {
+            info.setPicUrl(song.getJSONObject("al").getString("picUrl"));
+            info.setAlbumId(song.getJSONObject("al").getString("id"));
+            info.setAlbumName(song.getJSONObject("al").getString("name"));
+        }
+        return info;
+    }
+
+    /**
+     * 获取歌曲详情(包括url和歌词)
+     * @param songInfo 歌曲信息
+     * @return
+     */
+    public SongInfoDto songDetail(SongInfoDto songInfo){
+        //获取url
+//        SongUrlDto urlDto = songUrl(songInfo.getId(), "HQ");
+//        songInfo.setUrl(urlDto.getUrl());
+//        songInfo.setBr(urlDto.getBr());
+//        //获取歌词
+//        String lyric = lyric(songInfo.getId());
+//        songInfo.setLyric(lyric);
+        return songInfo;
     }
 
     /**
@@ -260,7 +316,7 @@ public class NeteaseService {
      * @param id
      * @return
      */
-    public JSONObject playListDetail(String id){
+    public PlayListDetailDto playListDetail(String id){
         Map<String, Object> data = new HashMap<>();
         data.put("id", id);
         data.put("n", 100000);
@@ -272,7 +328,30 @@ public class NeteaseService {
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://music.163.com/api/v6/playlist/detail", data, option);
         checkError(response);
-        return response.getBody();
+
+        PlayListDetailDto playListDetail = new PlayListDetailDto();
+        JSONObject playlist = response.getBody().getJSONObject("playlist");
+        PlayListDto playListDto = new PlayListDto();
+        playListDto.setId(playlist.getString("id"));
+        playListDto.setName(playlist.getString("name"));
+        playListDto.setMusicPlatform(MusicPlatform.Netease);
+        playListDto.setPicUrl(playlist.getString("coverImgUrl"));
+        playListDto.setPlayCount(playlist.getLong("playCount"));
+        playListDto.setSummary(playlist.getString("description"));
+        playListDto.setTrackCount(playlist.getLong("trackCount"));
+        playListDetail.setPlayList(playListDto);
+
+        JSONArray tracks = playlist.getJSONArray("tracks");
+        List<SongInfoDto> songInfoList = new ArrayList<>();
+        if(tracks != null && !tracks.isEmpty()){
+            for (int i = 0; i <tracks.size() ; i++) {
+                JSONObject song = tracks.getJSONObject(i);
+                SongInfoDto info = getSongInfo(song);
+                songInfoList.add(info);
+            }
+        }
+        playListDetail.setSongInfo(songInfoList);
+        return playListDetail;
     }
 
     /**
