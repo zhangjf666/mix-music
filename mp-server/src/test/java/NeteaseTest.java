@@ -44,28 +44,21 @@ public class NeteaseTest {
     //歌单详情
     @Test
     public void topPlayListDetailTest(){
-        Object dict = neteaseService.playListDetail("6676993022");
-        System.out.println(JSONUtil.toJsonStr(dict));
-    }
-
-    //检查歌曲是否可用
-    @Test
-    public void checkMusicTest(){
-        Object dict = neteaseService.checkMusic(new Long[]{1807593354L});
+        Object dict = neteaseService.playListDetail("6732079402");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
     //歌曲详情
     @Test
     public void songDetailTest(){
-        Object dict = neteaseService.songInfo("441491828");
+        Object dict = neteaseService.songInfo("31140522");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
     //歌曲url
     @Test
     public void songUrlTest(){
-        Object dict = neteaseService.songUrl(new String[]{"307472"});
+        Object dict = neteaseService.songUrl("28978321");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 

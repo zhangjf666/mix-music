@@ -8,6 +8,7 @@ import com.happycoding.music.common.exception.BusinessException;
 import com.happycoding.music.dto.PlayListDetailDto;
 import com.happycoding.music.dto.PlayListDto;
 import com.happycoding.music.dto.SongInfoDto;
+import com.happycoding.music.dto.SongUrlDto;
 import com.happycoding.music.model.MusicPlatform;
 import com.happycoding.music.model.NeteaseOption;
 import com.happycoding.music.model.NeteaseResponse;
@@ -190,19 +191,36 @@ public class NeteaseService {
      * @param ids
      * @return
      */
-    public JSONObject songUrl(String[] ids){
+    public SongUrlDto songUrl(String ids){
         Map<String, Object> data = new HashMap<>();
-        data.put("ids", ids);
+        data.put("ids", ids.split(","));
         data.put("br", 999000);
 
         NeteaseOption option = new NeteaseOption();
         option.setCrypto("eapi");
-        option.setUrl("/api/songInfo/enhance/player/url");
+        option.setUrl("/api/song/enhance/player/url");
 
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://interface3.music.163.com/eapi/song/enhance/player/url", data, option);
         checkError(response);
-        return response.getBody();
+
+        SongUrlDto songUrl = new SongUrlDto();
+        JSONArray songs = response.getBody().getJSONArray("data");
+        if(songs != null && !songs.isEmpty()){
+            JSONObject song = songs.getJSONObject(0);
+            if(StringUtils.isNotBlank(song.getString("url"))){
+                songUrl.setUrl(song.getString("url"));
+            }
+            int br = song.getInteger("br");
+            if(br <= 128000){
+                songUrl.setBr("LQ");
+            } else if(br > 320000 && br < 640000){
+                songUrl.setBr("HQ");
+            } else {
+                songUrl.setBr("SQ");
+            }
+        }
+        return songUrl;
     }
 
     /**
@@ -250,7 +268,7 @@ public class NeteaseService {
         SongInfoDto info = new SongInfoDto();
         //fee 为1和4代表没有播放权限,需要用migu平台替换
         int fee = song.getInteger("fee");
-        if(fee == 1 || fee == 4){
+        if(!canPlay(fee)){
             String songName = song.getString("name");
             String singerName = song.getJSONArray("ar").getJSONObject(0).getString("name");
             String keyword = StrUtil.format("{} {}", songName, singerName);
@@ -276,6 +294,10 @@ public class NeteaseService {
         return info;
     }
 
+    private boolean canPlay(int fee){
+        return !(fee == 1 || fee == 4 || fee == 0);
+    }
+
     /**
      * 获取歌曲详情(包括url和歌词)
      * @param songInfo 歌曲信息
@@ -283,32 +305,13 @@ public class NeteaseService {
      */
     public SongInfoDto songDetail(SongInfoDto songInfo){
         //获取url
-//        SongUrlDto urlDto = songUrl(songInfo.getId(), "HQ");
-//        songInfo.setUrl(urlDto.getUrl());
-//        songInfo.setBr(urlDto.getBr());
-//        //获取歌词
-//        String lyric = lyric(songInfo.getId());
-//        songInfo.setLyric(lyric);
+        SongUrlDto urlDto = songUrl(songInfo.getId());
+        songInfo.setUrl(urlDto.getUrl());
+        songInfo.setBr(urlDto.getBr());
+        //获取歌词
+        String lyric = lyric(songInfo.getId());
+        songInfo.setLyric(lyric);
         return songInfo;
-    }
-
-    /**
-     * 检查歌曲是否可用
-     * @param id
-     * @return
-     */
-    public JSONObject checkMusic(Long[] id){
-        Map<String, Object> data = new HashMap<>();
-        data.put("ids", id);
-        data.put("br", 999000);
-
-        NeteaseOption option = new NeteaseOption();
-        option.setCrypto("weapi");
-
-        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
-                "https://music.163.com/weapi/song/enhance/player/url", data, option);
-        checkError(response);
-        return response.getBody();
     }
 
     /**
@@ -341,14 +344,15 @@ public class NeteaseService {
         playListDto.setTrackCount(playlist.getLong("trackCount"));
         playListDetail.setPlayList(playListDto);
 
-        JSONArray tracks = playlist.getJSONArray("tracks");
+        JSONArray tracks = playlist.getJSONArray("trackIds");
         List<SongInfoDto> songInfoList = new ArrayList<>();
         if(tracks != null && !tracks.isEmpty()){
+            List<String> ids = new ArrayList<>();
             for (int i = 0; i <tracks.size() ; i++) {
                 JSONObject song = tracks.getJSONObject(i);
-                SongInfoDto info = getSongInfo(song);
-                songInfoList.add(info);
+                ids.add(song.getString("id"));
             }
+            songInfoList.addAll(songInfo(String.join(",", ids)));
         }
         playListDetail.setSongInfo(songInfoList);
         return playListDetail;
