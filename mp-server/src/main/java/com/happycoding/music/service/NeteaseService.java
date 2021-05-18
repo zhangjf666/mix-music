@@ -13,6 +13,7 @@ import com.happycoding.music.model.MusicPlatform;
 import com.happycoding.music.model.NeteaseOption;
 import com.happycoding.music.model.NeteaseResponse;
 import com.happycoding.music.util.NeteaseRequestUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import java.util.Map;
  * @Description:
  * @Date: 2021/5/11 14:09
  */
+@Slf4j
 @Service
 public class NeteaseService {
     @Autowired
@@ -214,7 +216,7 @@ public class NeteaseService {
             int br = song.getInteger("br");
             if(br <= 128000){
                 songUrl.setBr("LQ");
-            } else if(br > 320000 && br < 640000){
+            } else if(br >= 320000 && br < 640000){
                 songUrl.setBr("HQ");
             } else {
                 songUrl.setBr("SQ");
@@ -272,13 +274,16 @@ public class NeteaseService {
             String songName = song.getString("name");
             String singerName = song.getJSONArray("ar").getJSONObject(0).getString("name");
             String keyword = StrUtil.format("{} {}", songName, singerName);
+            log.info("网易云歌曲:{} 权限:{}, 将使用其他平台歌曲替换.", keyword, fee);
             List<SongInfoDto> list = miguService.search(keyword, 2, 30 , 1);
             if(!list.isEmpty()){
                 SongInfoDto miguSong = list.get(0);
-                if(songName.equals(miguSong.getName()) && singerName.equals(miguSong.getSingerName())){
+                if(songName.equals(miguSong.getName()) && miguSong.getSingerName().contains(singerName)){
+                    log.info("网易云歌曲:{} 使用咪咕平台歌曲替换.", keyword);
                     return miguSong;
                 }
             }
+            log.info("网易云歌曲:{} 未找到平台歌曲替换.", keyword);
         }
         info.setId(song.getString("id"));
         info.setDuration(song.getLong("dt"));
