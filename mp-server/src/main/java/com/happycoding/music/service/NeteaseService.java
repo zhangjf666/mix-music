@@ -176,7 +176,7 @@ public class NeteaseService {
                 "https://music.163.com/api/cloudsearch/pc", data, option);
         checkError(response);
 
-        JSONArray songs = response.getBody().getJSONArray("songs");
+        JSONArray songs = response.getBody().getJSONObject("result").getJSONArray("songs");
         List<SongInfoDto> songInfoDtoList = new ArrayList<>();
         if(songs != null && !songs.isEmpty()){
             for (int i = 0; i < songs.size(); i++) {

@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class PlatformController {
 
     @ApiOperation("热门歌单")
     @GetMapping("/recommend")
-    public Response<List<PlayListDto>> getRecommendPlayList(MusicPlatform musicPlatform){
+    public Response<List<PlayListDto>> getRecommendPlayList(@RequestParam(name = "musicPlatform", defaultValue = "0")MusicPlatform musicPlatform){
         List<PlayListDto> playList = new ArrayList<>();
         switch (musicPlatform){
             case Netease:
@@ -130,7 +131,8 @@ public class PlatformController {
 
     @ApiOperation("搜索")
     @GetMapping("/search")
-    public Response<List<SongInfoDto>> search(String keyword, MusicPlatform musicPlatform){
+    public Response<List<SongInfoDto>> search(String keyword,@RequestParam(name = "musicPlatform",
+            defaultValue = "0") MusicPlatform musicPlatform){
         List<SongInfoDto> songInfoDtoList = new ArrayList<>();
         switch (musicPlatform){
             case Netease:
@@ -141,6 +143,7 @@ public class PlatformController {
                 break;
             case All:
             default:
+                songInfoDtoList.addAll(neteaseService.cloudSearch(keyword, "1", 30, 0, true));
                 songInfoDtoList.addAll(miguService.search(keyword,2, 30, 3));
                 break;
         }
