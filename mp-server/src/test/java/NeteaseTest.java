@@ -100,7 +100,7 @@ public class NeteaseTest {
     //推荐歌单
     @Test
     public void personalizedTest(){
-        Object dict = neteaseService.personalized(30);
+        Object dict = neteaseService.personalized(10);
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 }

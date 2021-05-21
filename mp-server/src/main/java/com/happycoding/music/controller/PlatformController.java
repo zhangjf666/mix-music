@@ -1,5 +1,6 @@
 package com.happycoding.music.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.happycoding.music.common.model.Response;
 import com.happycoding.music.dto.PlayListDetailDto;
 import com.happycoding.music.dto.PlayListDto;
@@ -37,23 +38,10 @@ public class PlatformController {
     @Autowired
     private MiguService miguService;
 
-    @ApiOperation("热门歌单")
+    @ApiOperation("推荐歌单")
     @GetMapping("/recommend")
-    public Response<List<PlayListDto>> getRecommendPlayList(@RequestParam(name = "musicPlatform", defaultValue = "0")MusicPlatform musicPlatform){
-        List<PlayListDto> playList = new ArrayList<>();
-        switch (musicPlatform){
-            case Netease:
-                playList.addAll(neteaseService.personalized(30));
-                break;
-            case Migu:
-                playList.addAll(miguService.personalized(1, 30, "1"));
-                break;
-            case All:
-            default:
-                playList.addAll(neteaseService.personalized(30));
-                playList.addAll(miguService.personalized(1, 30, "1"));
-                break;
-        }
+    public Response<List<PlayListDto>> getRecommendPlayList(@RequestParam(name = "limit", defaultValue = "30") Integer limit){
+        List<PlayListDto> playList = neteaseService.personalized(limit);
         return Response.ok(playList);
     }
 
@@ -148,5 +136,12 @@ public class PlatformController {
                 break;
         }
         return Response.ok(songInfoDtoList);
+    }
+
+    @ApiOperation("首页轮播图")
+    @GetMapping("/banner")
+    public Response<List<SongInfoDto>> search(String type){
+        JSONObject result = neteaseService.banner(type);
+        return Response.ok(result);
     }
 }

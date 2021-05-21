@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.happycoding.music.util.NeteaseCryptoUtil.*;
+
 /**
  * @Author: zjf
  * @Email: junfeng1987@163.com
@@ -42,7 +44,7 @@ public class NeteaseService {
      */
     public List<PlayListDto> personalized(Integer limit){
         Map<String, Object> data = new HashMap<>();
-        data.put("limit", limit != null ? limit : 30);
+        data.put("limit", limit);
         data.put("total", true);
         data.put("n", 1000);
 
@@ -433,6 +435,24 @@ public class NeteaseService {
 
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://music.163.com/weapi/v1/discovery/new/songs", data, option);
+        checkError(response);
+        return response.getBody();
+    }
+
+    /**
+     * 首页轮播图
+     * @param type 'pc','android','iphone','ipad'
+     * @return
+     */
+    public JSONObject banner(String type){
+        Map<String, Object> data = new HashMap<>();
+        data.put("clientType", type);
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(LINUXAPI_TYPE);
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://music.163.com/api/v2/banner/get", data, option);
         checkError(response);
         return response.getBody();
     }
