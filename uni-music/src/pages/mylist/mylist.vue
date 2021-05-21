@@ -1,6 +1,6 @@
 <template>
 	<view class="content">
-		<u-action-sheet :list="list" v-model="show"></u-action-sheet>
+		
 	</view>
 </template>
 
