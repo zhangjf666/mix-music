@@ -140,8 +140,39 @@ public class PlatformController {
 
     @ApiOperation("首页轮播图")
     @GetMapping("/banner")
-    public Response<List<SongInfoDto>> search(String type){
+    public Response search(@RequestParam(name = "type", defaultValue = "pc") String type){
         JSONObject result = neteaseService.banner(type);
+        return Response.ok(result);
+    }
+
+    @ApiOperation("推荐新歌")
+    @GetMapping("/personalizedSongs")
+    public Response personalizedSongs(
+            @RequestParam(name = "limit", defaultValue = "10") Integer limit,
+            @RequestParam(name = "areaId", defaultValue = "0") Integer areaId){
+        List<SongInfoDto> songInfoDtoList = neteaseService.personalizedSongs(limit, areaId);
+        return Response.ok(songInfoDtoList);
+    }
+
+    @ApiOperation("默认搜索关键词")
+    @GetMapping("/searchDefaultKeyword")
+    public Response searchDefaultKeyword(){
+        JSONObject result = neteaseService.searchDefaultKeyword();
+        return Response.ok(result);
+    }
+
+    @ApiOperation("热搜列表")
+    @GetMapping("/searchHotDetail")
+    public Response searchHotDetail(){
+        JSONObject result = neteaseService.searchHotDetail();
+        return Response.ok(result);
+    }
+
+    @ApiOperation("搜索建议")
+    @GetMapping("/searchSuggest")
+    public Response searchSuggest(@RequestParam(name = "keywords", defaultValue = "") String keywords,
+                                  @RequestParam(name = "type", defaultValue = "mobile") String type){
+        JSONObject result = neteaseService.searchSuggest(keywords, type);
         return Response.ok(result);
     }
 }

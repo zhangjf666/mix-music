@@ -14,20 +14,27 @@ public enum MusicPlatform implements IEnum<String> {
     /**
      * 所有平台
      */
-    All("0"),
+    All("0", "所有平台"),
     /**
      * 网易云音乐
      */
-    Netease("1"),
+    Netease("1", "网易云"),
     /**
      * 咪咕
      */
-    Migu("2");
+    Migu("2", "咪咕");
 
     private String platform;
 
-    MusicPlatform(String platform){
+    private String name;
+
+    MusicPlatform(String platform, String name){
         this.platform = platform;
+        this.name = name;
+    }
+
+    public String getName(){
+        return this.name;
     }
 
     @Override

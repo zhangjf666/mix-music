@@ -275,17 +275,10 @@ public class NeteaseService {
         if(!canPlay(fee)){
             String songName = song.getString("name");
             String singerName = song.getJSONArray("ar").getJSONObject(0).getString("name");
-            String keyword = StrUtil.format("{} {}", songName, singerName);
-            log.info("网易云歌曲:{} 权限:{}, 将使用其他平台歌曲替换.", keyword, fee);
-            List<SongInfoDto> list = miguService.search(keyword, 2, 30 , 1);
-            if(!list.isEmpty()){
-                SongInfoDto miguSong = list.get(0);
-                if(songName.equals(miguSong.getName()) && miguSong.getSingerName().contains(singerName)){
-                    log.info("网易云歌曲:{} 使用咪咕平台歌曲替换.", keyword);
-                    return miguSong;
-                }
+            info = insteadSong(songName, singerName);
+            if(info != null){
+                return info;
             }
-            log.info("网易云歌曲:{} 未找到平台歌曲替换.", keyword);
         }
         info.setId(song.getString("id"));
         info.setDuration(song.getLong("dt"));
@@ -299,6 +292,27 @@ public class NeteaseService {
             info.setAlbumName(song.getJSONObject("al").getString("name"));
         }
         return info;
+    }
+
+    /**
+     * 替换歌曲
+     * @param songName 歌名
+     * @param singerName 歌手名
+     * @return
+     */
+    private SongInfoDto insteadSong(String songName, String singerName){
+        log.info("网易云歌曲:{}-{}, 将使用其他平台歌曲替换.", songName, singerName);
+        String keyword = StrUtil.format("{} {}", songName, singerName);
+        List<SongInfoDto> list = miguService.search(keyword, 2, 30 , 1);
+        if(!list.isEmpty()){
+            SongInfoDto miguSong = list.get(0);
+            if(songName.equals(miguSong.getName()) && miguSong.getSingerName().contains(singerName)){
+                log.info("网易云歌曲:{}-{}, 使用{}平台歌曲替换.", songName, singerName, miguSong.getMusicPlatform().getName());
+                return miguSong;
+            }
+        }
+        log.info("网易云歌曲:{}-{}, 未找到平台歌曲替换.", songName, singerName);
+        return null;
     }
 
     private boolean canPlay(int fee){
@@ -453,6 +467,74 @@ public class NeteaseService {
 
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://music.163.com/api/v2/banner/get", data, option);
+        checkError(response);
+        return response.getBody();
+    }
+
+    /**
+     * 推荐新歌
+     * @param areaId
+     * @param limit
+     * @return
+     */
+    public List<SongInfoDto> personalizedSongs(int areaId, int limit){
+        Map<String, Object> data = new HashMap<>();
+        data.put("areaId", areaId);
+        data.put("limit", limit);
+        data.put("type", "recommend");
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto("weapi");
+        option.getCookie().put("os", "pc");
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://music.163.com/api/personalized/newsong", data, option);
+        checkError(response);
+
+        List<SongInfoDto> songInfoDtoList = new ArrayList<>();
+
+        JSONArray result = response.getBody().getJSONArray("result");
+        for (Object o : result) {
+            JSONObject song = (JSONObject)o;
+            SongInfoDto info = new SongInfoDto();
+            int fee = song.getJSONObject("song").getInteger("fee");
+            if(!canPlay(fee)){
+                String name = song.getString("name");
+                String singerName = song.getJSONArray("artists").getJSONObject(0).getString("name");
+                info = insteadSong(name, singerName);
+                if(info != null){
+                    songInfoDtoList.add(info);
+                }
+            }
+            info.setName(song.getString("name"));
+            info.setId(song.getString("id"));
+            info.setPicUrl(song.getString("picUrl"));
+            info.setDuration(song.getJSONObject("song").getLong("duration"));
+            info.setMusicPlatform(MusicPlatform.Netease);
+            info.setSingerId(song.getJSONArray("artists").getJSONObject(0).getString("id"));
+            info.setSingerName(song.getJSONArray("artists").getJSONObject(0).getString("name"));
+            if (song.containsKey("album") && song.getJSONObject("album") != null) {
+                info.setPicUrl(song.getJSONObject("album").getString("picUrl"));
+                info.setAlbumId(song.getJSONObject("album").getString("id"));
+                info.setAlbumName(song.getJSONObject("album").getString("name"));
+            }
+        }
+        return songInfoDtoList;
+    }
+
+    /**
+     * 默认搜索关键词
+     * @return
+     */
+    public JSONObject searchDefaultKeyword(){
+        Map<String, Object> data = new HashMap<>();
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(EAPI_TYPE);
+        option.setUrl("/api/search/defaultkeyword/get");
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://interface3.music.163.com/eapi/search/defaultkeyword/get", data, option);
         checkError(response);
         return response.getBody();
     }
