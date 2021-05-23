@@ -1,4 +1,4 @@
-let base_url='http://localhost:8100';//请求地址
+let base_url='http://192.168.2.88:8100';//请求地址
 
 function service(options = {}) {
     options.url = `${base_url}${options.url}`;
@@ -25,7 +25,6 @@ function service(options = {}) {
     options.fail = (err) => {
         rejected(err); //错误
     }
-
     uni.request(options);
     });
 }

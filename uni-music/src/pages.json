@@ -11,6 +11,10 @@
 			"style": {}
 		},
 		{
+			"path": "pages/playlist/playlist",
+			"style": {}
+		},
+		{
 			"path": "pages/play/play",
 			"style": {
 				"navigationBarTitleText": "播放中"
