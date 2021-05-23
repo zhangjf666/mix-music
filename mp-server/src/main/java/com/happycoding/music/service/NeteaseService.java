@@ -477,7 +477,7 @@ public class NeteaseService {
      * @param limit
      * @return
      */
-    public List<SongInfoDto> personalizedSongs(int areaId, int limit){
+    public List<SongInfoDto> personalizedNewSong(int limit,int areaId){
         Map<String, Object> data = new HashMap<>();
         data.put("areaId", areaId);
         data.put("limit", limit);
@@ -500,17 +500,19 @@ public class NeteaseService {
             int fee = song.getJSONObject("song").getInteger("fee");
             if(!canPlay(fee)){
                 String name = song.getString("name");
-                String singerName = song.getJSONArray("artists").getJSONObject(0).getString("name");
+                String singerName = song.getJSONObject("song").getJSONArray("artists").getJSONObject(0).getString("name");
                 info = insteadSong(name, singerName);
                 if(info != null){
                     songInfoDtoList.add(info);
+                    continue;
                 }
             }
+            info.setMusicPlatform(MusicPlatform.Netease);
             info.setName(song.getString("name"));
             info.setId(song.getString("id"));
             info.setPicUrl(song.getString("picUrl"));
-            info.setDuration(song.getJSONObject("song").getLong("duration"));
-            info.setMusicPlatform(MusicPlatform.Netease);
+            song = song.getJSONObject("song");
+            info.setDuration(song.getLong("duration"));
             info.setSingerId(song.getJSONArray("artists").getJSONObject(0).getString("id"));
             info.setSingerName(song.getJSONArray("artists").getJSONObject(0).getString("name"));
             if (song.containsKey("album") && song.getJSONObject("album") != null) {
@@ -518,6 +520,7 @@ public class NeteaseService {
                 info.setAlbumId(song.getJSONObject("album").getString("id"));
                 info.setAlbumName(song.getJSONObject("album").getString("name"));
             }
+            songInfoDtoList.add(info);
         }
         return songInfoDtoList;
     }

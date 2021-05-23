@@ -5,6 +5,7 @@ import com.happycoding.music.common.model.Response;
 import com.happycoding.music.dto.PlayListDetailDto;
 import com.happycoding.music.dto.PlayListDto;
 import com.happycoding.music.dto.SongInfoDto;
+import com.happycoding.music.dto.SongUrlDto;
 import com.happycoding.music.model.MusicPlatform;
 import com.happycoding.music.service.MiguService;
 import com.happycoding.music.service.NeteaseService;
@@ -100,6 +101,24 @@ public class PlatformController {
         return Response.ok(lyric);
     }
 
+    @ApiOperation("获取歌曲url")
+    @GetMapping("/url")
+    public Response<SongUrlDto> getUrl(String songId, MusicPlatform musicPlatform){
+        SongUrlDto songUrlDto = new SongUrlDto();
+        switch (musicPlatform){
+            case Netease:
+                songUrlDto = neteaseService.songUrl(songId);
+                break;
+            case Migu:
+                songUrlDto = miguService.songUrl(songId, "HQ");
+                break;
+            case All:
+            default:
+                break;
+        }
+        return Response.ok(songUrlDto);
+    }
+
     @ApiOperation("获取歌曲详情(包括url和歌词)")
     @GetMapping("/songDetail")
     public Response<SongInfoDto> getSongDetail(SongInfoDto songInfo){
@@ -146,11 +165,11 @@ public class PlatformController {
     }
 
     @ApiOperation("推荐新歌")
-    @GetMapping("/personalizedSongs")
-    public Response personalizedSongs(
+    @GetMapping("/recommend/newsong")
+    public Response personalizedNewSongs(
             @RequestParam(name = "limit", defaultValue = "10") Integer limit,
             @RequestParam(name = "areaId", defaultValue = "0") Integer areaId){
-        List<SongInfoDto> songInfoDtoList = neteaseService.personalizedSongs(limit, areaId);
+        List<SongInfoDto> songInfoDtoList = neteaseService.personalizedNewSong(limit, areaId);
         return Response.ok(songInfoDtoList);
     }
 
