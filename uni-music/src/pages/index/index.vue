@@ -156,7 +156,7 @@
                 class="newSong-list-item"
                 v-for="(item, index) in newSongList"
                 :key="item.id"
-                @click="addToPlay(item)"
+                @click="addToPlay(item, index)"
                 @touchstart="newTouchstart(index)"
                 @touchend="newSongBg = null"
                 :style="
@@ -196,6 +196,7 @@
           </view>
           <!-- banner 背景的红色 -->
           <view class="bColorBox"></view>
+          <play-music></play-music>
         </scroll-view>
       </swiper-item>
       <!-- 电台 -->
@@ -207,8 +208,12 @@
 <script>
 import { recommend, banner, recommendNewSong } from "@/api/platform.js";
 import { mapState, mapMutations } from 'vuex';
+import playMusic from '@/my-components/playMusic.vue'
 
 export default {
+  components: {
+    playMusic
+  },
   data() {
     return {
       isLogIn: false,
@@ -259,7 +264,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['addAndPlay','setPlayingIndex']),
+    ...mapMutations(['addAndPlay','setPlayingIndex','setPlayList']),
     //获取banner
     getBanner() {
       banner().then((data) => {
@@ -279,9 +284,9 @@ export default {
         }
       });
     },
-    //获取推荐歌单
+    //获取推荐歌曲
     getRecommendNewSongList() {
-      recommendNewSong({ limit: 5 }).then((data) => {
+      recommendNewSong({ limit: 10 }).then((data) => {
         this.newSongList = data;
       });
     },
@@ -335,8 +340,9 @@ export default {
       this.newSongBg = index;
     },
     // 添加并播放
-    addToPlay(item) {
-      this.addAndPlay(item);
+    addToPlay(item, i) {
+      // this.addAndPlay(item);
+      this.setPlayList({list: this.newSongList, i: i})
     },
     //判断新歌列表中歌曲是否是当前播放歌曲
     isPlayingSong(id) {

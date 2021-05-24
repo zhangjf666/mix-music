@@ -1,8 +1,63 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { url, lyric} from '../api/platform'
+import { songUrl } from '../api/platform'
 
 Vue.use(Vuex);
+
+async function getSongUrl(song) {
+    if(song.url == null) {
+        await songUrl({songId: song.id, musicPlatform: song.musicPlatform}).then(data => {
+            song.url = data.url;
+            song.br = data.br;
+        });
+    }
+}
+
+//生成从minNum到maxNum的随机整数
+function randomNum(minNum,maxNum){ 
+    switch(arguments.length){ 
+        case 1: 
+            return parseInt(Math.random()*minNum+1,10); 
+        break; 
+        case 2: 
+            return parseInt(Math.random()*(maxNum-minNum+1)+minNum,10); 
+        break; 
+        default: 
+            return 0; 
+        break; 
+    } 
+} 
+
+// 挂载一个可全局访问的音频组件
+let audio = uni.createInnerAudioContext();
+
+audio.autoplay = true;
+// 音频就绪后触发的回调函数
+audio.onCanplay(() => {
+	let time = audio.duration;
+	store.commit('setTotalTime', time);
+	let m = parseInt(time / 60);
+	m = m < 10 ? '0' + m : m;
+	let s = parseInt(time % 60);
+	s = s < 10 ? '0' + s : s;
+	time = m + ':' + s;
+	// store.commit('getEndTime', time);
+})
+// 音频进度更新后触发的时间
+audio.onTimeUpdate(() => {
+	let nowTime = audio.currentTime;
+	store.commit('setCurrentTime', nowTime);
+	let m = parseInt(nowTime / 60);
+	m = m < 10 ? '0' + m : m;
+	let s = parseInt(nowTime % 60);
+	s = s < 10 ? '0' + s : s;
+	let t = m + ':' + s;
+	// store.commit('getnowPlayTime', t);
+})
+// 音频自然播放结束后触发的事件
+audio.onEnded(() => {
+	store.commit('playNext');
+})
 
 const store = new Vuex.Store({
     state: {
@@ -25,34 +80,27 @@ const store = new Vuex.Store({
         // 当前播放时间(音频组件)
 		currentTime:0,
         // 播放模式(1单曲,2列表,3随机)
-        playMode: 0
+        playMode: 3,
+        // 播放器
+        audio: audio
     },
     getters: {
         playlistLength(state) {
             return state.playlist.length;
-        },
-        nextIndex(state) {
-            
-        },
-        preIndex(state) {
-
         }
     },
     mutations: {
+        // 播放索引的指定的歌曲
         setPlayingIndex(state, i) {
             state.playingIndex = i;
+            this.commit('playNewSong', state.playlist[state.playingIndex]);
         },
-        setPlayList(state, list, i) {
-            state.playlist = list;
-            state.playingIndex = i;
+        setPlayList(state, content) {
+            state.playlist = content.list;
+            state.playingIndex = content.i;
+            this.commit('playNewSong', state.playlist[state.playingIndex]);
         },
         addAndPlay(state, song) {
-            if(song.url == null) {
-                url({songId: song.id, musicPlatform: song.musicPlatform}).then(data => {
-                    song.url = data.url;
-                    song.br = data.br;
-                });
-            }
             let index = 0;
             if(state.playingIndex != null){
                 index = state.playingIndex + 1;
@@ -60,14 +108,16 @@ const store = new Vuex.Store({
             //需要去重
             state.playlist.splice(index, 0, song);
             state.playingIndex = index;
+            this.commit('playNewSong', state.playlist[state.playingIndex]);
+        },
+        async playNewSong(state, song) {
+            await getSongUrl(song);
+            if(song.url != null) {
+                state.audio.src = song.url;
+                state.isPlay = true;
+            }
         },
         addToNext(state, song) {
-            if(song.url == null) {
-                url({songId: song.id, musicPlatform: song.musicPlatform}).then(data => {
-                    song.url = data.url;
-                    song.br = data.br;
-                });
-            }
             let index = 0;
             if(state.playingIndex != null){
                 index = state.playingIndex + 1;
@@ -75,17 +125,22 @@ const store = new Vuex.Store({
             //需要去重
             state.playlist.splice(index, 0, song);
         },
-        removePlayList(state, i) {
-            state.playlist.splice(i, 1);
+        removePlayListSong(state, i) {
+            if(i > state.playingIndex) {
+                state.playlist.splice(i, 1);
+            } else if(i == state.playingIndex) {
+                state.playlist.splice(i, 1);
+                this.commit('playNext');
+            } else if(i < state.playingIndex) {
+                state.playingIndex = state.playingIndex + 1;
+                state.playlist.splice(i, 1);
+            }
         },
         setTotalTime(state, time) {
             state.totalTime = time;
         },
         setCurrentTime(state, time) {
             state.currentTime = time;
-        },
-        setPlay(state, play) {
-            state.isPlay = play;
         },
         setShowPlayList(state, show) {
             state.isShowPlaylist = show;
@@ -95,6 +150,55 @@ const store = new Vuex.Store({
         },
         setPlayMode(state, playMode) {
             state.playMode = playMode;
+        },
+        // 切换播放,暂停
+        switchPlay(state) {
+            state.isPlay = !state.isPlay;
+            if(state.isPlay) {
+                state.audio.play();
+            } else {
+                state.audio.pause();
+            }
+        },
+        // 播放
+        play() {
+            state.audio.play();
+            state.isPlay = true;
+        },
+        // 暂停
+        pause() {
+			state.audio.pause();
+            state.isPlay = false;
+		},
+        // 滑动更换歌曲,因为不知道是左滑还是右滑,需要在这里确定是上一首还是下一首
+        switchSong(state, i) {
+            if(i < state.playingIndex) {
+                this.commit('playPrevious', state);
+            } else {
+                this.commit('playNext', state);
+            }
+        },
+        //前一首
+        playPrevious(state) {
+            if(state.playMode == 1){
+                state.playingIndex = state.playingIndex;
+            } else if(state.playMode == 2) {
+                state.playingIndex = state.playingIndex - 1 < 0 ? state.playlist.length - 1 : state.playingIndex - 1;
+            } else {
+                state.playingIndex = randomNum(0, state.playlist.length - 1)
+            }
+            this.commit('playNewSong', state.playlist[state.playingIndex]);
+        },
+        //下一首
+        playNext(state) {
+            if(state.playMode == 1){
+                state.playingIndex = state.playingIndex;
+            } else if(state.playMode == 2) {
+                state.playingIndex = state.playingIndex + 1 >= state.playlist.length ? 0 : state.playingIndex + 1;
+            } else {
+                state.playingIndex = randomNum(0, state.playlist.length - 1)
+            }
+            this.commit('playNewSong', state.playlist[state.playingIndex]);
         }
     }
 })

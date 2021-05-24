@@ -34,7 +34,7 @@ export function banner() {
     })
 }
 
-export function url(data) {
+export function songUrl(data) {
     return request({
         url: prefix + '/url',
         method: 'GET',
@@ -42,7 +42,7 @@ export function url(data) {
     })
 }
 
-export function lyric(data) {
+export function songLyric(data) {
     return request({
         url: prefix + '/lyric',
         method: 'GET',
