@@ -87,11 +87,20 @@ const store = new Vuex.Store({
     getters: {
         playlistLength(state) {
             return state.playlist.length;
+        },
+        playModeText(state) {
+            return state.playMode == 3 ? '随机播放' : state.playMode == 2 ? '列表循环' : '单曲循环';
+        },
+        playModeIcon(state) {
+            return state.playMode == 3 ? 'icon-random-loop' : state.playMode == 2 ? 'icon-list-loop' : 'icon-song-loop';
         }
     },
     mutations: {
         // 播放索引的指定的歌曲
         setPlayingIndex(state, i) {
+            if(i == state.playingIndex){
+                return;
+            }
             state.playingIndex = i;
             this.commit('playNewSong', state.playlist[state.playingIndex]);
         },
@@ -126,14 +135,21 @@ const store = new Vuex.Store({
             state.playlist.splice(index, 0, song);
         },
         removePlayListSong(state, i) {
-            if(i > state.playingIndex) {
-                state.playlist.splice(i, 1);
-            } else if(i == state.playingIndex) {
-                state.playlist.splice(i, 1);
-                this.commit('playNext');
+            state.playlist.splice(i, 1);
+            if(state.playlist.length <= 0){
+                state.playingIndex = null;
+                state.isShowPlaylist = false;
+                this.commit('pause');
+                return;
+            }
+            if(i == state.playingIndex) {
+                if(state.playMode == 3){
+                    this.commit('playNext');
+                } else {
+                    this.commit('playNewSong', state.playlist[state.playingIndex]);
+                }
             } else if(i < state.playingIndex) {
-                state.playingIndex = state.playingIndex + 1;
-                state.playlist.splice(i, 1);
+                state.playingIndex = state.playingIndex - 1;
             }
         },
         setTotalTime(state, time) {
@@ -151,6 +167,10 @@ const store = new Vuex.Store({
         setPlayMode(state, playMode) {
             state.playMode = playMode;
         },
+        // 切换播放模式
+        switchPlayMode(state) {
+            state.playMode = state.playMode == 1 ? 2 : state.playMode == 2 ? 3 : 1;
+        },
         // 切换播放,暂停
         switchPlay(state) {
             state.isPlay = !state.isPlay;
@@ -161,12 +181,12 @@ const store = new Vuex.Store({
             }
         },
         // 播放
-        play() {
+        play(state) {
             state.audio.play();
             state.isPlay = true;
         },
         // 暂停
-        pause() {
+        pause(state) {
 			state.audio.pause();
             state.isPlay = false;
 		},

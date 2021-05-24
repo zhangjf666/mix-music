@@ -7,9 +7,9 @@
 					当前播放
 					<text>({{ playlistLength }})</text>
 				</view>
-				<view class="playLoop">
-					<text class="iconfont icon-listLoop" style="margin-right: 10rpx;"></text>
-					列表循环
+				<view class="playLoop" @click="switchPlayMode">
+					<text class="iconfont" :class="playModeIcon" style="margin-right: 10rpx;"></text>
+					{{playModeText}}
 				</view>
 			</view>
 			<view class="playListBody">
@@ -55,7 +55,7 @@ export default {
 		};
 	},
 	methods: {
-		...mapMutations(['setPlayingIndex','setShowPlayList', 'setPlayMode', 'removePlayListSong']),
+		...mapMutations(['setPlayingIndex','setShowPlayList', 'setPlayMode', 'removePlayListSong','switchPlayMode']),
 		// 获得要播放音乐的索引
 		playIndexSong(index) {
 			this.setPlayingIndex(index);
@@ -65,7 +65,7 @@ export default {
 		}
 	},
 	computed: {
-        ...mapGetters(['playlistLength']),
+        ...mapGetters(['playlistLength','playModeIcon','playModeText']),
 		...mapState(['playlist', 'isShowPlaylist', 'playingIndex']),
         isShow: {
             get() {

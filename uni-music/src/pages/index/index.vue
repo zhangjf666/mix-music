@@ -342,7 +342,8 @@ export default {
     // 添加并播放
     addToPlay(item, i) {
       // this.addAndPlay(item);
-      this.setPlayList({list: this.newSongList, i: i})
+      let cloneNewSongList = this.$u.deepClone(this.newSongList);
+      this.setPlayList({list: cloneNewSongList, i: i})
     },
     //判断新歌列表中歌曲是否是当前播放歌曲
     isPlayingSong(id) {
