@@ -196,12 +196,12 @@
           </view>
           <!-- banner 背景的红色 -->
           <view class="bColorBox"></view>
-          <play-music></play-music>
         </scroll-view>
       </swiper-item>
       <!-- 电台 -->
       <swiper-item> 电台 </swiper-item>
     </swiper>
+    <play-music></play-music>
   </view>
 </template>
 
@@ -364,6 +364,7 @@ $bColor: #d83d34;
   }
 }
 .tabSwiper {
+  z-index: 0;
   margin-top: -1px;
 
   /deep/ .u-tabs-scroll-box {

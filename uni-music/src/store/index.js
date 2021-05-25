@@ -83,6 +83,8 @@ const store = new Vuex.Store({
         isPlay: false,
         // 控制播放列表显示隐藏
         isShowPlaylist: false,
+        // 控制播放器页面显示隐藏
+        isShowPlayPage: false,
         // 音频总时长(音频组件)
 		totalTime: null,
         // 音频总时长(显示)
@@ -111,11 +113,34 @@ const store = new Vuex.Store({
         },
         playModeIcon(state) {
             return state.playMode == 3 ? 'icon-random-loop' : state.playMode == 2 ? 'icon-list-loop' : 'icon-song-loop';
+        },
+        nowPlayTime(state) {
+            let nowTime = state.currentTime;
+            let m = parseInt(nowTime / 60);
+            m = m < 10 ? '0' + m : m;
+            let s = parseInt(nowTime % 60);
+            s = s < 10 ? '0' + s : s;
+            let t = m + ':' + s;
+            return t;
+        },
+        endTime(state) {
+            let time = state.totalTime;
+            store.commit('setTotalTime', time);
+            let m = parseInt(time / 60);
+            m = m < 10 ? '0' + m : m;
+            let s = parseInt(time % 60);
+            s = s < 10 ? '0' + s : s;
+            time = m + ':' + s;
+            return time;
         }
     },
     mutations: {
+        // 控制播放器页面显示隐藏
+        setShowPlayPage(state, show) {
+            state.isShowPlayPage = show;
+        },
         // 设置播放swiper控件当前item位置id
-        playSwiperItemId(state, id) {
+        setPlaySwiperItemId(state, id) {
             state.playSwiperItemId = id;
         },
         // 播放索引的指定的歌曲
@@ -218,7 +243,6 @@ const store = new Vuex.Store({
 		},
         // 滑动更换歌曲,根据传过来的歌曲信息确定位置
         switchSong(state, song) {
-            console.log(song)
             let i = indexOf(state.playlist, song);
             this.commit('setPlayingIndex', i);
         },
@@ -259,9 +283,21 @@ const store = new Vuex.Store({
                 songs.push(state.playlist[state.playingIndex])
                 songs.push(state.playlist[state.playingIndex + 1 >= state.playlist.length ? 0 : state.playingIndex + 1])
             } else {
-                songs.push(state.playlist[randomNum(0, state.playlist.length - 1)]);
-                songs.push(state.playlist[state.playingIndex])
-                songs.push(state.playlist[randomNum(0, state.playlist.length - 1)])
+                let preIndex = randomNum(0, state.playlist.length - 1);
+                while(state.playingIndex == preIndex){
+                    preIndex = randomNum(0, state.playlist.length - 1);
+                }
+                songs.push(state.playlist[preIndex]);
+                songs.push(state.playlist[state.playingIndex]);
+                if(state.playlist.length == 2){
+                    songs.push(state.playlist[preIndex]);
+                } else {
+                    let nextIndex = randomNum(0, state.playlist.length - 1);
+                    while (state.playingIndex == nextIndex || preIndex == nextIndex) {
+                        nextIndex = randomNum(0, state.playlist.length - 1);
+                    }
+                    songs.push(state.playlist[nextIndex]);
+                }
             }
             state.playSongGroup = songs;
         }

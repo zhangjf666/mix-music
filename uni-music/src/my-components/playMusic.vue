@@ -9,24 +9,36 @@
 			@transition="playTransition"
 			@animationfinish="playAnimationfinish"
 		>
-			<swiper-item item-id="pre" @click="goPlayPage()">
+			<swiper-item item-id="pre" @click="setShowPlayPage(true)">
 				<u-image class="songImg" :src="songPre.picUrl" mode="widthFix" width="80" height="80" shape="circle"></u-image>
 				<view class="songInfo">
-					<view class="songName">{{ songPre.name }}</view>
+					<view>
+						<text class="songName">{{ songPre.name }}</text>
+						<text class="horizontal">-</text>
+						<text class="singerName">{{ songPre.singerName }}</text>
+					</view>
 					<view class="lyrics">横滑可以切换上下首哦</view>
 				</view>
 			</swiper-item>
-			<swiper-item item-id="current" @click="goPlayPage()">
+			<swiper-item item-id="current" @click="setShowPlayPage(true)">
 				<u-image class="songImg" :src="songCurrent.picUrl" mode="widthFix" width="80" height="80" shape="circle"></u-image>
 				<view class="songInfo">
-					<view class="songName">{{ songCurrent.name }}</view>
+					<view>
+						<text class="songName">{{ songCurrent.name }}</text>
+						<text class="horizontal">-</text>
+						<text class="singerName">{{ songCurrent.singerName }}</text>
+					</view>
 					<view class="lyrics">横滑可以切换上下首哦</view>
 				</view>
 			</swiper-item>
-			<swiper-item item-id="next" @click="goPlayPage()">
+			<swiper-item item-id="next" @click="setShowPlayPage(true)">
 				<u-image class="songImg" :src="songNext.picUrl" mode="widthFix" width="80" height="80" shape="circle"></u-image>
 				<view class="songInfo">
-					<view class="songName">{{ songNext.name }}</view>
+					<view>
+						<text class="songName">{{ songNext.name }}</text>
+						<text class="horizontal">-</text>
+						<text class="singerName">{{ songNext.singerName }}</text>
+					</view>
 					<view class="lyrics">横滑可以切换上下首哦</view>
 				</view>
 			</swiper-item>
@@ -39,6 +51,8 @@
 			<u-icon class="btnItem" name="list-dot" @tap="setShowPlayList(true)"></u-icon>
 		</view>
 
+		<!-- 播放器 -->
+		<play-page></play-page>
 		<!-- 播放列表 -->
 		<play-list></play-list>
 	</view>
@@ -47,13 +61,12 @@
 <script>
 import { mapState, mapMutations } from 'vuex';
 import playList from './playList.vue';
+import playPage from './playPage.vue';
 
 export default {
 	name: 'playMusic',
 	data() {
 		return {
-			// default song
-			defaultSong: {name:'没有歌曲了', picUrl: ''},
 			// 动画时间
 			duration: 0,
 			// popup样式
@@ -64,26 +77,23 @@ export default {
 			},
 			//歌曲列表背景控制
 			songBg: null,
-			songPre: this.defaultSong,
-			songCurrent: this.defaultSong,
-			songNext: this.defaultSong,
-			//初始化swiper位置
-			currentItemId: 'pre'
+			songPre: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
+			songCurrent: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
+			songNext: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
 		};
 	},
 	components:{
-		playList
+		playList,
+		playPage
 	},
 	methods: {
 		// 控制播放
-		...mapMutations(['switchPlay','setShowPlayList','switchSong']),
+		...mapMutations(['switchPlay','setShowPlayList','switchSong', 'setPlaySwiperItemId', 'setShowPlayPage']),
 		// current值发生改变时触发的事件
 		getCurrent(e) {
 			if (e.detail.source === 'touch') {
-				console.log(e.detail)
-				this.currentItemId = e.detail.currentItemId
+				this.setPlaySwiperItemId(e.detail.currentItemId)
 				this.switchSong(e.detail.currentItemId == 'pre' ? this.songPre : e.detail.currentItemId == 'current' ? this.songCurrent : this.songNext);
-				// this.switchSong(this.songs[e.detail.current]);
 			}
 		},
 		// swiper-item位置发生变化时触发的事件
@@ -93,12 +103,6 @@ export default {
 		// 动画结束后触发的事件
 		playAnimationfinish() {
 			this.duration = 0;
-		},
-		// 跳转播放页面
-		goPlayPage() {
-			uni.navigateTo({
-				url: '/pages/play/play'
-			});
 		}
 	},
 	computed: {
@@ -158,11 +162,22 @@ export default {
 		}
 		.songInfo {
 			// width: 55%;
-			font-size: 24rpx;
+			// font-size: 24rpx;
 			.songName {
+				font-size: 24rpx;
 				color: #000;
 				width: 440rpx;
 				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+			.horizontal {
+				margin: 0 6rpx;
+				color: #666;
+			}
+			.singerName {
+				color: #666;
+				font-size: 20rpx;
 				white-space: nowrap;
 				text-overflow: ellipsis;
 			}
