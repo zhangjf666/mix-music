@@ -28,6 +28,20 @@ function randomNum(minNum,maxNum){
     } 
 } 
 
+//查找元素下标
+function indexOf(arr, item) {
+    if (Array.prototype.indexOf) {
+        return arr.indexOf(item);
+    } else {
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i] === item) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
 // 挂载一个可全局访问的音频组件
 let audio = uni.createInnerAudioContext();
 
@@ -80,9 +94,13 @@ const store = new Vuex.Store({
         // 当前播放时间(音频组件)
 		currentTime:0,
         // 播放模式(1单曲,2列表,3随机)
-        playMode: 3,
+        playMode: 2,
         // 播放器
-        audio: audio
+        audio: audio,
+        // 播放控件需要的前一曲,当前歌曲,后一曲
+        playSongGroup: [],
+        // 播放swiper控件当前item位置id
+        playSwiperItemId: 'pre'
     },
     getters: {
         playlistLength(state) {
@@ -96,6 +114,10 @@ const store = new Vuex.Store({
         }
     },
     mutations: {
+        // 设置播放swiper控件当前item位置id
+        playSwiperItemId(state, id) {
+            state.playSwiperItemId = id;
+        },
         // 播放索引的指定的歌曲
         setPlayingIndex(state, i) {
             if(i == state.playingIndex){
@@ -125,6 +147,7 @@ const store = new Vuex.Store({
                 state.audio.src = song.url;
                 state.isPlay = true;
             }
+            this.commit('playSongGroup');
         },
         addToNext(state, song) {
             let index = 0;
@@ -150,6 +173,9 @@ const store = new Vuex.Store({
                 }
             } else if(i < state.playingIndex) {
                 state.playingIndex = state.playingIndex - 1;
+                this.commit('playSongGroup');
+            } else {
+                this.commit('playSongGroup');
             }
         },
         setTotalTime(state, time) {
@@ -190,13 +216,11 @@ const store = new Vuex.Store({
 			state.audio.pause();
             state.isPlay = false;
 		},
-        // 滑动更换歌曲,因为不知道是左滑还是右滑,需要在这里确定是上一首还是下一首
-        switchSong(state, i) {
-            if(i < state.playingIndex) {
-                this.commit('playPrevious', state);
-            } else {
-                this.commit('playNext', state);
-            }
+        // 滑动更换歌曲,根据传过来的歌曲信息确定位置
+        switchSong(state, song) {
+            console.log(song)
+            let i = indexOf(state.playlist, song);
+            this.commit('setPlayingIndex', i);
         },
         //前一首
         playPrevious(state) {
@@ -219,6 +243,27 @@ const store = new Vuex.Store({
                 state.playingIndex = randomNum(0, state.playlist.length - 1)
             }
             this.commit('playNewSong', state.playlist[state.playingIndex]);
+        },
+        //更新需要的前一曲,当前歌曲,后一曲
+        playSongGroup(state) {
+            if(state.playlist.length <= 0) {
+                state.playSongGroup = [];
+            }
+            let songs = [];
+            if(state.playMode == 1 || state.playlist.length == 1) {
+                songs.push(state.playlist[state.playingIndex]);
+                songs.push(state.playlist[state.playingIndex]);
+                songs.push(state.playlist[state.playingIndex]);
+            } else if(state.playMode == 2) {
+                songs.push(state.playlist[state.playingIndex - 1 < 0 ? state.playlist.length - 1 : state.playingIndex - 1])
+                songs.push(state.playlist[state.playingIndex])
+                songs.push(state.playlist[state.playingIndex + 1 >= state.playlist.length ? 0 : state.playingIndex + 1])
+            } else {
+                songs.push(state.playlist[randomNum(0, state.playlist.length - 1)]);
+                songs.push(state.playlist[state.playingIndex])
+                songs.push(state.playlist[randomNum(0, state.playlist.length - 1)])
+            }
+            state.playSongGroup = songs;
         }
     }
 })

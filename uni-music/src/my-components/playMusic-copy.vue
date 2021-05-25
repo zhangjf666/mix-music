@@ -1,32 +1,18 @@
 <template>
 	<view class="playMusic" v-if="isNull">
 		<swiper
-			ref="swiper"
 			class="playSwiper"
 			circular
 			:duration="duration"
+			:current="playingIndex"
 			@change="getCurrent"
 			@transition="playTransition"
 			@animationfinish="playAnimationfinish"
 		>
-			<swiper-item item-id="pre" @click="goPlayPage()">
-				<u-image class="songImg" :src="songPre.picUrl" mode="widthFix" width="80" height="80" shape="circle"></u-image>
+			<swiper-item v-for="(item, i) in playlist" :key="item.id" @click="goPlayPage(i)">
+				<u-image class="songImg" :src="item.picUrl" mode="widthFix" width="80" height="80" shape="circle"></u-image>
 				<view class="songInfo">
-					<view class="songName">{{ songPre.name }}</view>
-					<view class="lyrics">横滑可以切换上下首哦</view>
-				</view>
-			</swiper-item>
-			<swiper-item item-id="current" @click="goPlayPage()">
-				<u-image class="songImg" :src="songCurrent.picUrl" mode="widthFix" width="80" height="80" shape="circle"></u-image>
-				<view class="songInfo">
-					<view class="songName">{{ songCurrent.name }}</view>
-					<view class="lyrics">横滑可以切换上下首哦</view>
-				</view>
-			</swiper-item>
-			<swiper-item item-id="next" @click="goPlayPage()">
-				<u-image class="songImg" :src="songNext.picUrl" mode="widthFix" width="80" height="80" shape="circle"></u-image>
-				<view class="songInfo">
-					<view class="songName">{{ songNext.name }}</view>
+					<view class="songName">{{ item.name }}</view>
 					<view class="lyrics">横滑可以切换上下首哦</view>
 				</view>
 			</swiper-item>
@@ -52,8 +38,6 @@ export default {
 	name: 'playMusic',
 	data() {
 		return {
-			// default song
-			defaultSong: {name:'没有歌曲了', picUrl: ''},
 			// 动画时间
 			duration: 0,
 			// popup样式
@@ -63,12 +47,7 @@ export default {
 				borderRadius: '20rpx'
 			},
 			//歌曲列表背景控制
-			songBg: null,
-			songPre: this.defaultSong,
-			songCurrent: this.defaultSong,
-			songNext: this.defaultSong,
-			//初始化swiper位置
-			currentItemId: 'pre'
+			songBg: null
 		};
 	},
 	components:{
@@ -80,10 +59,7 @@ export default {
 		// current值发生改变时触发的事件
 		getCurrent(e) {
 			if (e.detail.source === 'touch') {
-				console.log(e.detail)
-				this.currentItemId = e.detail.currentItemId
-				this.switchSong(e.detail.currentItemId == 'pre' ? this.songPre : e.detail.currentItemId == 'current' ? this.songCurrent : this.songNext);
-				// this.switchSong(this.songs[e.detail.current]);
+				this.switchSong(e.detail.current);
 			}
 		},
 		// swiper-item位置发生变化时触发的事件
@@ -95,39 +71,20 @@ export default {
 			this.duration = 0;
 		},
 		// 跳转播放页面
-		goPlayPage() {
+		goPlayPage(i) {
 			uni.navigateTo({
 				url: '/pages/play/play'
 			});
 		}
 	},
 	computed: {
-		...mapState(['isPlay', 'playlist', 'playingIndex','playSongGroup','playMode','playSwiperItemId']),
+		...mapState(['isPlay', 'playlist', 'playingIndex']),
 		// 处理微信兼容v-if问题
 		isNull() {
 			return this.playingIndex !== null;
 		}
 	},
 	watch: {
-		playSongGroup() {
-			if(this.playSongGroup.length <= 0){
-				this.songPre = this.defaultSong;
-				this.songCurrent = this.defaultSong;
-				this.songNext = this.defaultSong;
-			} else if(this.playSwiperItemId == 'pre'){
-				this.songPre = this.playSongGroup[1];
-				this.songCurrent = this.playSongGroup[2];
-				this.songNext = this.playSongGroup[0];
-			} else if(this.playSwiperItemId == 'current') {
-				this.songPre = this.playSongGroup[0];
-				this.songCurrent = this.playSongGroup[1];
-				this.songNext = this.playSongGroup[2];
-			} else if(this.playSwiperItemId == 'next') {
-				this.songPre = this.playSongGroup[2];
-				this.songCurrent = this.playSongGroup[0];
-				this.songNext = this.playSongGroup[1];
-			}
-		}
     }
 };
 </script>
