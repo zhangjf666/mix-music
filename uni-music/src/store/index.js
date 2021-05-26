@@ -125,7 +125,6 @@ const store = new Vuex.Store({
         },
         endTime(state) {
             let time = state.totalTime;
-            store.commit('setTotalTime', time);
             let m = parseInt(time / 60);
             m = m < 10 ? '0' + m : m;
             let s = parseInt(time % 60);
@@ -212,14 +211,17 @@ const store = new Vuex.Store({
         },
         setCurrentTime(state, time) {
             state.currentTime = time;
-            this.commit('seekAudio', state.currentTime);
         },
         setShowPlayList(state, show) {
             state.isShowPlaylist = show;
         },
         setVolume(state, volume) {
+            var f = parseFloat(volume / 100);  
+            if(isNaN(f)){
+                return;
+            }
             state.volume = volume;
-            state.audio.volume = volume / 100;
+            state.audio.volume = f;
         },
         setPlayMode(state, playMode) {
             state.playMode = playMode;

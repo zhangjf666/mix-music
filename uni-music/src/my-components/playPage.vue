@@ -74,12 +74,12 @@
                 <view class="progress-bar">
                     <text>{{ nowPlayTime }}</text>
                     <u-slider
-                            class="slider"
-                            v-model="currentTime"
+                            class="progress-slider"
+                            v-model="activeWidth"
                             block-width="20"
-                            step="1"
                             height="4"
                             active-color="#f1f1f1"
+							:max="totalTime"
                             inactive-color="rgba(255,255,255,.5)"
                             @end="skipProgress()"
                         ></u-slider>
@@ -131,11 +131,14 @@ export default {
             // 判断动画是否暂停
 			isSpin: true,
 			// 播放进度条宽度
-			offsetWidth: 0,
-			// 每秒前进的宽度
-			Swidth: 0,
+			offsetWidth: 100,
+			// 每单位的宽度
+			unitWidth: 0,
 			// 当前进度条长度
 			activeWidth: 0,
+			// 当前播放时间
+			nowTime: 0,
+			// 显示歌词
 			isLyrics: false,
 			// 歌词
 			lyrics: [],
@@ -166,7 +169,7 @@ export default {
         }
     },
     methods: {
-		...mapMutations(['setCurrentTime', 'playPrevious', 'seekAudio','playNext', 'switchPlay', 'switchSong','setPlaySwiperItemId','setPlayingIndex','setShowPlayList', 'setShowPlayPage','setPlayMode', 'removePlayListSong','switchPlayMode','setVolume']),
+		...mapMutations(['playPrevious', 'seekAudio','playNext', 'switchPlay', 'switchSong','setPlaySwiperItemId','setPlayingIndex','setShowPlayList', 'setShowPlayPage','setPlayMode', 'removePlayListSong','switchPlayMode','setVolume']),
 		// current值发生改变时触发的事件
 		getCurrent(e) {
 			if (e.detail.source === 'touch') {
@@ -207,10 +210,10 @@ export default {
         },
 		// 跳转到歌词时间播放
 		seekTime(e) {
-			this.setCurrentTime(e.centerTime);
+			this.seekAudio(e.centerTime);
 		},
 		skipProgress() {
-			this.setCurrentTime(this.currentTime);
+			this.seekAudio(this.activeWidth / this.unitWidth);
 		},
         // 上一曲
         previousMusic() {
@@ -248,11 +251,23 @@ export default {
 				this.songCurrent = this.playSongGroup[0];
 				this.songNext = this.playSongGroup[1];
 			}
+			// 获取歌词
+			if(this.isLyrics) {
+				this.lyrics = [];
+				let song = this.itemId == 'pre' ? this.songPre : this.itemId == 'current' ? this.songCurrent : this.songNext;
+				if(song.lyric == null || song.lyric	!= ''){
+					songLyric({ songId: song.id, musicPlatform: song.musicPlatform }).then(data => {
+						song.lyric = data;
+						this.lyrics = song.lyric.replace(/\[/g, 'sb[').split('sb');	
+					});
+				}
+			}
+			
 		}
 	},
 	computed: {
         ...mapGetters(['playlistLength','playModeIcon','playModeText','nowPlayTime','endTime']),
-		...mapState(['currentTime', 'isPlay', 'isShowPlayList', 'isShowPlayPage', 'playlist', 'playingIndex','playSongGroup','playMode','playSwiperItemId']),
+		...mapState(['volume','currentTime', 'totalTime','isPlay', 'isShowPlayList', 'isShowPlayPage', 'playlist', 'playingIndex','playSongGroup','playMode','playSwiperItemId']),
         isShow: {
             get() {
                 return this.isShowPlayPage;
@@ -264,15 +279,12 @@ export default {
         isBg() {
 			return `background: url(${this.playlist[this.playingIndex].picUrl}) center;`;
 		},
-		isWidth() {
-			return `width: ${this.activeWidth}px`;
-		},
 		volumes: {
 			set(val) {
 				this.setVolume(val);
 			},
 			get() {
-				return this.$store.state.volume;
+				return this.volume;
 			}
 		}
 	},
@@ -286,7 +298,13 @@ export default {
                 duration: 1000,
                 position: 'bottom'
             })
-        }
+        },
+		currentTime() {
+			this.activeWidth = this.currentTime * this.unitWidth;
+		},
+		totalTime() {
+			this.unitWidth = this.offsetWidth / this.totalTime;
+		}
     }
 }
 </script>
@@ -457,6 +475,10 @@ export default {
 					font-size: 60rpx;
 				}
 			}
+		}
+		.progress-slider {
+			width: 500rpx;
+			margin: 0 26rpx;
 		}
 	}
 }
