@@ -92,7 +92,7 @@ const store = new Vuex.Store({
         // 当前播放时长(显示)
         playTime: '00:00',
         // 音量
-		volume:100,
+		volume:50,
         // 当前播放时间(音频组件)
 		currentTime:0,
         // 播放模式(1单曲,2列表,3随机)
@@ -135,6 +135,10 @@ const store = new Vuex.Store({
         }
     },
     mutations: {
+        // 跳转音频到指定位置
+        seekAudio(state, position) {
+            state.audio.seek(position);
+        },
         // 控制播放器页面显示隐藏
         setShowPlayPage(state, show) {
             state.isShowPlayPage = show;
@@ -208,12 +212,14 @@ const store = new Vuex.Store({
         },
         setCurrentTime(state, time) {
             state.currentTime = time;
+            this.commit('seekAudio', state.currentTime);
         },
         setShowPlayList(state, show) {
             state.isShowPlaylist = show;
         },
         setVolume(state, volume) {
             state.volume = volume;
+            state.audio.volume = volume / 100;
         },
         setPlayMode(state, playMode) {
             state.playMode = playMode;
@@ -248,25 +254,11 @@ const store = new Vuex.Store({
         },
         //前一首
         playPrevious(state) {
-            if(state.playMode == 1){
-                state.playingIndex = state.playingIndex;
-            } else if(state.playMode == 2) {
-                state.playingIndex = state.playingIndex - 1 < 0 ? state.playlist.length - 1 : state.playingIndex - 1;
-            } else {
-                state.playingIndex = randomNum(0, state.playlist.length - 1)
-            }
-            this.commit('playNewSong', state.playlist[state.playingIndex]);
+            this.commit('switchSong', state.playSongGroup[0]);
         },
         //下一首
         playNext(state) {
-            if(state.playMode == 1){
-                state.playingIndex = state.playingIndex;
-            } else if(state.playMode == 2) {
-                state.playingIndex = state.playingIndex + 1 >= state.playlist.length ? 0 : state.playingIndex + 1;
-            } else {
-                state.playingIndex = randomNum(0, state.playlist.length - 1)
-            }
-            this.commit('playNewSong', state.playlist[state.playingIndex]);
+            this.commit('switchSong', state.playSongGroup[2]);
         },
         //更新需要的前一曲,当前歌曲,后一曲
         playSongGroup(state) {

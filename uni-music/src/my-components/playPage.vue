@@ -13,30 +13,31 @@
                 </view>
             </view>
             <!--歌词及唱片机 -->
-            <view class="pageMain" @click.self="isLyrics = !isLyrics">
-                <view class="recordPlayer" v-if="isLyrics">
+            <view class="pageMain" @click.self="switchLyric()">
+                <view class="recordPlayer" v-if="!isLyrics">
                     <swiper
                         ref="swiper"
                         class="pageSwiper"
                         :duration="duration"
-                        circular
+                        :circular="circular"
+						:currentItemId="itemId"
                         @change="getCurrent"
                         @transition="pageTransition"
                         @animationfinish="pageAnimationfinish"
                     >
-                        <swiper-item item-id="pre" @click="isLyrics = !isLyrics">
+                        <swiper-item item-id="pre" @click="switchLyric()">
                             <view class="imgBox" :class="[isPlay && isSpin ? 'spin' : 'noSpin']">
                                 <image style="width: 540rpx;height: 540rpx;" src="../static/image/play_disc.png"></image>
                                 <image class="songImg" style="width: 320rpx;height: 320rpx;border-radius: 50%;" :src="songPre.picUrl"></image>
                             </view>
                         </swiper-item>
-                        <swiper-item item-id="current" @click="isLyrics = !isLyrics">
+                        <swiper-item item-id="current" @click="switchLyric()">
                             <view class="imgBox" :class="[isPlay && isSpin ? 'spin' : 'noSpin']">
                                 <image style="width: 540rpx;height: 540rpx;" src="../static/image/play_disc.png"></image>
                                 <image class="songImg" style="width: 320rpx;height: 320rpx;border-radius: 50%;" :src="songCurrent.picUrl"></image>
                             </view>
                         </swiper-item>
-                        <swiper-item item-id="next" @click="isLyrics = !isLyrics">
+                        <swiper-item item-id="next" @click="switchLyric()">
                             <view class="imgBox" :class="[isPlay && isSpin ? 'spin' : 'noSpin']">
                                 <image style="width: 540rpx;height: 540rpx;" src="../static/image/play_disc.png"></image>
                                 <image class="songImg" style="width: 320rpx;height: 320rpx;border-radius: 50%;" :src="songNext.picUrl"></image>
@@ -54,7 +55,7 @@
                             class="slider"
                             v-model="volumes"
                             block-width="20"
-                            step="10"
+                            step="1"
                             height="4"
                             active-color="#f1f1f1"
                             inactive-color="rgba(255,255,255,.5)"
@@ -62,8 +63,8 @@
                         ></u-slider>
                     </view>
                     <!-- 歌词滚动区 -->
-                    <view class="lyrics" @click="isLyrics = !isLyrics">
-                        <bing-lyric :lyrics="lyrics.lrc.lyric" :curTime="currentTime" :areaStyle="areaStyle" :centerStyle="centerStyle"></bing-lyric>
+                    <view class="lyrics" @click="switchLyric()">
+                        <bing-lyric :lyrics="lyrics" :curTime="currentTime" :lyricStyle="lyricStyle" :areaStyle="areaStyle" :centerStyle="centerStyle" @centerBtnClick="seekTime"></bing-lyric>
                     </view>
                 </view>
             </view>
@@ -72,12 +73,16 @@
                 <!-- 播放进度条 -->
                 <view class="progress-bar">
                     <text>{{ nowPlayTime }}</text>
-                    <view class="linBox">
-                        <text class="line" ref="linRef"></text>
-                        <view class="activityLine">
-                            <view class="activityLineItem" :style="isWidth"><text class="iconfont icon-dots"></text></view>
-                        </view>
-                    </view>
+                    <u-slider
+                            class="slider"
+                            v-model="currentTime"
+                            block-width="20"
+                            step="1"
+                            height="4"
+                            active-color="#f1f1f1"
+                            inactive-color="rgba(255,255,255,.5)"
+                            @end="skipProgress()"
+                        ></u-slider>
                     <text>{{ endTime }}</text>
                 </view>
                 <!-- 按钮功能区 -->
@@ -110,6 +115,7 @@
 <script>
 import { mapState, mapMutations, mapGetters } from 'vuex';
 import playList from './playList.vue';
+import { songLyric } from '@/api/platform.js';
 
 export default {
     name: 'playPage',
@@ -120,6 +126,8 @@ export default {
         return {
             // 动画时间
 			duration: 0,
+			// 是否循环swiper组件,通过绑定currentItemId值切换动画有bug,需要动态切换是否循环来处理
+			circular: true,
             // 判断动画是否暂停
 			isSpin: true,
 			// 播放进度条宽度
@@ -128,9 +136,15 @@ export default {
 			Swidth: 0,
 			// 当前进度条长度
 			activeWidth: 0,
-			isLyrics: true,
+			isLyrics: false,
 			// 歌词
-			lyrics: '',
+			lyrics: [],
+			// 歌词的颜色
+			lyricStyle: {
+				color: "#ADADAD",
+				fontSize: "14px",
+				activeFontSize: "16px"
+			},
 			// 歌词背景设置
 			areaStyle: {
 				background: '0'
@@ -148,10 +162,11 @@ export default {
             songPre: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
 			songCurrent: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
 			songNext: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
+			itemId: 'pre'
         }
     },
     methods: {
-		...mapMutations(['switchPlay', 'switchSong','setPlaySwiperItemId','setPlayingIndex','setShowPlayList', 'setShowPlayPage','setPlayMode', 'removePlayListSong','switchPlayMode','setVolume']),
+		...mapMutations(['setCurrentTime', 'playPrevious', 'seekAudio','playNext', 'switchPlay', 'switchSong','setPlaySwiperItemId','setPlayingIndex','setShowPlayList', 'setShowPlayPage','setPlayMode', 'removePlayListSong','switchPlayMode','setVolume']),
 		// current值发生改变时触发的事件
 		getCurrent(e) {
 			if (e.detail.source === 'touch') {
@@ -168,48 +183,54 @@ export default {
 		pageAnimationfinish() {
 			this.duration = 0;
 			this.isSpin = true;
+			this.circular = true;
+		},
+		//切换歌词
+		async switchLyric(){
+			if(this.isLyrics == true) {
+				this.isLyrics = false;
+				return;
+			}
+			// 获取歌词
+			let song = this.itemId == 'pre' ? this.songPre : this.itemId == 'current' ? this.songCurrent : this.songNext;
+			if(song.lyric == null || song.lyric != ''){
+				await songLyric({ songId: song.id, musicPlatform: song.musicPlatform }).then(data => {
+					song.lyric = data;
+				});
+			}
+			this.lyrics = song.lyric.replace(/\[/g, 'sb[').split('sb');
+			this.isLyrics = true;
 		},
         // 跳转评论页面
         goCommentPage() {
 
         },
+		// 跳转到歌词时间播放
+		seekTime(e) {
+			this.setCurrentTime(e.centerTime);
+		},
+		skipProgress() {
+			this.setCurrentTime(this.currentTime);
+		},
         // 上一曲
         previousMusic() {
-            this.$refs.swiper.currentItemId = this.playSwiperItemId == 'pre' ? 'next' : this.playSwiperItemId == 'next' ? 'current' : 'pre';
+			if(this.itemId == 'next'){
+				this.circular = false;
+			}
+			this.duration = 1000;
+			this.itemId = this.itemId == 'pre' ? 'next' : this.itemId == 'next' ? 'current' : 'pre';
+			this.setPlaySwiperItemId(this.itemId);
+			this.playPrevious();
         },
         // 下一曲
         nextMusic() {
-            this.$refs.swiper.currentItemId = this.playSwiperItemId == 'pre' ? 'current' : this.playSwiperItemId == 'next' ? 'pre' : 'current';
-        }
-	},
-	computed: {
-        ...mapGetters(['playlistLength','playModeIcon','playModeText','nowPlayTime','endTime']),
-		...mapState(['isPlay', 'isShowPlayList', 'isShowPlayPage', 'playlist', 'playingIndex','playSongGroup','playMode','playSwiperItemId']),
-        isShow: {
-            get() {
-                return this.isShowPlayPage;
-            },
-            set(val) {
-                this.setShowPlayPage(val);
-            }
-        },
-        isBg() {
-			return `background: url(${this.playlist[this.playingIndex].picUrl}) center;`;
+			this.duration = 1000;
+			this.itemId = this.itemId == 'pre' ? 'current' : this.itemId == 'next' ? 'pre' : 'next';
+            this.setPlaySwiperItemId(this.itemId);
+			this.playNext();
 		},
-		isWidth() {
-			return `width: ${this.activeWidth}px`;
-		},
-		volumes: {
-			set(val) {
-				this.getVolume(val);
-			},
-			get() {
-				return this.$store.state.volume;
-			}
-		}
-	},
-    watch: {
-		playSongGroup() {
+		// 切换后更新歌曲
+		updateSongs() {
 			if(this.playSongGroup.length <= 0){
 				this.songPre = this.defaultSong;
 				this.songCurrent = this.defaultSong;
@@ -227,12 +248,43 @@ export default {
 				this.songCurrent = this.playSongGroup[0];
 				this.songNext = this.playSongGroup[1];
 			}
+		}
+	},
+	computed: {
+        ...mapGetters(['playlistLength','playModeIcon','playModeText','nowPlayTime','endTime']),
+		...mapState(['currentTime', 'isPlay', 'isShowPlayList', 'isShowPlayPage', 'playlist', 'playingIndex','playSongGroup','playMode','playSwiperItemId']),
+        isShow: {
+            get() {
+                return this.isShowPlayPage;
+            },
+            set(val) {
+                this.setShowPlayPage(val);
+            }
+        },
+        isBg() {
+			return `background: url(${this.playlist[this.playingIndex].picUrl}) center;`;
+		},
+		isWidth() {
+			return `width: ${this.activeWidth}px`;
+		},
+		volumes: {
+			set(val) {
+				this.setVolume(val);
+			},
+			get() {
+				return this.$store.state.volume;
+			}
+		}
+	},
+    watch: {
+		playSongGroup() {
+			this.updateSongs();
 		},
         playMode() {
             this.$refs.uToast.show({
                 title: this.playModeText,
                 duration: 1000,
-                position: bottom
+                position: 'bottom'
             })
         }
     }

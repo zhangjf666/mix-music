@@ -5,6 +5,7 @@
 			class="playSwiper"
 			circular
 			:duration="duration"
+			:currentItemId="playSwiperItemId"
 			@change="getCurrent"
 			@transition="playTransition"
 			@animationfinish="playAnimationfinish"
@@ -103,17 +104,9 @@ export default {
 		// 动画结束后触发的事件
 		playAnimationfinish() {
 			this.duration = 0;
-		}
-	},
-	computed: {
-		...mapState(['isPlay', 'playlist', 'playingIndex','playSongGroup','playMode','playSwiperItemId']),
-		// 处理微信兼容v-if问题
-		isNull() {
-			return this.playingIndex !== null;
-		}
-	},
-	watch: {
-		playSongGroup() {
+		},
+		// 切换后更新歌曲
+		updateSongs() {
 			if(this.playSongGroup.length <= 0){
 				this.songPre = this.defaultSong;
 				this.songCurrent = this.defaultSong;
@@ -131,6 +124,18 @@ export default {
 				this.songCurrent = this.playSongGroup[0];
 				this.songNext = this.playSongGroup[1];
 			}
+		}
+	},
+	computed: {
+		...mapState(['isPlay', 'playlist', 'playingIndex','playSongGroup','playMode','playSwiperItemId']),
+		// 处理微信兼容v-if问题
+		isNull() {
+			return this.playingIndex !== null;
+		}
+	},
+	watch: {
+		playSongGroup() {
+			this.updateSongs();
 		}
     }
 };

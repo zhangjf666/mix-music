@@ -22,8 +22,8 @@
 			</view>
 		</scroll-view>
 		<view class="center-view" :style="{top:centerLineTop,display:showCenterView?'flex':'none',fontSize:cuCenterStyle.fontSize,height:cuCenterStyle.height}">
-			<image v-if="cuCenterStyle.btnImg" class="center-btn" @click="centerBtnClick" :src="cuCenterStyle.btnImg" :style="{width:cuCenterStyle.height,height:cuCenterStyle.height}"></image>
-			<view v-else class="center-btn" @click="centerBtnClick">{{cuCenterStyle.btnText}}</view>
+			<image v-if="cuCenterStyle.btnImg" class="center-btn" @click.stop="centerBtnClick" :src="cuCenterStyle.btnImg" :style="{width:cuCenterStyle.height,height:cuCenterStyle.height}"></image>
+			<view v-else class="center-btn" @click.stop="centerBtnClick">{{cuCenterStyle.btnText}}</view>
 			<view class="center-line" :style="{height:cuCenterStyle.lineHeight,backgroundColor:cuCenterStyle.color}"></view>
 			<view class="center-time">{{centerTime}}</view>
 		</view>
