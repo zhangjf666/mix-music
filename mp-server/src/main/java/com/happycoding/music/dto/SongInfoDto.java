@@ -3,6 +3,8 @@ package com.happycoding.music.dto;
 import com.happycoding.music.model.MusicPlatform;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @Author: zjf
  * @Email: junfeng1987@163.com
@@ -33,14 +35,9 @@ public class SongInfoDto {
     long duration;
 
     /**
-     * 歌手id
+     * 歌手信息
      */
-    String singerId;
-
-    /**
-     * 歌手名称
-     */
-    String singerName;
+    List<SingerInfoDto> singers;
 
     /**
      * 歌曲播放url
@@ -63,12 +60,7 @@ public class SongInfoDto {
     String br;
 
     /**
-     * 专辑id
+     * 所属专辑
      */
-    String albumId;
-
-    /**
-     * 专辑名称
-     */
-    String albumName;
+    List<AlbumInfoDto> albums;
 }

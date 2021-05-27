@@ -15,5 +15,5 @@ public class PlayListDetailDto {
 
     private PlayListDto playList;
 
-    private List<SongInfoDto> songInfo;
+    private List<SongInfoDto> songs;
 }

@@ -5,10 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.happycoding.music.common.exception.BusinessException;
-import com.happycoding.music.dto.PlayListDetailDto;
-import com.happycoding.music.dto.PlayListDto;
-import com.happycoding.music.dto.SongInfoDto;
-import com.happycoding.music.dto.SongUrlDto;
+import com.happycoding.music.dto.*;
 import com.happycoding.music.model.MusicPlatform;
 import com.happycoding.music.model.NeteaseOption;
 import com.happycoding.music.model.NeteaseResponse;
@@ -269,7 +266,7 @@ public class NeteaseService {
      * @return
      */
     private SongInfoDto getSongInfo(JSONObject song) {
-        SongInfoDto info = new SongInfoDto();
+        SongInfoDto info = null;
         //fee 为1和4代表没有播放权限,需要用migu平台替换
         int fee = song.getInteger("fee");
         if(!canPlay(fee)){
@@ -280,17 +277,32 @@ public class NeteaseService {
                 return info;
             }
         }
+        info = new SongInfoDto();
         info.setId(song.getString("id"));
         info.setDuration(song.getLong("dt"));
         info.setMusicPlatform(MusicPlatform.Netease);
         info.setName(song.getString("name"));
-        info.setSingerId(song.getJSONArray("ar").getJSONObject(0).getString("id"));
-        info.setSingerName(song.getJSONArray("ar").getJSONObject(0).getString("name"));
+        List<SingerInfoDto> singerInfoDtos = new ArrayList<>();
+        if(song.getJSONArray("ar") != null && !song.getJSONArray("ar").isEmpty()){
+            for (Object o: song.getJSONArray("ar")) {
+                JSONObject ar = (JSONObject) o;
+                SingerInfoDto singer = new SingerInfoDto();
+                singer.setId(ar.getString("id"));
+                singer.setName(ar.getString("name"));
+                singerInfoDtos.add(singer);
+            }
+        }
+        info.setSingers(singerInfoDtos);
+
+        List<AlbumInfoDto> albumInfoDtos = new ArrayList<>();
         if (song.containsKey("al") && song.getJSONObject("al") != null) {
             info.setPicUrl(song.getJSONObject("al").getString("picUrl"));
-            info.setAlbumId(song.getJSONObject("al").getString("id"));
-            info.setAlbumName(song.getJSONObject("al").getString("name"));
+            AlbumInfoDto album = new AlbumInfoDto();
+            album.setId(song.getJSONObject("al").getString("id"));
+            album.setName(song.getJSONObject("al").getString("name"));
+            albumInfoDtos.add(album);
         }
+        info.setAlbums(albumInfoDtos);
         return info;
     }
 
@@ -306,7 +318,8 @@ public class NeteaseService {
         List<SongInfoDto> list = miguService.search(keyword, 2, 30 , 1);
         if(!list.isEmpty()){
             SongInfoDto miguSong = list.get(0);
-            if(songName.equals(miguSong.getName()) && miguSong.getSingerName().contains(singerName)){
+            if(songName.equals(miguSong.getName())
+                    && miguSong.getSingers().stream().anyMatch(singerInfoDto -> singerInfoDto.getName().contains(singerName))){
                 log.info("网易云歌曲:{}-{}, 使用{}平台歌曲替换.", songName, singerName, miguSong.getMusicPlatform().getName());
                 return miguSong;
             }
@@ -316,7 +329,7 @@ public class NeteaseService {
     }
 
     private boolean canPlay(int fee){
-        return !(fee == 1 || fee == 4 || fee == 0);
+        return !(fee == 1 || fee == 4);
     }
 
     /**
@@ -375,7 +388,7 @@ public class NeteaseService {
             }
             songInfoList.addAll(songInfo(String.join(",", ids)));
         }
-        playListDetail.setSongInfo(songInfoList);
+        playListDetail.setSongs(songInfoList);
         return playListDetail;
     }
 
@@ -513,13 +526,28 @@ public class NeteaseService {
             info.setPicUrl(song.getString("picUrl"));
             song = song.getJSONObject("song");
             info.setDuration(song.getLong("duration"));
-            info.setSingerId(song.getJSONArray("artists").getJSONObject(0).getString("id"));
-            info.setSingerName(song.getJSONArray("artists").getJSONObject(0).getString("name"));
+
+            List<SingerInfoDto> singerInfoDtos = new ArrayList<>();
+            if(song.getJSONArray("artists") != null && !song.getJSONArray("artists").isEmpty()){
+                for (Object a: song.getJSONArray("artists")) {
+                    JSONObject ar = (JSONObject) a;
+                    SingerInfoDto singer = new SingerInfoDto();
+                    singer.setId(ar.getString("id"));
+                    singer.setName(ar.getString("name"));
+                    singerInfoDtos.add(singer);
+                }
+            }
+            info.setSingers(singerInfoDtos);
+
+            List<AlbumInfoDto> albumInfoDtos = new ArrayList<>();
             if (song.containsKey("album") && song.getJSONObject("album") != null) {
                 info.setPicUrl(song.getJSONObject("album").getString("picUrl"));
-                info.setAlbumId(song.getJSONObject("album").getString("id"));
-                info.setAlbumName(song.getJSONObject("album").getString("name"));
+                AlbumInfoDto album = new AlbumInfoDto();
+                album.setId(song.getJSONObject("album").getString("id"));
+                album.setName(song.getJSONObject("album").getString("name"));
+                albumInfoDtos.add(album);
             }
+            info.setAlbums(albumInfoDtos);
             songInfoDtoList.add(info);
         }
         return songInfoDtoList;

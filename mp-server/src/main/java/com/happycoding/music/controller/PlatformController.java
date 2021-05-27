@@ -47,7 +47,7 @@ public class PlatformController {
     }
 
     @ApiOperation("歌单信息")
-    @GetMapping("/playlist")
+    @GetMapping("/playlistDetail")
     public Response<PlayListDetailDto> getPlayListDetail(String playListId, MusicPlatform musicPlatform){
         PlayListDetailDto playListDetail = null;
         switch (musicPlatform){

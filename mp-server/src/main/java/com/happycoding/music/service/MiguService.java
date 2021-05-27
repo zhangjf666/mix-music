@@ -6,10 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.happycoding.music.common.exception.BusinessException;
-import com.happycoding.music.dto.PlayListDetailDto;
-import com.happycoding.music.dto.PlayListDto;
-import com.happycoding.music.dto.SongInfoDto;
-import com.happycoding.music.dto.SongUrlDto;
+import com.happycoding.music.dto.*;
 import com.happycoding.music.model.MiguResponse;
 import com.happycoding.music.model.MusicPlatform;
 import com.happycoding.music.util.MiguRequestUtil;
@@ -20,10 +17,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: zjf
@@ -63,10 +57,33 @@ public class MiguService {
                 SongInfoDto info = new SongInfoDto();
                 info.setId(song.getString("copyrightId"));
                 info.setName(song.getString("songName"));
-                info.setAlbumId(song.getString("albumId"));
-                info.setAlbumName(song.getString("albumName"));
-                info.setSingerId(song.getString("singerId"));
-                info.setSingerName(song.getString("singerName"));
+                //专辑信息
+                List<AlbumInfoDto> albumInfoDtos = new ArrayList<>();
+                if(song.getString("albumId") != null && song.getString("albumName") != null){
+                    String[] albumIds = song.getString("albumId").split(",");
+                    String[] albumNames = song.getString("albumName").split(",");
+                    for (int ia = 0; ia < albumIds.length; ia++) {
+                        AlbumInfoDto album = new AlbumInfoDto();
+                        album.setId(albumIds[ia]);
+                        album.setName(albumNames[ia]);
+                        albumInfoDtos.add(album);
+                    }
+                }
+                info.setAlbums(albumInfoDtos);
+                // 歌手信息
+                List<SingerInfoDto> singerInfoDtos = new ArrayList<>();
+                if(song.getString("singerId") != null && song.getString("singerName") != null){
+                    String[] singerIds = song.getString("singerId").split(",");
+                    String[] singerNames = song.getString("singerName").split(",");
+                    for (int is = 0; is < singerIds.length; is++) {
+                        SingerInfoDto singer = new SingerInfoDto();
+                        singer.setId(singerIds[is]);
+                        singer.setName(singerNames[is]);
+                        singerInfoDtos.add(singer);
+                    }
+                }
+                info.setSingers(singerInfoDtos);
+
                 info.setPicUrl(song.getString("cover"));
                 info.setMusicPlatform(MusicPlatform.Migu);
                 songInfoDtoList.add(info);
@@ -166,14 +183,28 @@ public class MiguService {
                 sid.setMusicPlatform(MusicPlatform.Migu);
                 sid.setName(song.getString("songName"));
 
-                JSONObject singer = song.getJSONArray("singers").getJSONObject(0);
-                sid.setSingerId(singer.getString("artistId"));
-                sid.setSingerName(singer.getString("artistName"));
+                if(song.getJSONArray("singers") != null && !song.getJSONArray("singers").isEmpty()){
+                    List<SingerInfoDto> singerInfoDtos = new ArrayList<>();
+                    for (Object si : song.getJSONArray("singers")) {
+                        JSONObject sin = (JSONObject) si;
+                        SingerInfoDto singer = new SingerInfoDto();
+                        singer.setId(sin.getString("artistId"));
+                        singer.setName(sin.getString("artistName"));
+                        singerInfoDtos.add(singer);
+                    }
+                    sid.setSingers(singerInfoDtos);
+                }
 
                 if (song.containsKey("albums") && song.getJSONArray("albums") != null && !song.getJSONArray("albums").isEmpty()) {
-                    JSONObject albums = song.getJSONArray("albums").getJSONObject(0);
-                    sid.setAlbumId(albums.getString("albumId"));
-                    sid.setAlbumName(albums.getString("albumName"));
+                    List<AlbumInfoDto> albumInfoDtos = new ArrayList<>();
+                    for (Object al:song.getJSONArray("albums")) {
+                        JSONObject alb = (JSONObject) al;
+                        AlbumInfoDto album = new AlbumInfoDto();
+                        album.setId(alb.getString("albumId"));
+                        album.setName(alb.getString("albumName"));
+                        albumInfoDtos.add(album);
+                    }
+                    sid.setAlbums(albumInfoDtos);
                 }
                 songInfos.add(sid);
             }
@@ -240,7 +271,7 @@ public class MiguService {
             List<String> cids = songCidInPlayList(id, contentCount);
             String cidsStr = String.join(",", cids);
             List<SongInfoDto> songInfos = songInfo(cidsStr);
-            playListDetailDto.setSongInfo(songInfos);
+            playListDetailDto.setSongs(songInfos);
             return playListDetailDto;
         }
         return null;
