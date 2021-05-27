@@ -11,7 +11,11 @@
 			"style": {}
 		},
 		{
-			"path": "pages/playlist/playlist",
+			"path": "pages/songlist/songlist",
+			"style": {}
+		},
+		{
+			"path": "pages/songlist/songlistDetail/songlistDetail",
 			"style": {}
 		},
 		{

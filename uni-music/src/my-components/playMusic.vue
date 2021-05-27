@@ -16,9 +16,9 @@
 					<view>
 						<text class="songName">{{ songPre.name }}</text>
 						<text class="horizontal">-</text>
-						<text class="singerName">{{ songPre.singerName }}</text>
+						<text class="singerName">{{ songSinger(songPre) }}</text>
 					</view>
-					<view class="lyrics">横滑可以切换上下首哦</view>
+					
 				</view>
 			</swiper-item>
 			<swiper-item item-id="current" @click="setShowPlayPage(true)">
@@ -27,9 +27,9 @@
 					<view>
 						<text class="songName">{{ songCurrent.name }}</text>
 						<text class="horizontal">-</text>
-						<text class="singerName">{{ songCurrent.singerName }}</text>
+						<text class="singerName">{{ songSinger(songCurrent) }}</text>
 					</view>
-					<view class="lyrics">横滑可以切换上下首哦</view>
+					
 				</view>
 			</swiper-item>
 			<swiper-item item-id="next" @click="setShowPlayPage(true)">
@@ -38,9 +38,9 @@
 					<view>
 						<text class="songName">{{ songNext.name }}</text>
 						<text class="horizontal">-</text>
-						<text class="singerName">{{ songNext.singerName }}</text>
+						<text class="singerName">{{ songSinger(songNext) }}</text>
 					</view>
-					<view class="lyrics">横滑可以切换上下首哦</view>
+					
 				</view>
 			</swiper-item>
 		</swiper>
@@ -63,6 +63,7 @@
 import { mapState, mapMutations } from 'vuex';
 import playList from './playList.vue';
 import playPage from './playPage.vue';
+import { handleSingerName } from '../utils/songUtil.js'
 
 export default {
 	name: 'playMusic',
@@ -78,9 +79,9 @@ export default {
 			},
 			//歌曲列表背景控制
 			songBg: null,
-			songPre: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
-			songCurrent: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
-			songNext: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
+			songPre: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singers:[]},
+			songCurrent: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singers:[]},
+			songNext: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singers:[]},
 		};
 	},
 	components:{
@@ -126,11 +127,22 @@ export default {
 			}
 		}
 	},
+	mounted() {
+		if(this.playingIndex !== null){
+			this.updateSongs();
+		}
+	},
 	computed: {
 		...mapState(['isPlay', 'playlist', 'playingIndex','playSongGroup','playMode','playSwiperItemId']),
 		// 处理微信兼容v-if问题
 		isNull() {
 			return this.playingIndex !== null;
+		},
+		// 处理歌手名字
+		songSinger() {
+			return (song) => {
+                return handleSingerName(song);
+            }
 		}
 	},
 	watch: {
@@ -166,10 +178,12 @@ export default {
 			margin: 0 15rpx;
 		}
 		.songInfo {
-			// width: 55%;
+			width: 55%;
 			// font-size: 24rpx;
+			white-space: nowrap;
+			text-overflow: ellipsis;
 			.songName {
-				font-size: 24rpx;
+				font-size: 28rpx;
 				color: #000;
 				width: 440rpx;
 				overflow: hidden;

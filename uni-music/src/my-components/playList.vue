@@ -27,7 +27,7 @@
 						<view class="item-text" :class="playingIndex === i ? 'color' : ''">
 							<text class="item-songName" :class="playingIndex === i ? 'color' : ''">{{ item.name }}</text>
 							<text class="horizontal" :class="playingIndex === i ? 'color' : ''">-</text>
-							<text class="item-singer" :class="playingIndex === i ? 'color' : ''">{{ item.singerName }}</text>
+							<text class="item-singer" :class="playingIndex === i ? 'color' : ''">{{ songSinger(item) }}</text>
 						</view>
 					</view>
 					<view><text class="iconfont icon-close" @click.stop="removePlayListSong(i)"></text></view>
@@ -39,6 +39,7 @@
 
 <script>
 import { mapState, mapMutations, mapGetters } from 'vuex';
+import { handleSingerName } from '../utils/songUtil.js'
 
 export default {
 	name: 'playList',
@@ -74,7 +75,13 @@ export default {
             set(val) {
                 this.setShowPlayList(val);
             }
-        }
+        },
+		// 处理歌手名字
+		songSinger() {
+			return (song) => {
+                return handleSingerName(song);
+            }
+		}
 	},
 	watch:{
 	}

@@ -49,3 +49,11 @@ export function songLyric(data) {
         data
     })
 }
+
+export function songListDetail(data) {
+    return request({
+        url: prefix + '/playlistDetail',
+        method: 'GET',
+        data
+    })
+}

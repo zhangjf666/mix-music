@@ -113,7 +113,7 @@
                 :style="
                   isHeadBtn === true ? 'background-color:rgba(0,0,0,.1)' : ''
                 "
-                @click="goPlayListPage"
+                @click="goSongListPage"
               >
                 查看更多
               </view>
@@ -173,7 +173,7 @@
                   <view class="newSongName">
                     <view class="name">{{ item.name }}</view>
                     <view class="singerName"
-                      >­­­­­­­­­­{{ item.singerName }}</view
+                      >­­­­­­­­­­{{ songSinger(item) }}</view
                     >
                   </view>
                   <u-icon
@@ -209,6 +209,7 @@
 import { recommend, banner, recommendNewSong } from "@/api/platform.js";
 import { mapState, mapMutations } from 'vuex';
 import playMusic from '@/my-components/playMusic.vue'
+import { handleSingerName } from '@/utils/songUtil.js';
 
 export default {
   components: {
@@ -261,7 +262,13 @@ export default {
     // 获得现在是几日
     getDay() {
       return new Date().getDate();
-    }
+    },
+    // 处理歌手名字
+		songSinger() {
+			return (song) => {
+                return handleSingerName(song);
+            }
+		}
   },
   methods: {
     ...mapMutations(['addAndPlay','setPlayingIndex','setPlayList']),
@@ -310,13 +317,13 @@ export default {
     // 跳转新页面
     goNavNewPage(text) {
       if (text == "歌单") {
-        return this.goPlayListPage();
+        return this.goSongListPage();
       }
     },
     // 跳转歌单页面
     goPlayListPage() {
       uni.navigateTo({
-        url: `../playlist/playlist`,
+        url: `../songlist/songlist`,
       });
     },
     // 跳转搜索页面
@@ -328,7 +335,7 @@ export default {
     // 跳转歌单详情页
     goPlaylistDetail(id) {
       uni.navigateTo({
-        url: `../playlist/playlistDetail/playlistDetail?id=${id}`,
+        url: `../songlist/songlistDetail/songlistDetail?id=${id}&musicPlatform=1`,
       });
     },
     // 处理播放数

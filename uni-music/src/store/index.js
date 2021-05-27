@@ -131,6 +131,10 @@ const store = new Vuex.Store({
             s = s < 10 ? '0' + s : s;
             time = m + ':' + s;
             return time;
+        },
+        // 返回当前播放的歌曲
+        getCurrentSong(state) {
+            return state.playingIndex != null ? state.playlist[state.playingIndex] : null;
         }
     },
     mutations: {

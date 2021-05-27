@@ -9,7 +9,7 @@
                 <!-- #endif -->
                 <view class="info">
                     <view class="name">{{ playlist[playingIndex].name }}</view>
-                    <view class="singer">{{ playlist[playingIndex].singerName }}</view>
+                    <view class="singer">{{ songSinger(playlist[playingIndex]) }}</view>
                 </view>
             </view>
             <!--歌词及唱片机 -->
@@ -116,6 +116,7 @@
 import { mapState, mapMutations, mapGetters } from 'vuex';
 import playList from './playList.vue';
 import { songLyric } from '@/api/platform.js';
+import { handleSingerName } from '../utils/songUtil.js'
 
 export default {
     name: 'playPage',
@@ -136,8 +137,6 @@ export default {
 			unitWidth: 0,
 			// 当前进度条长度
 			activeWidth: 0,
-			// 当前播放时间
-			nowTime: 0,
 			// 显示歌词
 			isLyrics: false,
 			// 歌词
@@ -212,6 +211,7 @@ export default {
 		seekTime(e) {
 			this.seekAudio(e.centerTime);
 		},
+		// 播放进度条跳转
 		skipProgress() {
 			this.seekAudio(this.activeWidth / this.unitWidth);
 		},
@@ -260,9 +260,10 @@ export default {
 						song.lyric = data;
 						this.lyrics = song.lyric.replace(/\[/g, 'sb[').split('sb');	
 					});
+				} else {
+					this.lyrics = song.lyric.replace(/\[/g, 'sb[').split('sb');	
 				}
 			}
-			
 		}
 	},
 	computed: {
@@ -276,9 +277,11 @@ export default {
                 this.setShowPlayPage(val);
             }
         },
+		// 背景
         isBg() {
 			return `background: url(${this.playlist[this.playingIndex].picUrl}) center;`;
 		},
+		// 音量
 		volumes: {
 			set(val) {
 				this.setVolume(val);
@@ -286,6 +289,12 @@ export default {
 			get() {
 				return this.volume;
 			}
+		},
+		// 处理歌手名字
+		songSinger() {
+			return (song) => {
+                return handleSingerName(song);
+            }
 		}
 	},
     watch: {
