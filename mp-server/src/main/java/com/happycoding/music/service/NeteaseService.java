@@ -570,6 +570,288 @@ public class NeteaseService {
         return response.getBody();
     }
 
+    /**
+     * 全部歌单分类
+     * @return
+     */
+    public JSONObject allTags(){
+        Map<String, Object> data = new HashMap<>();
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(WEAPI_TYPE);
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://music.163.com/weapi/playlist/catalogue", data, option);
+        checkError(response);
+        return response.getBody();
+    }
+
+    /**
+     * 精品歌单 tags
+     * @return
+     */
+    public JSONObject highQualityTags(){
+        Map<String, Object> data = new HashMap<>();
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(WEAPI_TYPE);
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://music.163.com/api/playlist/highquality/tags", data, option);
+        checkError(response);
+        return response.getBody();
+    }
+
+    /**
+     * 热门歌单分类
+     * @return
+     */
+    public JSONObject hotTags(){
+        Map<String, Object> data = new HashMap<>();
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(WEAPI_TYPE);
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://music.163.com/weapi/playlist/hottags", data, option);
+        checkError(response);
+        return response.getBody();
+    }
+
+    /**
+     * 精品歌单
+     * @param  cat 全部,华语,欧美,韩语,日语,粤语,小语种,运动,ACG,影视原声,流行,摇滚,后摇,古风,民谣,轻音乐,电子,器乐,说唱,古典,爵士
+     * @return
+     */
+    public PlayListPage highQualityList(String cat, int limit, int lasttime){
+        Map<String, Object> data = new HashMap<>();
+        data.put("cat", cat);
+        data.put("limit", limit);
+        data.put("lasttime", lasttime);
+        data.put("total", true);
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(WEAPI_TYPE);
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://music.163.com/api/playlist/highquality/list", data, option);
+        checkError(response);
+
+        PlayListPage playListPage = new PlayListPage();
+        JSONObject body = response.getBody();
+        playListPage.setTotal(body.getLong("total"));
+        playListPage.setLastTime(body.getLong("lasttime"));
+        playListPage.setCat(cat);
+        playListPage.setMore(body.getBoolean("more"));
+        JSONArray list = body.getJSONArray("playlists");
+        if(list == null || list.isEmpty()){
+            return playListPage;
+        }
+        List<PlayListDto> playList = new ArrayList<>();
+        for (Object o : list) {
+            JSONObject jo = (JSONObject)o;
+            PlayListDto dto = new PlayListDto();
+            dto.setMusicPlatform(MusicPlatform.Netease);
+            dto.setId(jo.getString("id"));
+            dto.setName(jo.getString("name"));
+            dto.setPicUrl(jo.getString("coverImgUrl"));
+            dto.setSummary(jo.getString("description"));
+            dto.setPlayCount(jo.getLong("playCount"));
+            dto.setTrackCount(jo.getLong("trackCount"));
+            playList.add(dto);
+        }
+        playListPage.setPlayLists(playList);
+        return playListPage;
+    }
+
+    /**
+     * 分类歌单
+     * @param cat 全部,华语,欧美,日语,韩语,粤语,小语种,流行,摇滚,民谣,电子,舞曲,说唱,轻音乐,爵士,乡村,R&B/Soul,古典,民族,英伦,金属,朋克,蓝调,雷鬼,世界音乐,拉丁,另类/独立,New Age,古风,后摇,Bossa Nova,清晨,夜晚,学习,工作,午休,下午茶,地铁,驾车,运动,旅行,散步,酒吧,怀旧,清新,浪漫,性感,伤感,治愈,放松,孤独,感动,兴奋,快乐,安静,思念,影视原声,ACG,儿童,校园,游戏,70后,80后,90后,网络歌曲,KTV,经典,翻唱,吉他,钢琴,器乐,榜单,00后
+     * @param order hot,new
+     * @return
+     */
+    public PlayListPage categoryList(String cat, String order, int limit, int offset){
+        Map<String, Object> data = new HashMap<>();
+        data.put("cat", cat);
+        data.put("order", order);
+        data.put("limit", limit);
+        data.put("offset", offset);
+        data.put("total", true);
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(WEAPI_TYPE);
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://music.163.com/weapi/playlist/list", data, option);
+        checkError(response);
+
+        PlayListPage playListPage = new PlayListPage();
+        JSONObject body = response.getBody();
+        playListPage.setTotal(body.getLong("total"));
+        playListPage.setCat(body.getString("cat"));
+        playListPage.setMore(body.getBoolean("more"));
+        JSONArray list = body.getJSONArray("playlists");
+        if(list == null || list.isEmpty()){
+            return playListPage;
+        }
+        List<PlayListDto> playList = new ArrayList<>();
+        for (Object o : list) {
+            JSONObject jo = (JSONObject)o;
+            PlayListDto dto = new PlayListDto();
+            dto.setMusicPlatform(MusicPlatform.Netease);
+            dto.setId(jo.getString("id"));
+            dto.setName(jo.getString("name"));
+            dto.setPicUrl(jo.getString("coverImgUrl"));
+            dto.setSummary(jo.getString("description"));
+            dto.setPlayCount(jo.getLong("playCount"));
+            dto.setTrackCount(jo.getLong("trackCount"));
+            playList.add(dto);
+        }
+        playListPage.setPlayLists(playList);
+        return playListPage;
+    }
+
+    /**
+     * 新专辑列表
+     * @param area ALL:全部,ZH:华语,EA:欧美,KR:韩国,JP:日本
+     * @param type new
+     * @return
+     */
+    public JSONObject topAlbumList(String area, String type, int limit, int offset, int year, int month){
+        Map<String, Object> data = new HashMap<>();
+        data.put("area", area);
+        data.put("type", type);
+        data.put("limit", limit);
+        data.put("offset", offset);
+        data.put("year", year);
+        data.put("month", month);
+        data.put("total", false);
+        data.put("rcmd", true);
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(WEAPI_TYPE);
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://music.163.com/api/discovery/new/albums/area", data, option);
+        checkError(response);
+
+//        PlayListPage playListPage = new PlayListPage();
+//        JSONObject body = response.getBody();
+//        playListPage.setTotal(body.getLong("total"));
+//        playListPage.setCat(body.getString("cat"));
+//        playListPage.setMore(body.getBoolean("more"));
+//        JSONArray list = body.getJSONArray("playlists");
+//        if(list == null || list.isEmpty()){
+//            return playListPage;
+//        }
+//        List<PlayListDto> playList = new ArrayList<>();
+//        for (Object o : list) {
+//            JSONObject jo = (JSONObject)o;
+//            PlayListDto dto = new PlayListDto();
+//            dto.setMusicPlatform(MusicPlatform.Netease);
+//            dto.setId(jo.getString("id"));
+//            dto.setName(jo.getString("name"));
+//            dto.setPicUrl(jo.getString("coverImgUrl"));
+//            dto.setSummary(jo.getString("description"));
+//            dto.setPlayCount(jo.getLong("playCount"));
+//            dto.setTrackCount(jo.getLong("trackCount"));
+//            playList.add(dto);
+//        }
+//        playListPage.setPlayLists(playList);
+        return response.getBody();
+    }
+
+    /**
+     * 热门歌手
+     * @return
+     */
+    public JSONObject hotArtistList(int limit, int offset){
+        Map<String, Object> data = new HashMap<>();
+        data.put("limit", limit);
+        data.put("offset", offset);
+        data.put("total", true);
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(WEAPI_TYPE);
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://music.163.com/weapi/artist/top", data, option);
+        checkError(response);
+        return response.getBody();
+    }
+
+    /**
+     * 排行榜
+     * @return
+     */
+    public JSONObject rankList(String id){
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", id);
+        data.put("n", 500);
+        data.put("s", 0);
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(WEAPI_TYPE);
+        option.getCookie().put("os", "pc");
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://interface3.music.163.com/api/playlist/v4/detail", data, option);
+        checkError(response);
+        return response.getBody();
+    }
+
+    /**
+     * 所有榜单介绍
+     * @return
+     */
+    public JSONObject topListInfo(){
+        Map<String, Object> data = new HashMap<>();
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(LINUXAPI_TYPE);
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://music.163.com/api/toplist", data, option);
+        checkError(response);
+        return response.getBody();
+    }
+
+    /**
+     * 所有榜单内容摘要
+     * @return
+     */
+    public JSONObject topListDetail(){
+        Map<String, Object> data = new HashMap<>();
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(WEAPI_TYPE);
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://music.163.com/weapi/toplist/detail", data, option);
+        checkError(response);
+        return response.getBody();
+    }
+
+    /**
+     * 歌手榜
+     * @return
+     */
+    public JSONObject topArtistList(String type, int limit, int offset){
+        Map<String, Object> data = new HashMap<>();
+        data.put("type", type);
+        data.put("limit", limit);
+        data.put("offset", offset);
+        data.put("total", true);
+
+        NeteaseOption option = new NeteaseOption();
+        option.setCrypto(WEAPI_TYPE);
+
+        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
+                "https://music.163.com/weapi/toplist/artist", data, option);
+        checkError(response);
+        return response.getBody();
+    }
+
     private void checkError(NeteaseResponse response){
         if(response.getCode() != 200){
             throw new BusinessException(response.getCode(), response.getMessage());

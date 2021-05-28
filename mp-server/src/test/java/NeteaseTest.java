@@ -103,4 +103,60 @@ public class NeteaseTest {
         Object dict = neteaseService.personalized(10);
         System.out.println(JSONUtil.toJsonStr(dict));
     }
+
+    //精品歌单
+    @Test
+    public void highQualityListTest(){
+        Object dict = neteaseService.highQualityList("全部", 50, 0);
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //分类歌单
+    @Test
+    public void categoryListTest(){
+        Object dict = neteaseService.categoryList("全部", "hot",50, 0);
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //所有榜单介绍
+    @Test
+    public void topListInfoTest(){
+        Object dict = neteaseService.topListInfo();
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //所有榜单摘要
+    @Test
+    public void topListDetailTest(){
+        Object dict = neteaseService.topListDetail();
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //歌手榜
+    @Test
+    public void topArtistListTest(){
+        Object dict = neteaseService.topArtistList("1",50, 0);
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //排行榜
+    @Test
+    public void rankListTest(){
+        Object dict = neteaseService.rankList("19723756");
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //热门歌手
+    @Test
+    public void hotArtistListTest(){
+        Object dict = neteaseService.hotArtistList(50, 0);
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //新专辑列表
+    @Test
+    public void topAlbumListTest(){
+        Object dict = neteaseService.topAlbumList("ALL", "new",1,0,2021,5);
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
 }
