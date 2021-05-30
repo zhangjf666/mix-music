@@ -20,7 +20,7 @@
                         class="pageSwiper"
                         :duration="duration"
                         :circular="circular"
-						:currentItemId="itemId"
+						:currentItemId="playSwiperItemId"
                         @change="getCurrent"
                         @transition="pageTransition"
                         @animationfinish="pageAnimationfinish"
@@ -164,9 +164,13 @@ export default {
             songPre: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
 			songCurrent: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
 			songNext: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
-			itemId: 'pre'
         }
     },
+	mounted() {
+		if(this.playingIndex !== null){
+			this.updateSongs();
+		}
+	},
     methods: {
 		...mapMutations(['playPrevious', 'seekAudio','playNext', 'switchPlay', 'switchSong','setPlaySwiperItemId','setPlayingIndex','setShowPlayList', 'setShowPlayPage','setPlayMode', 'removePlayListSong','switchPlayMode','setVolume']),
 		// current值发生改变时触发的事件
@@ -194,7 +198,7 @@ export default {
 				return;
 			}
 			// 获取歌词
-			let song = this.itemId == 'pre' ? this.songPre : this.itemId == 'current' ? this.songCurrent : this.songNext;
+			let song = this.playSwiperItemId == 'pre' ? this.songPre : this.playSwiperItemId == 'current' ? this.songCurrent : this.songNext;
 			if(song.lyric == null || song.lyric != ''){
 				await songLyric({ songId: song.id, musicPlatform: song.musicPlatform }).then(data => {
 					song.lyric = data;
@@ -217,19 +221,17 @@ export default {
 		},
         // 上一曲
         previousMusic() {
-			if(this.itemId == 'next'){
+			if(this.playSwiperItemId == 'next'){
 				this.circular = false;
 			}
 			this.duration = 1000;
-			this.itemId = this.itemId == 'pre' ? 'next' : this.itemId == 'next' ? 'current' : 'pre';
-			this.setPlaySwiperItemId(this.itemId);
+			this.setPlaySwiperItemId(this.playSwiperItemId == 'pre' ? 'next' : this.playSwiperItemId == 'next' ? 'current' : 'pre');
 			this.playPrevious();
         },
         // 下一曲
         nextMusic() {
 			this.duration = 1000;
-			this.itemId = this.itemId == 'pre' ? 'current' : this.itemId == 'next' ? 'pre' : 'next';
-            this.setPlaySwiperItemId(this.itemId);
+            this.setPlaySwiperItemId(this.playSwiperItemId == 'pre' ? 'current' : this.playSwiperItemId == 'next' ? 'pre' : 'next');
 			this.playNext();
 		},
 		// 切换后更新歌曲
@@ -254,7 +256,7 @@ export default {
 			// 获取歌词
 			if(this.isLyrics) {
 				this.lyrics = [];
-				let song = this.itemId == 'pre' ? this.songPre : this.itemId == 'current' ? this.songCurrent : this.songNext;
+				let song = this.playSwiperItemId == 'pre' ? this.songPre : this.playSwiperItemId == 'current' ? this.songCurrent : this.songNext;
 				if(song.lyric == null || song.lyric	!= ''){
 					songLyric({ songId: song.id, musicPlatform: song.musicPlatform }).then(data => {
 						song.lyric = data;

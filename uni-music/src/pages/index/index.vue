@@ -206,7 +206,7 @@
 </template>
 
 <script>
-import { recommend, banner, recommendNewSong } from "@/api/platform.js";
+import { recommendSongList, banner, recommendNewSong } from "@/api/platform.js";
 import { mapState, mapMutations } from 'vuex';
 import playMusic from '@/my-components/playMusic.vue'
 import { handleSingerName } from '@/utils/songUtil.js';
@@ -280,7 +280,7 @@ export default {
     },
     //获取推荐歌单
     getRecommendList() {
-      recommend({ musicPlatform: "1" }).then((data) => {
+      recommendSongList({ musicPlatform: "1" }).then((data) => {
         // 随机获取6个不重复的推荐歌单
         let recommend = data;
         while (this.recommendList.length < 6) {
@@ -321,7 +321,7 @@ export default {
       }
     },
     // 跳转歌单页面
-    goPlayListPage() {
+    goSongListPage() {
       uni.navigateTo({
         url: `../songlist/songlist`,
       });

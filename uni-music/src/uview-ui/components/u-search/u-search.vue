@@ -36,7 +36,7 @@
 				}, inputStyle]"
 			/>
 			<view class="u-close-wrap" v-if="keyword && clearabled && focused" @tap="clear">
-				<u-icon class="u-clear-icon" name="close-circle-fill" size="34" color="#c0c4cc"></u-icon>
+				<u-icon class="u-clear-icon" name="close" size="34" color="#fff"></u-icon>
 			</view>
 		</view>
 		<view :style="[actionStyle]" class="u-action" 
