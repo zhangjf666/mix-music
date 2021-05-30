@@ -19,9 +19,9 @@ public class PlayListPage {
     private long total;
 
     /**
-     * 更新时间
+     * 偏移量,页码乘以每页条数,精品歌单中对应lasttime
      */
-    private long lastTime;
+    private long offset;
 
     /**
      * 是否后续还有

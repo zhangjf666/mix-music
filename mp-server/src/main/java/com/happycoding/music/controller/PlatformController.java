@@ -45,7 +45,7 @@ public class PlatformController {
 
     @ApiOperation("歌单信息")
     @GetMapping("/playlistDetail")
-    public Response<PlayListDetailDto> getPlayListDetail(String playListId, MusicPlatform musicPlatform) {
+    public Response<PlayListDetailDto> getPlayListDetail(String playListId, @RequestParam(name = "musicPlatform", defaultValue = "1") MusicPlatform musicPlatform) {
         PlayListDetailDto playListDetail = null;
         switch (musicPlatform) {
             case Netease:
@@ -64,7 +64,7 @@ public class PlatformController {
 
     @ApiOperation("歌曲信息")
     @GetMapping("/song")
-    public Response<List<SongInfoDto>> getSongInfo(String songIds, MusicPlatform musicPlatform) {
+    public Response<List<SongInfoDto>> getSongInfo(String songIds, @RequestParam(name = "musicPlatform", defaultValue = "1") MusicPlatform musicPlatform) {
         List<SongInfoDto> songInfoDtoList = new ArrayList<>();
         switch (musicPlatform) {
             case Netease:
@@ -82,7 +82,7 @@ public class PlatformController {
 
     @ApiOperation("获取歌词")
     @GetMapping("/lyric")
-    public Response<String> getLyric(String songId, MusicPlatform musicPlatform) {
+    public Response<String> getLyric(String songId, @RequestParam(name = "musicPlatform", defaultValue = "1") MusicPlatform musicPlatform) {
         String lyric = "";
         switch (musicPlatform) {
             case Netease:
@@ -100,7 +100,7 @@ public class PlatformController {
 
     @ApiOperation("获取歌曲url")
     @GetMapping("/url")
-    public Response<SongUrlDto> getUrl(String songId, MusicPlatform musicPlatform) {
+    public Response<SongUrlDto> getUrl(String songId, @RequestParam(name = "musicPlatform", defaultValue = "1") MusicPlatform musicPlatform) {
         SongUrlDto songUrlDto = new SongUrlDto();
         switch (musicPlatform) {
             case Netease:
@@ -135,12 +135,15 @@ public class PlatformController {
 
     @ApiOperation("搜索")
     @GetMapping("/search")
-    public Response<List<SongInfoDto>> search(String keyword, @RequestParam(name = "musicPlatform",
-            defaultValue = "0") MusicPlatform musicPlatform) {
+    public Response<List<SongInfoDto>> search(String keyword,
+                                              @RequestParam(name = "type", defaultValue = "1") String type,
+                                              @RequestParam(name = "limit", defaultValue = "20") long limit,
+                                              @RequestParam(name = "offset", defaultValue = "0") long offset,
+                                              @RequestParam(name = "musicPlatform", defaultValue = "1") MusicPlatform musicPlatform) {
         List<SongInfoDto> songInfoDtoList = new ArrayList<>();
         switch (musicPlatform) {
             case Netease:
-                songInfoDtoList.addAll(neteaseService.cloudSearch(keyword, "1", 30, 0, true));
+                songInfoDtoList.addAll(neteaseService.cloudSearch(keyword, type, limit, offset, true));
                 break;
             case Migu:
                 songInfoDtoList.addAll(miguService.search(keyword, 2, 30, 3));
@@ -196,28 +199,28 @@ public class PlatformController {
     @GetMapping("/allTags")
     public Response allTags() {
         JSONObject result = neteaseService.allTags();
-        return Response.ok(result);
+        return Response.ok(result.get("sub"));
     }
 
     @ApiOperation("精品歌单分类")
     @GetMapping("/highQualityTags")
     public Response highQualityTags() {
         JSONObject result = neteaseService.highQualityTags();
-        return Response.ok(result);
+        return Response.ok(result.get("tags"));
     }
 
     @ApiOperation("热门歌单分类")
     @GetMapping("/hotTags")
     public Response hotTags() {
         JSONObject result = neteaseService.hotTags();
-        return Response.ok(result);
+        return Response.ok(result.get("tags"));
     }
 
     @ApiOperation("精品歌单")
     @GetMapping("/highQualityList")
     public Response<PlayListPage> highQualityList(@RequestParam(name = "cat", defaultValue = "全部") String cat,
-                                    @RequestParam(name = "limit", defaultValue = "50") int limit,
-                                    @RequestParam(name = "lasttime", defaultValue = "0") int lasttime) {
+                                    @RequestParam(name = "limit", defaultValue = "50") long limit,
+                                    @RequestParam(name = "lasttime", defaultValue = "0") long lasttime) {
         PlayListPage result = neteaseService.highQualityList(cat, limit, lasttime);
         return Response.ok(result);
     }
@@ -226,8 +229,8 @@ public class PlatformController {
     @GetMapping("/categoryList")
     public Response<PlayListPage> categoryList(@RequestParam(name = "cat", defaultValue = "全部") String cat,
                                                @RequestParam(name = "order", defaultValue = "hot") String order,
-                                               @RequestParam(name = "limit", defaultValue = "50") int limit,
-                                               @RequestParam(name = "offset", defaultValue = "0") int offset) {
+                                               @RequestParam(name = "limit", defaultValue = "50") long limit,
+                                               @RequestParam(name = "offset", defaultValue = "0") long offset) {
         PlayListPage result = neteaseService.categoryList(cat, order,limit, offset);
         return Response.ok(result);
     }

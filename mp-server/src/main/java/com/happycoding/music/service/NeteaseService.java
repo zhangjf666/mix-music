@@ -623,7 +623,7 @@ public class NeteaseService {
      * @param  cat 全部,华语,欧美,韩语,日语,粤语,小语种,运动,ACG,影视原声,流行,摇滚,后摇,古风,民谣,轻音乐,电子,器乐,说唱,古典,爵士
      * @return
      */
-    public PlayListPage highQualityList(String cat, int limit, int lasttime){
+    public PlayListPage highQualityList(String cat, long limit, long lasttime){
         Map<String, Object> data = new HashMap<>();
         data.put("cat", cat);
         data.put("limit", limit);
@@ -640,7 +640,7 @@ public class NeteaseService {
         PlayListPage playListPage = new PlayListPage();
         JSONObject body = response.getBody();
         playListPage.setTotal(body.getLong("total"));
-        playListPage.setLastTime(body.getLong("lasttime"));
+        playListPage.setOffset(body.getLong("lasttime"));
         playListPage.setCat(cat);
         playListPage.setMore(body.getBoolean("more"));
         JSONArray list = body.getJSONArray("playlists");
@@ -670,7 +670,7 @@ public class NeteaseService {
      * @param order hot,new
      * @return
      */
-    public PlayListPage categoryList(String cat, String order, int limit, int offset){
+    public PlayListPage categoryList(String cat, String order, long limit, long offset){
         Map<String, Object> data = new HashMap<>();
         data.put("cat", cat);
         data.put("order", order);
@@ -694,6 +694,7 @@ public class NeteaseService {
         if(list == null || list.isEmpty()){
             return playListPage;
         }
+        playListPage.setOffset(offset + list.size());
         List<PlayListDto> playList = new ArrayList<>();
         for (Object o : list) {
             JSONObject jo = (JSONObject)o;
