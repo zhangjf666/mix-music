@@ -18,7 +18,6 @@
 						<text class="horizontal">-</text>
 						<text class="singerName">{{ songSinger(songPre) }}</text>
 					</view>
-					
 				</view>
 			</swiper-item>
 			<swiper-item item-id="current" @click="setShowPlayPage(true)">
@@ -29,7 +28,6 @@
 						<text class="horizontal">-</text>
 						<text class="singerName">{{ songSinger(songCurrent) }}</text>
 					</view>
-					
 				</view>
 			</swiper-item>
 			<swiper-item item-id="next" @click="setShowPlayPage(true)">
@@ -40,7 +38,6 @@
 						<text class="horizontal">-</text>
 						<text class="singerName">{{ songSinger(songNext) }}</text>
 					</view>
-					
 				</view>
 			</swiper-item>
 		</swiper>

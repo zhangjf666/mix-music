@@ -17,7 +17,7 @@
 	/* 注意要写在第一行，同时给style标签加入lang="scss"属性 */
     @import "uview-ui/index.scss";
 	@import '/static/font/iconfont.css';
-	@import '/static/font/iconfont-loop.css';
+	@import '/static/font/iconfont-other.css';
 	/* 解决头条小程序组件内引入字体不生效的问题 */
 /* #ifdef MP-TOUTIAO */
 @font-face {

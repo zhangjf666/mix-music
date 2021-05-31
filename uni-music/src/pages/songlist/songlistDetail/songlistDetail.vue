@@ -13,10 +13,22 @@
 			<!-- 歌单信息 -->
 			<view class="playListInfo">
 				<image :src="songlistDetail.playList.picUrl" class="img" mode="widthFix"></image>
-				<view class="playListName">{{ songlistDetail.playList.name }}</view>
+				<view class="playListSummary">
+					<view class="listName">{{ songlistDetail.playList.name }}</view>
+					<view class="listDesc">{{ songlistDetail.playList.summary }}</view>
+				</view>
+				<view class="bg" :style="isBg"></view>
 			</view>
+			<!-- 播放全部吸顶 -->
+			<u-sticky offset-top="0">
+				<view class="playall" hover-class="click-bg" hover-stay-time="200">
+					<text class="iconfont icon-playall playicon"></text>
+					<text class="playtext">播放全部</text>
+				</view>
+			</u-sticky>
 			<!-- 歌单列表 -->
 			<scroll-view scroll-y class="popup" @scrolltolower="onreachBottom">
+				
 				<view class="song-list">
 					<view class="song-list-item" v-for="(item, index) in songs" :key="item.id" @click="playSongList(index)"
 					@touchstart="newTouchstart(index)" @touchend="songBg = null" :style="index === songBg ? 'background-color:rgba(0,0,0,.1)' : ''"
@@ -128,47 +140,61 @@ export default {
                 }
             })
             return inplay;
-        } 
+        },
+		//歌单背景
+		isBg() {
+			return `background: url(${this.songlistDetail.playList.picUrl}) left;`;
+		}
 	}
 };
 </script>
 
 <style lang="scss" scoped>
 .navbar {
-	margin-bottom: 88rpx;
 	/deep/ .u-border-bottom:after {
 		border-bottom-width: 0px;
 	}
 }
 .playListInfo {
-	position: relative;
-	/* #ifndef MP-WEIXIN */
-	margin-top: -88rpx;
-	/* #endif */
+	display: flex;
 	.img {
-		width: 100%;
+		margin: 100rpx 20rpx 100rpx 40rpx;
+		width: 200rpx;
+		height: 200rpx;
+		border-radius: 24rpx;
 	}
-	.playListName {
-		position: absolute;
-		width: 90%;
-		margin-left: 40rpx;
-		top: 330rpx;
-		font-size: 32rpx;
-		font-weight: 600;
-		color: #fff;
-		overflow: hidden;
-		text-overflow: ellipsis; 
-		white-space: nowrap;
+	.playListSummary {
+		// position: absolute;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		width: 50%;
+		height: 200rpx;
+		margin-top: 100rpx;
+		.listName {
+			font-size: 32rpx;
+			font-weight: 400;
+			color: #fff;
+			overflow: hidden;
+		}
+		.listDesc {
+			font-size: 24rpx;
+			// font-weight: 400;
+			color: rgb(219, 219, 219);
+			overflow: hidden;
+			text-overflow: ellipsis; 
+			white-space: nowrap;
+		}
 	}
 }
 .scroll {
 	display: flex;
 	flex-direction: column;
-	height: calc(100vh - var(--window-top));
+	// height: calc(100vh - var(--window-top));
 	width: 100%;
 }
 .popup {
-	position: absolute;
+	// position: absolute;
 	top: calc(40vh - var(--window-top));
 	 /* #ifdef MP-WEIXIN */
 	top: calc(40vh - var(--window-top));
@@ -177,65 +203,96 @@ export default {
 	height: 90%;
 	background-color: #fff;
 	padding: 0rpx;
-	border-radius: 30rpx 30rpx 0 0;
+	// border-radius: 30rpx 30rpx 0 0;
 	box-sizing: border-box;
 }
 .song-list {
-		.song-list-item {
+	.song-list-item {
+		display: flex;
+		margin-bottom: 20rpx;
+		padding: 5rpx 10rpx;
+		border-radius: 0px;
+		height: 80rpx;
+		.song-list-info {
+			position: relative;
+			flex: 1;
 			display: flex;
-			margin-bottom: 20rpx;
-            padding: 5rpx 10rpx;
-			border-radius: 0px;
-			height: 80rpx;
-			.song-list-info {
-				position: relative;
-				flex: 1;
+			// flex-flow: column;
+			line-height: 50rpx;
+			margin-left: 22rpx;
+			padding-top: 8rpx;
+			.songIcon {
+				position: absolute;
+				right: 10rpx;
+				top: 50%;
+				transform: translateY(-55%);
 				display: flex;
-				// flex-flow: column;
-				line-height: 50rpx;
-				margin-left: 22rpx;
-				padding-top: 8rpx;
-				.songIcon {
-					position: absolute;
-					right: 10rpx;
-					top: 50%;
-					transform: translateY(-55%);
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					padding-left: 5rpx;
-					// padding-bottom: 2rpx;
-					width: 46rpx;
-					height: 46rpx;
-					border-radius: 50%;
-					border: 1px solid #e3e3e3;
+				justify-content: center;
+				align-items: center;
+				padding-left: 5rpx;
+				// padding-bottom: 2rpx;
+				width: 46rpx;
+				height: 46rpx;
+				border-radius: 50%;
+				border: 1px solid #e3e3e3;
+			}
+			.songIcon1 {
+				position: absolute;
+				right: 10rpx;
+				top: 50%;
+				transform: translateY(-55%);
+			}
+			.songName {
+				width: 440rpx;
+				overflow: hidden;
+				white-space:nowrap;
+				text-overflow: ellipsis;
+				.item-songName {
+					color: #222;
+					font-size: 30rpx;
+					font-weight: 500;
 				}
-				.songIcon1 {
-					position: absolute;
-					right: 10rpx;
-					top: 50%;
-					transform: translateY(-55%);
+				.horizontal {
+					margin: 0 6rpx;
+					color: #666;
 				}
-				.songName {
-					width: 440rpx;
-					overflow: hidden;
-					white-space:nowrap;
-					text-overflow: ellipsis;
-                    .item-songName {
-                        color: #222;
-                        font-size: 30rpx;
-                        font-weight: 500;
-                    }
-                    .horizontal {
-                        margin: 0 6rpx;
-                        color: #666;
-                    }
-                    .item-singer {
-                        color: rgb(161, 151, 151);
-                        font-size: 24rpx;
-                    }
+				.item-singer {
+					color: rgb(161, 151, 151);
+					font-size: 24rpx;
 				}
 			}
 		}
 	}
+}
+.bg {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	height: 40%;
+	width: 110%;
+	margin: -5%;
+	background-size: cover;
+	-webkit-filter: blur(6px) brightness(1.0);
+	-moz-filter: blur(6px) brightness(1.0);
+	filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=10, MakeShadow=false); /* IE6~IE9 */
+	z-index: -1;
+}
+.playall {
+	display: flex;
+	height: 120rpx;
+	width: 100%;
+	align-items: center;
+	.playicon {
+		font-size: 42rpx;
+		margin: 6rpx 26rpx;
+		color: rgb(255, 61, 61);
+	}
+	.playtext {
+		font-size: 30rpx;
+		font-weight: 600;
+	}
+}
+.click-bg {
+	background-color:rgba(0,0,0,.1);
+}
 </style>
