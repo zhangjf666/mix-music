@@ -12,23 +12,30 @@
 		<view v-if="songlistDetail" class="scroll">
 			<!-- 歌单信息 -->
 			<view class="playListInfo">
-				<image :src="songlistDetail.playList.picUrl" class="img" mode="widthFix"></image>
+				<view class="imgBox">
+					<image :src="songlistDetail.playList.picUrl" class="img" mode="widthFix"></image>
+					<view class="playNumber">
+						<text
+							class="iconfont icon-bofang"
+							style="font-size: 24rpx"
+						></text>
+						{{ isPlayCount(songlistDetail.playList.playCount) }}
+					</view>
+				</view>
 				<view class="playListSummary">
 					<view class="listName">{{ songlistDetail.playList.name }}</view>
 					<view class="listDesc">{{ songlistDetail.playList.summary }}</view>
 				</view>
-				<view class="bg" :style="isBg"></view>
 			</view>
 			<!-- 播放全部吸顶 -->
 			<u-sticky offset-top="0">
-				<view class="playall" hover-class="click-bg" hover-stay-time="200">
+				<view class="playall" hover-class="click-bg" hover-stay-time="200" @click="playSongList(0)">
 					<text class="iconfont icon-playall playicon"></text>
 					<text class="playtext">播放全部</text>
 				</view>
 			</u-sticky>
 			<!-- 歌单列表 -->
 			<scroll-view scroll-y class="popup" @scrolltolower="onreachBottom">
-				
 				<view class="song-list">
 					<view class="song-list-item" v-for="(item, index) in songs" :key="item.id" @click="playSongList(index)"
 					@touchstart="newTouchstart(index)" @touchend="songBg = null" :style="index === songBg ? 'background-color:rgba(0,0,0,.1)' : ''"
@@ -36,8 +43,8 @@
 						<view class="song-list-info">
 							<view class="songName">
 								<text class="item-songName" :class="playingIndex === index && inPlayList ? 'color' : ''">{{ item.name }}</text>
-                                <text class="horizontal" :class="playingIndex === index && inPlayList ? 'color' : ''">-</text>
-                                <text class="item-singer" :class="playingIndex === index && inPlayList ? 'color' : ''">{{ songSinger(item) }}</text>
+								<text class="horizontal" :class="playingIndex === index && inPlayList ? 'color' : ''">-</text>
+								<text class="item-singer" :class="playingIndex === index && inPlayList ? 'color' : ''">{{ songSinger(item) }}</text>
 							</view>
 							<u-icon class="songIcon1" name="volume" color="#d83d34" size="44" v-if="playingIndex===index && inPlayList"></u-icon>
 							<view class="songIcon" v-else>
@@ -48,6 +55,7 @@
 				</view>
 			</scroll-view>
 		</view>
+		<view class="bg" :style="isBg"></view>
 		<play-music></play-music>
 	</view>
 </template>
@@ -113,7 +121,11 @@ export default {
 		},
         onreachBottom() {
             console.log('没有更多了')
-        }
+        },
+		// 处理播放数
+		isPlayCount(count) {
+			return count > 100000 ? (count / 10000).toFixed() + "万" : count;
+		}
 	},
 	computed:{
 		...mapState(['isPlay', 'playingIndex']),
@@ -143,6 +155,9 @@ export default {
         },
 		//歌单背景
 		isBg() {
+			if(this.songlistDetail == null) {
+				return;
+			}
 			return `background: url(${this.songlistDetail.playList.picUrl}) left;`;
 		}
 	}
@@ -157,18 +172,31 @@ export default {
 }
 .playListInfo {
 	display: flex;
-	.img {
-		margin: 100rpx 20rpx 100rpx 40rpx;
-		width: 200rpx;
-		height: 200rpx;
-		border-radius: 24rpx;
-	}
+	z-index: -1;
+	.imgBox {
+		position: relative;
+        margin: 100rpx 20rpx 100rpx 40rpx;
+        .playNumber {
+          padding: 4rpx 10rpx;
+          position: absolute;
+          top: 0;
+          right: 0;
+          font-size: 24rpx;
+          color: #fff;
+        }
+		.img {
+			display: inline-block;
+			border-radius: 24rpx;
+			width: 200rpx;
+			height: 200rpx;
+		}
+    }
 	.playListSummary {
 		// position: absolute;
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
-		width: 50%;
+		width: 60%;
 		height: 200rpx;
 		margin-top: 100rpx;
 		.listName {
@@ -194,10 +222,11 @@ export default {
 	width: 100%;
 }
 .popup {
-	// position: absolute;
-	top: calc(40vh - var(--window-top));
+	position: absolute;
+	display: flex;
+	top: calc(36vh - var(--window-top));
 	 /* #ifdef MP-WEIXIN */
-	top: calc(40vh - var(--window-top));
+	top: calc(36vh - var(--window-top));
 	 /* #endif */
 	width: 100%;
 	height: 90%;
@@ -275,13 +304,14 @@ export default {
 	-webkit-filter: blur(6px) brightness(1.0);
 	-moz-filter: blur(6px) brightness(1.0);
 	filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=10, MakeShadow=false); /* IE6~IE9 */
-	z-index: -1;
+	z-index: -99;
 }
 .playall {
 	display: flex;
-	height: 120rpx;
+	height: 100rpx;
 	width: 100%;
 	align-items: center;
+	background-color: #fff;
 	.playicon {
 		font-size: 42rpx;
 		margin: 6rpx 26rpx;
