@@ -160,7 +160,7 @@ public class NeteaseService {
      * @param total
      * @return
      */
-    public List<SongInfoDto> cloudSearch(String keywords, String type, long limit, long offset, boolean total){
+    public SongSearchPage cloudSearch(String keywords, String type, long limit, long offset, boolean total){
         Map<String, Object> data = new HashMap<>();
         data.put("s", keywords);
         data.put("type", StringUtils.isNotBlank(type) ? type : "1");
@@ -184,7 +184,13 @@ public class NeteaseService {
                 songInfoDtoList.add(info);
             }
         }
-        return songInfoDtoList;
+        SongSearchPage page = new SongSearchPage();
+        page.setTotal(response.getBody().getJSONObject("result").getLong("songCount"));
+        page.setKeywords(keywords);
+        page.setOffset(offset + songInfoDtoList.size());
+        page.setMore(page.getTotal() > page.getOffset());
+        page.setData(songInfoDtoList);
+        return page;
     }
 
     /**
@@ -660,7 +666,7 @@ public class NeteaseService {
             dto.setTrackCount(jo.getLong("trackCount"));
             playList.add(dto);
         }
-        playListPage.setPlayLists(playList);
+        playListPage.setData(playList);
         return playListPage;
     }
 
@@ -708,7 +714,7 @@ public class NeteaseService {
             dto.setTrackCount(jo.getLong("trackCount"));
             playList.add(dto);
         }
-        playListPage.setPlayLists(playList);
+        playListPage.setData(playList);
         return playListPage;
     }
 

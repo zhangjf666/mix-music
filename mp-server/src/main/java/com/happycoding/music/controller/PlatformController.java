@@ -135,26 +135,12 @@ public class PlatformController {
 
     @ApiOperation("搜索")
     @GetMapping("/search")
-    public Response<List<SongInfoDto>> search(String keyword,
+    public Response<SongSearchPage> search(String keyword,
                                               @RequestParam(name = "type", defaultValue = "1") String type,
                                               @RequestParam(name = "limit", defaultValue = "20") long limit,
-                                              @RequestParam(name = "offset", defaultValue = "0") long offset,
-                                              @RequestParam(name = "musicPlatform", defaultValue = "1") MusicPlatform musicPlatform) {
-        List<SongInfoDto> songInfoDtoList = new ArrayList<>();
-        switch (musicPlatform) {
-            case Netease:
-                songInfoDtoList.addAll(neteaseService.cloudSearch(keyword, type, limit, offset, true));
-                break;
-            case Migu:
-                songInfoDtoList.addAll(miguService.search(keyword, 2, 30, 3));
-                break;
-            case All:
-            default:
-                songInfoDtoList.addAll(neteaseService.cloudSearch(keyword, "1", 30, 0, true));
-                songInfoDtoList.addAll(miguService.search(keyword, 2, 30, 3));
-                break;
-        }
-        return Response.ok(songInfoDtoList);
+                                              @RequestParam(name = "offset", defaultValue = "0") long offset) {
+        SongSearchPage songListPage = neteaseService.cloudSearch(keyword, type, limit, offset, true);
+        return Response.ok(songListPage);
     }
 
     @ApiOperation("首页轮播图")

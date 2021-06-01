@@ -65,7 +65,7 @@ public class NeteaseTest {
     //搜索
     @Test
     public void cloudSearchTest(){
-        Object dict = neteaseService.cloudSearch("一天 许巍", "1", 30, 0, true);
+        Object dict = neteaseService.cloudSearch("大地", "1", 30, 29, true);
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
