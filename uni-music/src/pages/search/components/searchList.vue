@@ -1,7 +1,7 @@
 <template>
     <view class="searchList-container">
-        <scroll-view scroll-y class="popup" @scrolltolower="onreachBottom">
-            <div class="music-item" v-for="(item, index) in musicList" :key="index" @click="playMusic(item)">
+        <scroll-view scroll-y class="popup" :scroll-top="scrollTop" @scroll="scroll" @scrolltolower="onreachBottom">
+            <div class="music-item" v-for="(item, index) in searchData.data" :key="index" @click="playMusic(item)">
                 <image v-if="item.picUrl" :src="item.picUrl + '?param=60y60'" mode="" class="musicImg"></image>
                 <div class="rightInfo">
                     <div class="music-info">
@@ -28,25 +28,55 @@ import { handleSingerName } from '@/utils/songUtil.js'
 export default {
 	data() {
 		return {
-            //搜索建议
-			musicList: [],
+            // 返回顶部
+            scrollTop: 0,
+            oldScrollTop: 0,
+            // 搜索内容
+			searchData: {},
             // 控制背景
 			clickBg:'',
+            // 每页数量
+            limit: 20
 		};
 	},
     methods: {
         ...mapMutations(['addAndPlay']),
-        getSearchData(keywords) {
-            search({keyword: keywords}).then(data => {
-                this.musicList = data;
-            })
+        async getSearchData(keywords) {
+            uni.showLoading({
+                title: '努力加载中~',
+                mask: false
+            });
+            if(this.searchData == null || (keywords != '' && this.searchData.keywords != keywords)){
+                await search({keyword: keywords, }).then(data => {
+                    this.searchData = data;
+                    this.goTop();
+                })
+            } else if(this.searchData.more) {
+                await search({ keyword: this.searchData.keywords,
+                    limit: this.limit, offset: this.searchData.offset}).then(data => {
+                        this.searchData.more = data.more;
+                        this.searchData.total = data.total;
+                        this.searchData.offset = data.offset;
+                        this.searchData.data.push(...data.data);
+                    })
+            }
+            uni.hideLoading();
         },
         onreachBottom() {
-            console.log('1111')
+            this.getSearchData('');
         },
         //播放点击的歌曲
         playMusic(song) {
             this.addAndPlay(song);
+        },
+        scroll(e) {
+            this.oldScrollTop = e.detail.scrollTop
+        },
+        goTop() {
+            this.scrollTop = this.oldScrollTop
+            this.$nextTick(function() {
+                this.scrollTop = 0
+            });
         }
     },
     computed: {

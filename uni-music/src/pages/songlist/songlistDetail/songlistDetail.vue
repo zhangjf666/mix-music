@@ -37,16 +37,16 @@
 			<!-- 歌单列表 -->
 			<scroll-view scroll-y class="popup" @scrolltolower="onreachBottom">
 				<view class="song-list">
-					<view class="song-list-item" v-for="(item, index) in songs" :key="item.id" @click="playSongList(index)"
+					<view class="song-list-item" v-for="(item, index) in songs" :key="item.id" @click="addAndPlay(item)"
 					@touchstart="newTouchstart(index)" @touchend="songBg = null" :style="index === songBg ? 'background-color:rgba(0,0,0,.1)' : ''"
 					>
 						<view class="song-list-info">
 							<view class="songName">
-								<text class="item-songName" :class="playingIndex === index && inPlayList ? 'color' : ''">{{ item.name }}</text>
-								<text class="horizontal" :class="playingIndex === index && inPlayList ? 'color' : ''">-</text>
-								<text class="item-singer" :class="playingIndex === index && inPlayList ? 'color' : ''">{{ songSinger(item) }}</text>
+								<text class="item-songName" :class="inPlayList(item) ? 'color' : ''">{{ item.name }}</text>
+								<text class="horizontal" :class="inPlayList(item) ? 'color' : ''">-</text>
+								<text class="item-singer" :class="inPlayList(item) ? 'color' : ''">{{ songSinger(item) }}</text>
 							</view>
-							<u-icon class="songIcon1" name="volume" color="#d83d34" size="44" v-if="playingIndex===index && inPlayList"></u-icon>
+							<u-icon class="songIcon1" name="volume" color="#d83d34" size="44" v-if="inPlayList(item)"></u-icon>
 							<view class="songIcon" v-else>
 								<u-icon name="play-right-fill" color="#d83d34" size="24"></u-icon>
 							</view>
@@ -101,7 +101,7 @@ export default {
 		playMusic
 	},
 	methods: {
-		...mapMutations(['setPlayList']),
+		...mapMutations(['setPlayList','addAndPlay']),
 		// 获得歌单数据
 		async getSonglistDetail() {
 			await songListDetail({playListId: this.id, musicPlatform: this.musicPlatform}).then(data=>{
@@ -137,21 +137,16 @@ export default {
             }
 		},
         // 播放列表中的歌曲是不是当前显示歌单中的
-        inPlayList() {
-            if(this.songs == null) {
+        inPlayList(item) {
+			return (item) => {
+				if(this.songs == null) {
                 return false;
-            }
-            if(this.getCurrentSong == null){
-                return false;
-            }
-            let inplay = false;
-            this.songs.forEach(item=>{
-                if(item.id == this.getCurrentSong.id){
-                    inplay = true;
-                    return;
-                }
-            })
-            return inplay;
+				}
+				if(this.getCurrentSong == null){
+					return false;
+				}
+				return item.id == this.getCurrentSong.id;
+			}
         },
 		//歌单背景
 		isBg() {

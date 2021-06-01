@@ -125,13 +125,14 @@ export default {
                 }
             }
             await categoryList(data).then(data => {
-                let list = data.playLists;
-                delete data.playLists;
+                let list = data.data;
+                delete data.data;
                 if(summary == null) {
                     this.songListSummary[this.tabsSwiper[index].name] = data
                 } else {
-                    this.songListSummary[this.tabsSwiper[index].name].offset += list.length;
+                    this.songListSummary[this.tabsSwiper[index].name].offset = data.offset;
                     this.songListSummary[this.tabsSwiper[index].name].more = data.more;
+                    this.songListSummary[this.tabsSwiper[1].name].cat = data.cat;
                 }
                 this.playLists[this.tabsSwiper[index].name].push(...list);
             })
@@ -154,16 +155,16 @@ export default {
                 }
             }
             await highQualityList(data).then(data => {
-                let list = data.playLists;
-                delete data.playLists;
+                let list = data.data;
+                delete data.data;
                 if(summary == null) {
                     this.songListSummary[this.tabsSwiper[1].name] = data
                 } else {
-                    this.songListSummary[this.tabsSwiper[1].name].offset +=  list.length;
+                    this.songListSummary[this.tabsSwiper[1].name].offset =  data.offset;
                     this.songListSummary[this.tabsSwiper[1].name].more = data.more;
+                    this.songListSummary[this.tabsSwiper[1].name].cat = data.cat;
                 }
                 this.playLists[this.tabsSwiper[1].name].push(...list);
-                console.log(this.playLists)
             })
         },
         onreachBottom() {

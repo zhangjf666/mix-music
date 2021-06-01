@@ -88,7 +88,7 @@
                 <!-- 按钮功能区 -->
                 <view class="play-btn">
                     <text class="iconfont icon-like"></text>
-                    <text class="iconfont" :class="playModeIcon" @click="switchPlayMode()"></text>
+                    <text class="iconfont" :class="playModeIcon" @click="clickSwitchPlayMode()"></text>
                     <text class="iconfont icon-top-music" @click="previousMusic"></text>
                     <!-- 播放与暂停 -->
                     <view class="playPause" @click="switchPlay()">
@@ -266,6 +266,15 @@ export default {
 					this.lyrics = song.lyric.replace(/\[/g, 'sb[').split('sb');	
 				}
 			}
+		},
+		//切换播放模式
+		clickSwitchPlayMode() {
+			this.switchPlayMode();
+			this.$refs.uToast.show({
+                title: this.playModeText,
+                duration: 1000,
+                position: 'bottom'
+            })
 		}
 	},
 	computed: {
@@ -303,13 +312,6 @@ export default {
 		playSongGroup() {
 			this.updateSongs();
 		},
-        playMode() {
-            this.$refs.uToast.show({
-                title: this.playModeText,
-                duration: 1000,
-                position: 'bottom'
-            })
-        },
 		currentTime() {
 			this.activeWidth = this.currentTime * this.unitWidth;
 		},

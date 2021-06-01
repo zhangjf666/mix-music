@@ -166,9 +166,22 @@ const store = new Vuex.Store({
         addAndPlay(state, song) {
             let index = 0;
             if(state.playingIndex != null){
-                index = state.playingIndex + 1;
+                index = state.playingIndex;
             }
-            //需要去重
+            //去重
+            let i = indexOf(state.playlist, song);
+            if(state.playlist == null ||state.playlist.length <= 0) {
+                index = 0;
+            } else if(i == -1){
+                index += 1;
+            } else if(i == index) {
+                return;
+            } else if(i < index) {
+                state.playlist.splice(i, 1);
+            } else {
+                state.playlist.splice(i, 1);
+                index += 1;
+            }
             state.playlist.splice(index, 0, song);
             state.playingIndex = index;
             this.commit('playNewSong', state.playlist[state.playingIndex]);
@@ -184,9 +197,22 @@ const store = new Vuex.Store({
         addToNext(state, song) {
             let index = 0;
             if(state.playingIndex != null){
-                index = state.playingIndex + 1;
+                index = state.playingIndex;
             }
-            //需要去重
+            //去重
+            let i = indexOf(state.playlist, song);
+            if(state.playlist == null ||state.playlist.length <= 0) {
+                index = 0;
+            } else if(i == -1){
+                index += 1;
+            } else if(i == index) {
+                return;
+            } else if(i < index) {
+                state.playlist.splice(i, 1);
+            } else {
+                state.playlist.splice(i, 1);
+                index += 1;
+            }
             state.playlist.splice(index, 0, song);
         },
         removePlayListSong(state, i) {
