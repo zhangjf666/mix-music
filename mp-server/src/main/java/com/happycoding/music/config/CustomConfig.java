@@ -2,6 +2,8 @@ package com.happycoding.music.config;
 
 import com.happycoding.music.common.support.mapstruct.MapStructTransform;
 import com.happycoding.music.config.properties.AsyncProperties;
+import com.happycoding.music.config.properties.SystemProperties;
+import com.happycoding.music.config.security.JwtProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +21,14 @@ public class CustomConfig {
     public MapStructTransform mapStructTransform(){
         return new MapStructTransform();
     }
+
+    @Bean
+    @ConfigurationProperties(prefix = "jwt")
+    public JwtProperties jwtProperties() {return new JwtProperties();}
+
+    @Bean
+    @ConfigurationProperties(prefix = "system")
+    public SystemProperties systemProperties() {return new SystemProperties();}
 
     @Bean
     @ConfigurationProperties(prefix = "async.pool")

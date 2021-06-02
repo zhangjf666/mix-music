@@ -1,6 +1,6 @@
 import cn.hutool.json.JSONUtil;
 import com.happycoding.music.MusicServerApplication;
-import com.happycoding.music.service.NeteaseService;
+import com.happycoding.music.service.impl.NeteaseService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

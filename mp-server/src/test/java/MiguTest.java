@@ -1,6 +1,6 @@
 import cn.hutool.json.JSONUtil;
 import com.happycoding.music.MusicServerApplication;
-import com.happycoding.music.service.MiguService;
+import com.happycoding.music.service.impl.MiguService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

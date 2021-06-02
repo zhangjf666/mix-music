@@ -1,7 +1,7 @@
 package com.happycoding.music.controller;
 
 import com.happycoding.music.common.model.Response;
-import com.happycoding.music.service.NeteaseService;
+import com.happycoding.music.service.impl.NeteaseService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;

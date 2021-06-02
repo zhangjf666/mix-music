@@ -1,4 +1,4 @@
-package com.happycoding.music.service;
+package com.happycoding.music.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
