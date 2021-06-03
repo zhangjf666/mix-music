@@ -1,16 +1,16 @@
 package com.happycoding.music.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
+import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
-
 /**
  * <p>
- * 用户-角色表
+ * 专辑信息表
  * </p>
  *
  * @author zjf
@@ -18,23 +18,23 @@ import java.io.Serializable;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("sys_user_role")
-@ApiModel(value="UserRole对象", description="用户-角色表")
-public class UserRole implements Serializable {
+@TableName("album")
+@ApiModel(value="Album对象", description="专辑信息表")
+public class Album implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
     private Long id;
 
-    @ApiModelProperty(value = "用户id")
-    private Long userId;
+    @ApiModelProperty(value = "歌手id")
+    private String albumId;
 
-    @ApiModelProperty(value = "角色id")
-    private Long roleId;
+    @ApiModelProperty(value = "歌手名称")
+    private String albumName;
 
-    public UserRole(Long userId, Long roleId) {
-        this.userId = userId;
-        this.roleId = roleId;
-    }
+    @ApiModelProperty(value = "所属歌曲平台")
+    private String platform;
+
+
 }

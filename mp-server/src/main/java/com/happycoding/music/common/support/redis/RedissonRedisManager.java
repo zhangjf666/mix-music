@@ -1,6 +1,6 @@
 package com.happycoding.music.common.support.redis;
 
-import com.zjf.assistant.common.utils.RedisUtil;
+import com.happycoding.music.common.utils.RedisUtil;
 import org.redisson.api.RBucket;
 import org.redisson.api.RType;
 import org.redisson.api.RedissonClient;

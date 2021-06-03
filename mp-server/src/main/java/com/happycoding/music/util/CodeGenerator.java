@@ -23,7 +23,7 @@ public class CodeGenerator {
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
         String projectPath = System.getProperty("user.dir");
-        gc.setOutputDir(projectPath + "/assistant-system" +"/src/main/java");
+        gc.setOutputDir("E:\\iJeeScaffold");
         gc.setFileOverride(true);
         gc.setSwagger2(true);
         // XML 二级缓存
@@ -47,14 +47,15 @@ public class CodeGenerator {
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
         dsc.setUsername("root");
         dsc.setPassword("123456");
-        dsc.setUrl("jdbc:mysql://192.168.80.132:3306/hyassistant?characterEncoding=utf8&serverTimezone=Asia/Shanghai&&useSSL=false");
+        dsc.setUrl("jdbc:mysql://192.168.80.132:3306/mixmusic?characterEncoding=utf8&serverTimezone=Asia/Shanghai" +
+                "&&useSSL=false");
         mpg.setDataSource(dsc);
         // 包配置
         PackageConfig pc = new PackageConfig();
-        pc.setParent("com.zjf.assistant.system.modules.generator");
+        pc.setParent("com.happycoding.music");
 //        pc.setModuleName("system");
 //        pc.setController("web.controller");
-        pc.setEntity("model.entity");
+        pc.setEntity("entity");
         pc.setService("service");
         pc.setServiceImpl("service.impl");
         pc.setMapper("mapper");
@@ -63,13 +64,14 @@ public class CodeGenerator {
         // 策略配置
         StrategyConfig strategy = new StrategyConfig();
         // 此处可以修改为您的表前缀
-        strategy.setTablePrefix(new String[]{"gen_"});
+        strategy.setTablePrefix(new String[]{""});
         // 表名生成策略
         strategy.setNaming(NamingStrategy.underline_to_camel);
         //数据库表字段映射到实体的命名策略
         strategy.setColumnNaming(NamingStrategy.underline_to_camel);
         // 需要生成的表
-        strategy.setInclude(new String[]{"gen_table_config","gen_column_config"});
+        strategy.setInclude(new String[]{"user_config","song","singer","album","song_singer","song_album",
+                "song_relative"});
         strategy.setEntityLombokModel(true);
         strategy.setRestControllerStyle(true);
         strategy.setControllerMappingHyphenStyle(true);

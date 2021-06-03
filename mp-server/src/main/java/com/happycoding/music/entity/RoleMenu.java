@@ -1,12 +1,12 @@
 package com.happycoding.music.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -14,18 +14,17 @@ import lombok.NoArgsConstructor;
  * </p>
  *
  * @author zjf
- * @since 2020-06-11
+ * @since 2021-06-03
  */
 @Data
-@NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @TableName("sys_role_menu")
 @ApiModel(value="RoleMenu对象", description="角色-菜单表")
-public class RoleMenu {
+public class RoleMenu implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
-    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     @ApiModelProperty(value = "角色id")

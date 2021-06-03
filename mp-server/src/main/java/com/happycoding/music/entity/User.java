@@ -1,13 +1,15 @@
 package com.happycoding.music.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
-import com.happycoding.music.common.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Set;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -15,18 +17,17 @@ import java.util.Set;
  * </p>
  *
  * @author zjf
- * @since 2020-06-11
+ * @since 2021-06-03
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @TableName("sys_user")
 @ApiModel(value="User对象", description="用户表")
-public class User extends BaseEntity {
+public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
-    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     @ApiModelProperty(value = "用户名")
@@ -59,6 +60,19 @@ public class User extends BaseEntity {
     @ApiModelProperty(value = "状态:1:启用 0:禁用")
     private String enabled;
 
+    @ApiModelProperty(value = "创建者")
+    private String createBy;
+
+    @ApiModelProperty(value = "创建时间")
+    private LocalDateTime createTime;
+
+    @ApiModelProperty(value = "更新者")
+    private String updateBy;
+
+    @ApiModelProperty(value = "更新时间")
+    @Version
+    private LocalDateTime updateTime;
+
     @ApiModelProperty(value = "备注信息")
     private String remarks;
 
@@ -66,7 +80,5 @@ public class User extends BaseEntity {
     @TableLogic
     private String delFlag;
 
-    @ApiModelProperty(value = "角色")
-    @TableField(exist = false)
-    private Set<Role> roles;
+
 }

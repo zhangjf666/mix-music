@@ -1,16 +1,14 @@
 package com.happycoding.music.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.happycoding.music.common.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.Version;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Set;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -18,18 +16,17 @@ import java.util.Set;
  * </p>
  *
  * @author zjf
- * @since 2020-06-11
+ * @since 2021-06-03
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @TableName("sys_role")
 @ApiModel(value="Role对象", description="角色表")
-public class Role extends BaseEntity {
+public class Role implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
-    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     @ApiModelProperty(value = "角色名称")
@@ -38,7 +35,18 @@ public class Role extends BaseEntity {
     @ApiModelProperty(value = "描述")
     private String description;
 
-    @ApiModelProperty(value = "菜单")
-    @TableField(exist = false)
-    private Set<Menu> menus;
+    @ApiModelProperty(value = "创建者")
+    private String createBy;
+
+    @ApiModelProperty(value = "创建时间")
+    private LocalDateTime createTime;
+
+    @ApiModelProperty(value = "更新者")
+    private String updateBy;
+
+    @ApiModelProperty(value = "更新时间")
+    @Version
+    private LocalDateTime updateTime;
+
+
 }

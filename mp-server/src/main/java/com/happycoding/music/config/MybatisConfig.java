@@ -34,7 +34,7 @@ public class MybatisConfig {
     public GlobalConfig globalConfiguration(){
         GlobalConfig config = new GlobalConfig();
         GlobalConfig.DbConfig dbConfig = new GlobalConfig.DbConfig();
-        dbConfig.setIdType(IdType.AUTO);
+        dbConfig.setIdType(IdType.ASSIGN_ID);
         dbConfig.setInsertStrategy(FieldStrategy.NOT_EMPTY);
         dbConfig.setUpdateStrategy(FieldStrategy.NOT_EMPTY);
         dbConfig.setLogicDeleteValue("1");

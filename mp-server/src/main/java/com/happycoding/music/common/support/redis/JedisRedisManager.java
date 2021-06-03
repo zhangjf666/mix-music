@@ -1,7 +1,7 @@
 package com.happycoding.music.common.support.redis;
 
-import com.zjf.assistant.common.exception.BusinessException;
-import com.zjf.assistant.common.utils.RedisUtil;
+import com.happycoding.music.common.exception.BusinessException;
+import com.happycoding.music.common.utils.RedisUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.io.Serializable;
