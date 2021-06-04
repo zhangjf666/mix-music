@@ -1,12 +1,13 @@
 package com.happycoding.music.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.Version;
-import java.io.Serializable;
+import com.happycoding.music.model.MusicPlatform;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -34,7 +35,7 @@ public class Album implements Serializable {
     private String albumName;
 
     @ApiModelProperty(value = "所属歌曲平台")
-    private String platform;
+    private MusicPlatform platform;
 
 
 }

@@ -5,15 +5,13 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.happycoding.music.entity.SongRelative">
         <id column="id" property="id" />
-        <result column="source_song_id" property="sourceSongId" />
-        <result column="source_platform" property="sourcePlatform" />
-        <result column="dest_song_id" property="destSongId" />
-        <result column="dest_platform" property="destPlatform" />
+        <result column="source_id" property="sourceId" />
+        <result column="dest_id" property="destId" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, source_song_id, source_platform, dest_song_id, dest_platform
+        id, source_id, dest_id
     </sql>
 
 </mapper>

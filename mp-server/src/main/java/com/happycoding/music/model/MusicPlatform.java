@@ -1,5 +1,6 @@
 package com.happycoding.music.model;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.happycoding.music.common.base.IEnum;
@@ -24,6 +25,7 @@ public enum MusicPlatform implements IEnum<String> {
      */
     Migu("2", "咪咕");
 
+    @EnumValue
     private String platform;
 
     private String name;

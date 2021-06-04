@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.happycoding.music.common.model.Response;
 import com.happycoding.music.dto.*;
 import com.happycoding.music.model.MusicPlatform;
+import com.happycoding.music.service.SongService;
 import com.happycoding.music.service.impl.MiguService;
 import com.happycoding.music.service.impl.NeteaseService;
 import io.swagger.annotations.Api;
@@ -35,6 +36,8 @@ public class PlatformController {
     private NeteaseService neteaseService;
     @Autowired
     private MiguService miguService;
+    @Autowired
+    private SongService songService;
 
     @ApiOperation("推荐歌单")
     @GetMapping("/recommend")
@@ -45,7 +48,7 @@ public class PlatformController {
 
     @ApiOperation("歌单信息")
     @GetMapping("/playlistDetail")
-    public Response<PlayListDetailDto> getPlayListDetail(String playListId, @RequestParam(name = "musicPlatform", defaultValue = "1") MusicPlatform musicPlatform) {
+    public Response<PlayListDetailDto> getPlayListDetail(String playListId, @RequestParam(name = "platform", defaultValue = "1") MusicPlatform musicPlatform) {
         PlayListDetailDto playListDetail = null;
         switch (musicPlatform) {
             case Netease:
@@ -64,7 +67,7 @@ public class PlatformController {
 
     @ApiOperation("歌曲信息")
     @GetMapping("/song")
-    public Response<List<SongInfoDto>> getSongInfo(String songIds, @RequestParam(name = "musicPlatform", defaultValue = "1") MusicPlatform musicPlatform) {
+    public Response<List<SongInfoDto>> getSongInfo(String songIds, @RequestParam(name = "platform", defaultValue = "1") MusicPlatform musicPlatform) {
         List<SongInfoDto> songInfoDtoList = new ArrayList<>();
         switch (musicPlatform) {
             case Netease:
@@ -82,55 +85,22 @@ public class PlatformController {
 
     @ApiOperation("获取歌词")
     @GetMapping("/lyric")
-    public Response<String> getLyric(String songId, @RequestParam(name = "musicPlatform", defaultValue = "1") MusicPlatform musicPlatform) {
-        String lyric = "";
-        switch (musicPlatform) {
-            case Netease:
-                lyric = neteaseService.lyric(songId);
-                break;
-            case Migu:
-                lyric = miguService.lyric(songId);
-                break;
-            case All:
-            default:
-                break;
-        }
+    public Response<String> getLyric(Long songId) {
+        String lyric = songService.queryLyric(songId);
         return Response.ok(lyric);
     }
 
     @ApiOperation("获取歌曲url")
     @GetMapping("/url")
-    public Response<SongUrlDto> getUrl(String songId, @RequestParam(name = "musicPlatform", defaultValue = "1") MusicPlatform musicPlatform) {
-        SongUrlDto songUrlDto = new SongUrlDto();
-        switch (musicPlatform) {
-            case Netease:
-                songUrlDto = neteaseService.songUrl(songId);
-                break;
-            case Migu:
-                songUrlDto = miguService.songUrl(songId, "HQ");
-                break;
-            case All:
-            default:
-                break;
-        }
+    public Response<SongUrlDto> getUrl(Long songId) {
+        SongUrlDto songUrlDto = songService.queryUrl(songId);
         return Response.ok(songUrlDto);
     }
 
     @ApiOperation("获取歌曲详情(包括url和歌词)")
     @GetMapping("/songDetail")
     public Response<SongInfoDto> getSongDetail(SongInfoDto songInfo) {
-        switch (songInfo.getMusicPlatform()) {
-            case Netease:
-                songInfo = neteaseService.songDetail(songInfo);
-                break;
-            case Migu:
-                songInfo = miguService.songDetail(songInfo);
-                break;
-            case All:
-            default:
-                break;
-        }
-        return Response.ok(songInfo);
+        return Response.ok(songService.queryDetail(songInfo));
     }
 
     @ApiOperation("搜索")

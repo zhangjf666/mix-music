@@ -1,15 +1,20 @@
 package com.happycoding.music.service.impl;
 
+import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.happycoding.music.common.base.BaseServiceImpl;
 import com.happycoding.music.common.exception.DataNotExsitException;
 import com.happycoding.music.common.model.Page;
 import com.happycoding.music.common.utils.QueryUtil;
+import com.happycoding.music.dto.RegisterUserDto;
 import com.happycoding.music.dto.RoleDto;
 import com.happycoding.music.dto.UserDto;
 import com.happycoding.music.dto.UserQueryDto;
+import com.happycoding.music.entity.Role;
 import com.happycoding.music.entity.User;
+import com.happycoding.music.entity.UserConfig;
 import com.happycoding.music.entity.UserRole;
+import com.happycoding.music.mapper.UserConfigMapper;
 import com.happycoding.music.mapper.UserMapper;
 import com.happycoding.music.mapper.UserRoleMapper;
 import com.happycoding.music.mapstruct.UserMapstruct;
@@ -39,6 +44,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapstruct, UserDto, Use
     private final UserRoleMapper userRoleMapper;
     
     private final RoleService roleService;
+
+    private final UserConfigMapper userConfigMapper;
 
     @Override
     public UserDto findByUsername(String username) {
@@ -73,7 +80,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapstruct, UserDto, Use
     @Override
     public boolean create(UserDto dto) {
         User user = baseMapstruct.toEntity(dto);
-        user.setPassword(new BCryptPasswordEncoder().encode(DEFAULT_PASSWORD));
+        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         baseMapper.insert(user);
         for (RoleDto roleDto:dto.getRoles()) {
             UserRole ur = new UserRole(user.getId(),roleDto.getId());
@@ -107,5 +114,25 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapstruct, UserDto, Use
     @Override
     public boolean checkExist(String userName) {
         return count(Wrappers.<User>lambdaQuery().eq(User::getUsername, userName.trim())) > 0;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean registerUser(RegisterUserDto dto) {
+        Role normalRole = roleService.getOne(Wrappers.<Role>lambdaQuery().eq(Role::getName,"普通用户"));
+        User user = new User();
+        user.setUsername(dto.getUserName());
+        user.setNickName(RandomUtil.randomString(12));
+        user.setPassword(new BCryptPasswordEncoder().encode(dto.getPassword()));
+        baseMapper.insert(user);
+
+        UserRole userRole = new UserRole(user.getId(), normalRole.getId());
+        userRoleMapper.insert(userRole);
+
+        UserConfig userConfig = new UserConfig();
+        userConfig.setId(user.getId());
+        userConfig.setPlayMode("1");
+        userConfigMapper.insert(userConfig);
+        return true;
     }
 }

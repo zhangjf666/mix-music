@@ -1,6 +1,3 @@
-INSERT INTO `sys_role` VALUES (11, '超级管理员', '所有权限', 'system', '2020-6-10 16:45:34', 'system', '2020-6-10 16:45:34');
-INSERT INTO `sys_role` VALUES (21, '普通用户', '普通权限', 'system', '2020-6-10 16:46:54', 'system', '2020-6-10 16:46:54');
-
-INSERT INTO `sys_user` VALUES (11, 'admin', '$2a$10$iEpGPe7J2Zj23juaZVCi7.XR/GlzuK3IDkzd8SGPSkPn64xUNvOsG', '管理员', '1', 'admin@qq.com', NULL, '13811112222', '1', NULL, '1', 'system', '2020-6-10 16:34:38', 'system', '2020-6-10 16:34:47', NULL, '0');
-
-INSERT INTO `sys_user_role` VALUES (1, 11, 11);
+INSERT INTO mixmusic.sys_role (id,name,description,create_by,create_time,update_by,update_time) VALUES (1400616406266740738,'超级管理员','所有权限',NULL,NULL,NULL,NULL),(1400616406308683778,'普通用户','普通权限',NULL,NULL,NULL,NULL);
+INSERT INTO mixmusic.sys_user (id,username,password,nick_name,gender,email,phone,mobile_phone,`type`,avatar,enabled,create_by,create_time,update_by,update_time,remarks,del_flag) VALUES (1400616404085702657,'admin','$2a$10$iEpGPe7J2Zj23juaZVCi7.XR/GlzuK3IDkzd8SGPSkPn64xUNvOsG','超级管理员','1',NULL,NULL,NULL,'1',NULL,'1',NULL,NULL,NULL,NULL,NULL,'0');
+INSERT INTO mixmusic.sys_user_role (id,user_id,role_id) VALUES (1400616406350626817,1400616404085702657,1400616406266740738);

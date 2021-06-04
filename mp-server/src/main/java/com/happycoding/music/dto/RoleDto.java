@@ -1,9 +1,11 @@
 package com.happycoding.music.dto;
 
+import com.happycoding.music.common.base.BaseDto;
 import com.happycoding.music.common.support.valid.Insert;
 import com.happycoding.music.common.support.valid.Update;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -15,8 +17,9 @@ import java.util.Set;
  * @Description:
  * @Date: 2020/6/8 16:10
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class RoleDto {
+public class RoleDto extends BaseDto {
     @ApiModelProperty(value = "id")
     @NotNull(groups = {Update.class},message = "角色id不能为空")
     private Long id;

@@ -1,14 +1,13 @@
 package com.happycoding.music.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.Version;
+import com.happycoding.music.common.base.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -22,7 +21,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @TableName("sys_menu")
 @ApiModel(value="Menu对象", description="菜单表")
-public class Menu implements Serializable {
+public class Menu extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -64,19 +63,5 @@ public class Menu implements Serializable {
 
     @ApiModelProperty(value = "权限标识")
     private String permission;
-
-    @ApiModelProperty(value = "创建者")
-    private String createBy;
-
-    @ApiModelProperty(value = "创建时间")
-    private LocalDateTime createTime;
-
-    @ApiModelProperty(value = "更新者")
-    private String updateBy;
-
-    @ApiModelProperty(value = "更新时间")
-    @Version
-    private LocalDateTime updateTime;
-
 
 }

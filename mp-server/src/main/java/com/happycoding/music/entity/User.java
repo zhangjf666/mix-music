@@ -2,14 +2,13 @@ package com.happycoding.music.entity;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.Version;
+import com.happycoding.music.common.base.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -23,7 +22,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @TableName("sys_user")
 @ApiModel(value="User对象", description="用户表")
-public class User implements Serializable {
+public class User extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -59,19 +58,6 @@ public class User implements Serializable {
 
     @ApiModelProperty(value = "状态:1:启用 0:禁用")
     private String enabled;
-
-    @ApiModelProperty(value = "创建者")
-    private String createBy;
-
-    @ApiModelProperty(value = "创建时间")
-    private LocalDateTime createTime;
-
-    @ApiModelProperty(value = "更新者")
-    private String updateBy;
-
-    @ApiModelProperty(value = "更新时间")
-    @Version
-    private LocalDateTime updateTime;
 
     @ApiModelProperty(value = "备注信息")
     private String remarks;

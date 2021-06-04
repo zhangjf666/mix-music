@@ -2,6 +2,7 @@ package com.happycoding.music.service;
 
 import com.happycoding.music.common.base.BaseService;
 import com.happycoding.music.common.model.Page;
+import com.happycoding.music.dto.RegisterUserDto;
 import com.happycoding.music.dto.UserDto;
 import com.happycoding.music.dto.UserQueryDto;
 import com.happycoding.music.entity.User;
@@ -75,4 +76,11 @@ public interface UserService extends BaseService<UserDto, User> {
      * @return
      */
     boolean checkExist(String userName);
+
+    /**
+     * 注册用户
+     * @param dto
+     * @return
+     */
+    boolean registerUser(RegisterUserDto dto);
 }

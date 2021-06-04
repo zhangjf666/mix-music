@@ -27,8 +27,7 @@ public interface UserMapper extends BaseMapper<User> {
     @Select("select * from sys_user u where u.username = #{username}")
     @Results({
             @Result(property = "id",column = "id",id = true),
-            @Result(property = "deptId",column = "dept_id"),
-            @Result(property = "roles", javaType = Set.class,column = "id",many = @Many(select = "com.zjf.assistant.system.mapper.RoleMapper.getUserRoles"))
+            @Result(property = "roles", javaType = Set.class,column = "id",many = @Many(select = "com.happycoding.music.mapper.RoleMapper.getUserRoles"))
     })
     User findByUsername(String username);
 }

@@ -1,7 +1,10 @@
 package com.happycoding.music.mapper;
 
-import com.happycoding.music.entity.Song;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.happycoding.music.dto.SongInfoDto;
+import com.happycoding.music.entity.Song;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface SongMapper extends BaseMapper<Song> {
 
+    /**
+     * 查询歌曲相关连歌曲
+     * @param dto
+     * @return
+     */
+    List<SongInfoDto> queryRelativeSong(SongInfoDto dto);
 }

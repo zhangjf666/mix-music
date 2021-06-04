@@ -4,8 +4,8 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.happycoding.music.entity.Song">
-        <id column="internal_id" property="internalId" />
-        <result column="id" property="id" />
+        <id column="id" property="id" />
+        <result column="song_id" property="songId" />
         <result column="name" property="name" />
         <result column="pic_url" property="picUrl" />
         <result column="duration" property="duration" />
@@ -17,7 +17,11 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        internal_id, id, name, pic_url, duration, url, br, lyric, platform
+        id, song_id, name, pic_url, duration, url, br, lyric, platform
     </sql>
+
+    <select id="queryRelativeSong" resultType="com.happycoding.music.dto.SongInfoDto">
+        select * from song where id in (select dest_id from song_relative where source_id = #{dto.id})
+    </select>
 
 </mapper>

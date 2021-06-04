@@ -55,7 +55,7 @@ public class MiguService {
             for (int i = 0; i < musics.size(); i++) {
                 JSONObject song = musics.getJSONObject(i);
                 SongInfoDto info = new SongInfoDto();
-                info.setId(song.getString("copyrightId"));
+                info.setSongId(song.getString("copyrightId"));
                 info.setName(song.getString("songName"));
                 //专辑信息
                 List<AlbumInfoDto> albumInfoDtos = new ArrayList<>();
@@ -64,8 +64,8 @@ public class MiguService {
                     String[] albumNames = song.getString("albumName").split(",");
                     for (int ia = 0; ia < albumIds.length; ia++) {
                         AlbumInfoDto album = new AlbumInfoDto();
-                        album.setId(albumIds[ia]);
-                        album.setName(albumNames[ia]);
+                        album.setAlbumId(albumIds[ia]);
+                        album.setAlbumName(albumNames[ia]);
                         albumInfoDtos.add(album);
                     }
                 }
@@ -77,15 +77,15 @@ public class MiguService {
                     String[] singerNames = song.getString("singerName").split(",");
                     for (int is = 0; is < singerIds.length; is++) {
                         SingerInfoDto singer = new SingerInfoDto();
-                        singer.setId(singerIds[is]);
-                        singer.setName(singerNames[is]);
+                        singer.setSingerId(singerIds[is]);
+                        singer.setSingerName(singerNames[is]);
                         singerInfoDtos.add(singer);
                     }
                 }
                 info.setSingers(singerInfoDtos);
 
                 info.setPicUrl(song.getString("cover"));
-                info.setMusicPlatform(MusicPlatform.Migu);
+                info.setPlatform(MusicPlatform.Migu);
                 songInfoDtoList.add(info);
             }
         }
@@ -176,11 +176,11 @@ public class MiguService {
             for (int i = 0; i < msongs.size(); i++) {
                 JSONObject song = msongs.getJSONObject(i);
                 SongInfoDto sid = new SongInfoDto();
-                sid.setId(song.getString("copyrightId"));
+                sid.setSongId(song.getString("copyrightId"));
                 DateTime length = DateUtil.parseTime(song.getString("length"));
                 int duration = length.minute() * 60000 + length.second() * 1000 + length.millsecond();
                 sid.setDuration(duration);
-                sid.setMusicPlatform(MusicPlatform.Migu);
+                sid.setPlatform(MusicPlatform.Migu);
                 sid.setName(song.getString("songName"));
 
                 if(song.getJSONArray("singers") != null && !song.getJSONArray("singers").isEmpty()){
@@ -188,8 +188,8 @@ public class MiguService {
                     for (Object si : song.getJSONArray("singers")) {
                         JSONObject sin = (JSONObject) si;
                         SingerInfoDto singer = new SingerInfoDto();
-                        singer.setId(sin.getString("artistId"));
-                        singer.setName(sin.getString("artistName"));
+                        singer.setSingerId(sin.getString("artistId"));
+                        singer.setSingerName(sin.getString("artistName"));
                         singerInfoDtos.add(singer);
                     }
                     sid.setSingers(singerInfoDtos);
@@ -200,8 +200,8 @@ public class MiguService {
                     for (Object al:song.getJSONArray("albums")) {
                         JSONObject alb = (JSONObject) al;
                         AlbumInfoDto album = new AlbumInfoDto();
-                        album.setId(alb.getString("albumId"));
-                        album.setName(alb.getString("albumName"));
+                        album.setAlbumId(alb.getString("albumId"));
+                        album.setAlbumName(alb.getString("albumName"));
                         albumInfoDtos.add(album);
                     }
                     sid.setAlbums(albumInfoDtos);
@@ -220,11 +220,11 @@ public class MiguService {
      */
     public SongInfoDto songDetail(SongInfoDto songInfo){
         //获取url
-        SongUrlDto urlDto = songUrl(songInfo.getId(), "HQ");
+        SongUrlDto urlDto = songUrl(songInfo.getSongId(), "HQ");
         songInfo.setUrl(urlDto.getUrl());
         songInfo.setBr(urlDto.getBr());
         //获取歌词
-        String lyric = lyric(songInfo.getId());
+        String lyric = lyric(songInfo.getSongId());
         songInfo.setLyric(lyric);
         return songInfo;
     }

@@ -1,12 +1,15 @@
 package com.happycoding.music.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.Version;
-import java.io.Serializable;
+import com.happycoding.music.model.MusicPlatform;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -25,10 +28,10 @@ public class Song implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "内部id")
-    private Long internalId;
+    private Long id;
 
     @ApiModelProperty(value = "歌曲id")
-    private String id;
+    private String songId;
 
     @ApiModelProperty(value = "歌曲名称")
     private String name;
@@ -49,7 +52,13 @@ public class Song implements Serializable {
     private String lyric;
 
     @ApiModelProperty(value = "所属歌曲平台")
-    private String platform;
+    private MusicPlatform platform;
 
+    @ApiModelProperty(value = "歌手信息")
+    @TableField(exist = false)
+    List<Singer> singers;
 
+    @ApiModelProperty(value = "所属专辑")
+    @TableField(exist = false)
+    List<Album> albums;
 }

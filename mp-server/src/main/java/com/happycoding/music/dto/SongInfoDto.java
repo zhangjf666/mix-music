@@ -13,11 +13,14 @@ import java.util.List;
  */
 @Data
 public class SongInfoDto {
-
+    /**
+     * 内部id
+     */
+    Long id;
     /**
      * 音乐id
      */
-    String id;
+    String songId;
 
     /**
      * 名称
@@ -52,7 +55,7 @@ public class SongInfoDto {
     /**
      * 属于哪个平台
      */
-    MusicPlatform musicPlatform;
+    MusicPlatform platform;
 
     /**
      * 音质

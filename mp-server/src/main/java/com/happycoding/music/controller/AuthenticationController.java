@@ -12,6 +12,8 @@ import com.happycoding.music.common.utils.SpringSecurityUtil;
 import com.happycoding.music.config.properties.SystemProperties;
 import com.happycoding.music.config.security.JwtProperties;
 import com.happycoding.music.dto.*;
+import com.happycoding.music.mapstruct.RoleMapstruct;
+import com.happycoding.music.service.RoleService;
 import com.happycoding.music.service.UserService;
 import com.happycoding.music.service.impl.JwtService;
 import com.happycoding.music.service.impl.OnlineUserService;
@@ -60,6 +62,8 @@ public class AuthenticationController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SystemProperties systemProperties;
     private final UserService userService;
+    private final RoleService roleService;
+    private final RoleMapstruct roleMapstruct;
 
     @ApiOperation("登录授权")
     @Anonymous
@@ -125,11 +129,14 @@ public class AuthenticationController {
     @ApiOperation("注册用户")
     @Anonymous
     @PostMapping("/register")
-    public Response create(@Validated(Insert.class) @RequestBody UserDto dto){
-        if(userService.checkExist(dto.getUsername())) {
+    public Response create(@Validated(Insert.class) @RequestBody RegisterUserDto dto){
+        if(userService.checkExist(dto.getUserName())) {
             throw new BusinessException("用户名已存在");
         }
-        userService.create(dto);
+        if(!dto.getPassword().equals(dto.getRepeatPassword())){
+            throw new BusinessException("2次密码不相同");
+        }
+        userService.registerUser(dto);
         return Response.ok();
     }
 

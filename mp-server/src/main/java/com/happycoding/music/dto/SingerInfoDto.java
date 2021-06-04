@@ -1,5 +1,6 @@
 package com.happycoding.music.dto;
 
+import com.happycoding.music.model.MusicPlatform;
 import lombok.Data;
 
 /**
@@ -10,13 +11,24 @@ import lombok.Data;
  */
 @Data
 public class SingerInfoDto {
+
     /**
-     * 歌手id
+     * id
      */
     private String id;
 
     /**
+     * 歌手id
+     */
+    private String singerId;
+
+    /**
      * 歌手姓名
      */
-    private String name;
+    private String singerName;
+
+    /**
+     * 歌手平台
+     */
+    private MusicPlatform platform;
 }

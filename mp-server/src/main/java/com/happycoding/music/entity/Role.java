@@ -1,14 +1,13 @@
 package com.happycoding.music.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.Version;
+import com.happycoding.music.common.base.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -22,7 +21,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @TableName("sys_role")
 @ApiModel(value="Role对象", description="角色表")
-public class Role implements Serializable {
+public class Role extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -34,19 +33,5 @@ public class Role implements Serializable {
 
     @ApiModelProperty(value = "描述")
     private String description;
-
-    @ApiModelProperty(value = "创建者")
-    private String createBy;
-
-    @ApiModelProperty(value = "创建时间")
-    private LocalDateTime createTime;
-
-    @ApiModelProperty(value = "更新者")
-    private String updateBy;
-
-    @ApiModelProperty(value = "更新时间")
-    @Version
-    private LocalDateTime updateTime;
-
 
 }
