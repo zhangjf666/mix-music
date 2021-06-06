@@ -56,6 +56,11 @@ export default {
 		},
         // 搜索触发事件
 		getSearch(keywords){
+            if(keywords == null || keywords == ''){
+                this.isSupport = true;
+                keywords = this.defaultSearch;
+                this.search = keywords;
+            }
 			this.searchHotVisible = false;
             this.searchSuggestVisible = false;
             this.searchListVisible = true;

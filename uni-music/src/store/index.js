@@ -171,6 +171,7 @@ const store = new Vuex.Store({
             //去重
             let i = indexOf(state.playlist, song);
             if(state.playlist == null ||state.playlist.length <= 0) {
+                console.log('111')
                 index = 0;
             } else if(i == -1){
                 index += 1;

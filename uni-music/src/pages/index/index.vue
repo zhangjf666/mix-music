@@ -73,6 +73,7 @@
               v-for="item in banner"
               :key="item.id"
               class="banner-item"
+              @click="clickBanner(item)"
             >
               <image
                 lazy-load
@@ -206,7 +207,7 @@
 </template>
 
 <script>
-import { recommendSongList, banner, recommendNewSong } from "@/api/platform.js";
+import { recommendSongList, banner, recommendNewSong, songInfo } from "@/api/platform.js";
 import { mapState, mapMutations } from 'vuex';
 import playMusic from '@/my-components/playMusic.vue'
 import { handleSingerName } from '@/utils/songUtil.js';
@@ -318,12 +319,20 @@ export default {
     goNavNewPage(text) {
       if (text == "歌单") {
         return this.goSongListPage();
+      } else if(text == '排行榜') {
+        return this.goRankListPage();
       }
     },
     // 跳转歌单页面
     goSongListPage() {
       uni.navigateTo({
         url: `../songlist/songlist`,
+      });
+    },
+    // 跳转排行榜页面
+    goRankListPage() {
+      uni.navigateTo({
+        url: `../ranklist/ranklist`,
       });
     },
     // 跳转搜索页面
@@ -358,6 +367,16 @@ export default {
         return false;
       }
       return this.playlist[this.playingIndex].id == id;
+    },
+    clickBanner(item) {
+      if(item.targetType == 10) {
+        this.goPlaylistDetail(item.targetId);
+      } else if(item.targetType == 1) {
+        songInfo({ songIds:item.targetId, musicPlatform: "1"}).then(data => {
+          console.log(data)
+          this.addAndPlay(data[0]);
+        })
+      }
     }
   }
 };

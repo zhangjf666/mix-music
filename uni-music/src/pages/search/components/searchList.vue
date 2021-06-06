@@ -12,7 +12,7 @@
                         <template v-if="item.singers && item.singers.length > 0">
                             {{ songSinger(item)}}
                         </template>
-                        <span v-if="item.albums && item.albums.length > 0" style="margin-left: 5px;">- {{ item.albums[0].name }}</span>
+                        <span v-if="item.albums && item.albums.length > 0" style="margin-left: 5px;">- {{ item.albums[0].albumName }}</span>
                     </div>
                 </div>
             </div>

@@ -128,3 +128,20 @@ export function categoryList(data) {
         data
     })
 }
+
+export function topListDetail(data) {
+    var data = {}
+    return request({
+        url: prefix + '/topListDetail',
+        method: 'GET',
+        data
+    })
+}
+
+export function songInfo(data) {
+    return request({
+        url: prefix + '/song',
+        method: 'GET',
+        data
+    })
+}

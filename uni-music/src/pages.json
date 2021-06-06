@@ -19,10 +19,8 @@
 			"style": {}
 		},
 		{
-			"path": "pages/play/play",
-			"style": {
-				"navigationBarTitleText": "播放中"
-			}
+			"path": "pages/ranklist/ranklist",
+			"style": {}
 		},
 		{
 			"path": "pages/mylist/mylist",
