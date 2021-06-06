@@ -26,10 +26,10 @@ public class Menu extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "上级菜单id")
-    private Long pid;
+    private String pid;
 
     @ApiModelProperty(value = "名称")
     private String name;

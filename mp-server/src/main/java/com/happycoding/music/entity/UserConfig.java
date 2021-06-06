@@ -25,7 +25,7 @@ public class UserConfig implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "用户id")
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "播放方式")
     private String playMode;

@@ -44,7 +44,7 @@ public class MenuServiceImpl extends BaseServiceImpl<MenuMapstruct, MenuDto, Men
     }
 
     @Override
-    public Set<MenuDto> getMenusByRoleId(Set<Long> roleId) {
+    public Set<MenuDto> getMenusByRoleId(Set<String> roleId) {
         LinkedHashSet<Menu> menus = baseMapper.getMenusByRoleId(roleId);
         return menus.stream().map(baseMapstruct::toDto).collect(Collectors.toSet());
     }

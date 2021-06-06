@@ -60,7 +60,7 @@ public interface RoleService extends BaseService<RoleDto, Role> {
      * @return
      */
     @Override
-    boolean create(RoleDto dto);
+    RoleDto create(RoleDto dto);
 
     /**
      * 更新角色

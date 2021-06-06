@@ -14,7 +14,7 @@ import lombok.Data;
 public class UserQueryDto {
     @ApiModelProperty(value = "id")
     @Query
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "用户名")
     @Query(match = Query.Matching.INNER_LIKE)

@@ -22,7 +22,7 @@ import java.util.Set;
 public class RoleDto extends BaseDto {
     @ApiModelProperty(value = "id")
     @NotNull(groups = {Update.class},message = "角色id不能为空")
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "角色名称")
     @NotBlank(groups = Insert.class,message = "角色名称不能为空")

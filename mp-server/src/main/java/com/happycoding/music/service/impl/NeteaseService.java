@@ -1,9 +1,7 @@
 package com.happycoding.music.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.*;
 import com.happycoding.music.common.exception.BusinessException;
 import com.happycoding.music.dto.*;
 import com.happycoding.music.entity.SongRelative;
@@ -34,6 +32,37 @@ import static com.happycoding.music.util.NeteaseCryptoUtil.*;
 @Slf4j
 @Service
 public class NeteaseService {
+    private static Map<String, String> fieldMap = new HashMap<>();
+    private static Map<String, String> fieldTopSongMap = new HashMap<>();
+    private static Map<String, String> fieldPersonalizedMap = new HashMap<>();
+
+    static {
+        //几种不同的获取网易返回数据的位置,jsonpath格式
+        fieldMap.put("songId", "$.id");
+        fieldMap.put("name", "$.name");
+        fieldMap.put("picUrl", "$.al.picUrl");
+        fieldMap.put("duration", "$.dt");
+        fieldMap.put("singers", "$.ar");
+        fieldMap.put("albums", "$.al");
+        fieldMap.put("fee", "$.fee");
+
+        fieldPersonalizedMap.put("songId", "$.id");
+        fieldPersonalizedMap.put("name", "$.name");
+        fieldPersonalizedMap.put("picUrl", "$.picUrl");
+        fieldPersonalizedMap.put("duration", "$.song.duration");
+        fieldPersonalizedMap.put("singers", "$.song.artists");
+        fieldPersonalizedMap.put("albums", "$.song.album");
+        fieldPersonalizedMap.put("fee", "$.song.fee");
+
+        fieldTopSongMap.put("songId", "$.id");
+        fieldTopSongMap.put("name", "$.name");
+        fieldTopSongMap.put("picUrl", "$.album.picUrl");
+        fieldTopSongMap.put("duration", "$.duration");
+        fieldTopSongMap.put("singers", "$.artists");
+        fieldTopSongMap.put("albums", "$.album");
+        fieldTopSongMap.put("fee", "$.fee");
+    }
+
     @Autowired
     private MiguService miguService;
     @Autowired
@@ -44,6 +73,7 @@ public class NeteaseService {
      * 推荐歌单
      * @param limit
      * @return
+     *
      */
     public List<PlayListDto> personalized(Integer limit){
         Map<String, Object> data = new HashMap<>();
@@ -186,7 +216,7 @@ public class NeteaseService {
         if(songs != null && !songs.isEmpty()){
             for (int i = 0; i < songs.size(); i++) {
                 JSONObject song = songs.getJSONObject(i);
-                SongInfoDto info = getSongInfo(song);
+                SongInfoDto info = getSongInfo(song, fieldMap);
                 songInfoDtoList.add(info);
             }
         }
@@ -265,7 +295,7 @@ public class NeteaseService {
         if(songs != null && !songs.isEmpty()){
             for (int i = 0; i < songs.size(); i++) {
                 JSONObject song = songs.getJSONObject(i);
-                SongInfoDto sid = getSongInfo(song);
+                SongInfoDto sid = getSongInfo(song, fieldMap);
                 songInfoDtoList.add(sid);
             }
         }
@@ -277,20 +307,20 @@ public class NeteaseService {
      * @param song
      * @return
      */
-    private SongInfoDto getSongInfo(JSONObject song) {
+    private SongInfoDto getSongInfo(JSONObject song, Map<String, String> fieldMap) {
         SongInfoDto info = null;
-        String songId = song.getString("id");
-        info = songService.querySong(songId, MusicPlatform.Netease);
+        String songId = String.valueOf(JSONPath.eval(song, fieldMap.get("songId")));
+        info = songService.querySongBySongId(songId, MusicPlatform.Netease);
         if(info == null){
             //如果歌曲不存在,保存歌曲
             info = new SongInfoDto();
             info.setSongId(songId);
-            info.setDuration(song.getLong("dt"));
+            info.setDuration((Integer)JSONPath.eval(song, fieldMap.get("duration")));
             info.setPlatform(MusicPlatform.Netease);
-            info.setName(song.getString("name"));
+            info.setName((String) JSONPath.eval(song, fieldMap.get("name")));
             List<SingerInfoDto> singerInfoDtos = new ArrayList<>();
-            if(song.getJSONArray("ar") != null && !song.getJSONArray("ar").isEmpty()){
-                for (Object o: song.getJSONArray("ar")) {
+            if(JSONPath.contains(song, fieldMap.get("singers")) && JSONPath.size(song, fieldMap.get("singers")) > 0){
+                for (Object o: (JSONArray)JSONPath.eval(song, fieldMap.get("singers"))) {
                     JSONObject ar = (JSONObject) o;
                     SingerInfoDto singer = new SingerInfoDto();
                     singer.setSingerId(ar.getString("id"));
@@ -302,35 +332,35 @@ public class NeteaseService {
             info.setSingers(singerInfoDtos);
 
             List<AlbumInfoDto> albumInfoDtos = new ArrayList<>();
-            if (song.containsKey("al") && song.getJSONObject("al") != null) {
-                info.setPicUrl(song.getJSONObject("al").getString("picUrl"));
+            if (JSONPath.contains(song, fieldMap.get("albums"))) {
+                info.setPicUrl((String) JSONPath.eval(song, fieldMap.get("picUrl")));
                 AlbumInfoDto album = new AlbumInfoDto();
-                album.setAlbumId(song.getJSONObject("al").getString("id"));
-                album.setAlbumName(song.getJSONObject("al").getString("name"));
+                album.setAlbumId(((JSONObject)JSONPath.eval(song, fieldMap.get("albums"))).getString("id"));
+                album.setAlbumName(((JSONObject)JSONPath.eval(song, fieldMap.get("albums"))).getString("name"));
                 album.setPlatform(MusicPlatform.Netease);
                 albumInfoDtos.add(album);
             }
             info.setAlbums(albumInfoDtos);
-            songService.create(info);
+            info = songService.create(info);
         }
 
         //fee 为1和4代表没有播放权限,需要用migu平台替换
-        int fee = song.getInteger("fee");
+        int fee = (int) JSONPath.eval(song, fieldMap.get("fee"));
         if(!canPlay(fee)){
             //查询是否有关联,有关联就返回
             List<SongInfoDto> relative = songService.queryRelative(info);
             if(!relative.isEmpty()){
-                return relative.get(0);
+                info = relative.get(0);
             }
-            String songName = song.getString("name");
-            String singerName = song.getJSONArray("ar").getJSONObject(0).getString("name");
+            String songName = (String) JSONPath.eval(song, fieldMap.get("name"));
+            String singerName = ((JSONArray)JSONPath.eval(song, fieldMap.get("singers"))).getJSONObject(0).getString("name");
             SongInfoDto instead = insteadSong(songName, singerName);
             if(instead != null){
                 //保存替换歌曲
-                songService.create(instead);
+                instead = songService.create(instead);
                 //保存歌曲对应id
                 songRelativeService.save(new SongRelative(info.getId(), instead.getId()));
-                return instead;
+                info = instead;
             }
         }
         return info;
@@ -480,11 +510,11 @@ public class NeteaseService {
      * @param total
      * @return
      */
-    public JSONObject topSong(int areaId, int limit, int offset, boolean total){
+    public List<SongInfoDto> topSong(String areaId, long limit, long offset, boolean total){
         Map<String, Object> data = new HashMap<>();
         data.put("areaId", areaId);
-        data.put("limit", limit);
-        data.put("offset", offset);
+//        data.put("limit", limit);
+//        data.put("offset", offset);
         data.put("total", total);
 
         NeteaseOption option = new NeteaseOption();
@@ -493,7 +523,15 @@ public class NeteaseService {
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://music.163.com/weapi/v1/discovery/new/songs", data, option);
         checkError(response);
-        return response.getBody();
+
+        List<SongInfoDto> songInfoDtoList = new ArrayList<>();
+        JSONArray result = response.getBody().getJSONArray("data");
+        for (Object o : result) {
+            JSONObject song = (JSONObject)o;
+            SongInfoDto info = getSongInfo(song, fieldTopSongMap);
+            songInfoDtoList.add(info);
+        }
+        return songInfoDtoList;
     }
 
     /**
@@ -539,56 +577,7 @@ public class NeteaseService {
         JSONArray result = response.getBody().getJSONArray("result");
         for (Object o : result) {
             JSONObject song = (JSONObject)o;
-            SongInfoDto info = null;
-            String songId = song.getString("id");
-            info = songService.querySong(songId, MusicPlatform.Netease);
-            if(info == null){
-                info = new SongInfoDto();
-                info.setPlatform(MusicPlatform.Netease);
-                info.setName(song.getString("name"));
-                info.setSongId(song.getString("id"));
-                info.setPicUrl(song.getString("picUrl"));
-                song = song.getJSONObject("song");
-                info.setDuration(song.getLong("duration"));
-
-                List<SingerInfoDto> singerInfoDtos = new ArrayList<>();
-                if(song.getJSONArray("artists") != null && !song.getJSONArray("artists").isEmpty()){
-                    for (Object a: song.getJSONArray("artists")) {
-                        JSONObject ar = (JSONObject) a;
-                        SingerInfoDto singer = new SingerInfoDto();
-                        singer.setSingerId(ar.getString("id"));
-                        singer.setSingerName(ar.getString("name"));
-                        singer.setPlatform(MusicPlatform.Netease);
-                        singerInfoDtos.add(singer);
-                    }
-                }
-                info.setSingers(singerInfoDtos);
-
-                List<AlbumInfoDto> albumInfoDtos = new ArrayList<>();
-                if (song.containsKey("album") && song.getJSONObject("album") != null) {
-                    info.setPicUrl(song.getJSONObject("album").getString("picUrl"));
-                    AlbumInfoDto album = new AlbumInfoDto();
-                    album.setAlbumId(song.getJSONObject("album").getString("id"));
-                    album.setAlbumName(song.getJSONObject("album").getString("name"));
-                    album.setPlatform(MusicPlatform.Netease);
-                    albumInfoDtos.add(album);
-                }
-                info.setAlbums(albumInfoDtos);
-                songService.create(info);
-            }
-            int fee = song.getJSONObject("song").getInteger("fee");
-            if(!canPlay(fee)){
-                String name = song.getString("name");
-                String singerName = song.getJSONObject("song").getJSONArray("artists").getJSONObject(0).getString("name");
-                SongInfoDto instead = insteadSong(name, singerName);
-                if(instead != null){
-                    //保存歌曲
-                    songService.create(instead);
-                    //保存歌曲关系
-                    songRelativeService.save(new SongRelative(info.getId(), instead.getId()));
-                    info = instead;
-                }
-            }
+            SongInfoDto info = getSongInfo(song, fieldPersonalizedMap);
             songInfoDtoList.add(info);
         }
         return songInfoDtoList;
@@ -818,26 +807,6 @@ public class NeteaseService {
 
         NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
                 "https://music.163.com/weapi/artist/top", data, option);
-        checkError(response);
-        return response.getBody();
-    }
-
-    /**
-     * 排行榜
-     * @return
-     */
-    public JSONObject rankList(String id){
-        Map<String, Object> data = new HashMap<>();
-        data.put("id", id);
-        data.put("n", 500);
-        data.put("s", 0);
-
-        NeteaseOption option = new NeteaseOption();
-        option.setCrypto(WEAPI_TYPE);
-        option.getCookie().put("os", "pc");
-
-        NeteaseResponse response = NeteaseRequestUtil.getResponse("POST",
-                "https://interface3.music.163.com/api/playlist/v4/detail", data, option);
         checkError(response);
         return response.getBody();
     }

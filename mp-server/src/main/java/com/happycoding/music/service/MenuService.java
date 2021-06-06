@@ -41,7 +41,7 @@ public interface MenuService extends BaseService<MenuDto, Menu> {
      * @param roleId 角色id
      * @return
      */
-    Set<MenuDto> getMenusByRoleId(@Param("roleId") Set<Long> roleId);
+    Set<MenuDto> getMenusByRoleId(@Param("roleId") Set<String> roleId);
 
     /**
      * 获取指定节点的所有上级节点

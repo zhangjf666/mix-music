@@ -25,15 +25,15 @@ public class RoleMenu implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "角色id")
-    private Long roleId;
+    private String roleId;
 
     @ApiModelProperty(value = "菜单id")
-    private Long menuId;
+    private String menuId;
 
-    public RoleMenu(Long roleId, Long menuId) {
+    public RoleMenu(String roleId, String menuId) {
         this.roleId = roleId;
         this.menuId = menuId;
     }

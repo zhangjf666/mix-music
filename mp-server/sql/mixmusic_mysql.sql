@@ -3,9 +3,9 @@
 /*==============================================================*/
 create table album
 (
-   id                   bigint not null comment 'id',
-   album_id             varchar(32) not null comment '歌手id',
-   album_name           varchar(32) not null comment '歌手名称',
+   id                   varchar(32) not null comment 'id',
+   album_id             varchar(32) not null comment '专辑id',
+   album_name           varchar(100) not null comment '专辑名称',
    platform             char(1) not null comment '所属歌曲平台',
    primary key (id)
 );
@@ -17,9 +17,9 @@ alter table album comment '专辑信息表';
 /*==============================================================*/
 create table singer
 (
-   id                   bigint not null comment 'id',
+   id                   varchar(32) not null comment 'id',
    singer_id            varchar(32) not null comment '歌手id',
-   singer_name          varchar(32) not null comment '歌手名称',
+   singer_name          varchar(100) not null comment '歌手名称',
    platform             char(1) not null comment '所属歌曲平台',
    primary key (id)
 );
@@ -31,10 +31,10 @@ alter table singer comment '歌手信息表';
 /*==============================================================*/
 create table song
 (
-   id                   bigint not null comment '内部id',
+   id                   varchar(32) not null comment '内部id',
    song_id              varchar(50) not null comment '歌曲id',
    name                 varchar(100) not null comment '歌曲名称',
-   pic_url              varchar(200) comment '歌曲图片',
+   pic_url              varchar(500) comment '歌曲图片',
    duration             bigint comment '时长',
    url                  varchar(1000) comment '歌曲url',
    br                   varchar(10) comment '音质',
@@ -49,9 +49,9 @@ alter table song comment '歌曲信息表';
 /*==============================================================*/
 create table song_album
 (
-   id                   bigint not null comment 'id',
-   song_id              bigint not null comment '歌曲id',
-   album_id             bigint not null comment '专辑id',
+   id                   varchar(32) not null comment 'id',
+   song_id              varchar(32) not null comment '歌曲id',
+   album_id             varchar(32) not null comment '专辑id',
    primary key (id)
 );
 
@@ -62,9 +62,9 @@ alter table song_album comment '歌曲-专辑表';
 /*==============================================================*/
 create table song_relative
 (
-   id                   bigint not null comment 'id',
-   source_id            bigint not null comment '源平台歌曲内部id',
-   dest_id              bigint comment '目标平台歌曲内部id',
+   id                   varchar(32) not null comment 'id',
+   source_id            varchar(32) not null comment '源平台歌曲内部id',
+   dest_id              varchar(32) not null comment '目标平台歌曲内部id',
    primary key (id)
 );
 
@@ -75,9 +75,9 @@ alter table song_relative comment '各平台歌曲对应表';
 /*==============================================================*/
 create table song_singer
 (
-   id                   bigint not null comment 'id',
-   song_id              bigint not null comment '歌曲id',
-   singer_id            bigint not null comment '歌手id',
+   id                   varchar(32) not null comment 'id',
+   song_id              varchar(32) not null comment '歌曲id',
+   singer_id            varchar(32) not null comment '歌手id',
    primary key (id)
 );
 
@@ -88,8 +88,8 @@ alter table song_singer comment '歌曲-歌手表';
 /*==============================================================*/
 create table sys_menu
 (
-   id                   bigint not null comment 'id',
-   pid                  bigint comment '上级菜单id',
+   id                   varchar(32) not null comment 'id',
+   pid                  varchar(32) comment '上级菜单id',
    name                 varchar(100) not null comment '名称',
    description          varchar(200) comment '菜单描述',
    sort                 int(5) comment '排序',
@@ -123,7 +123,7 @@ create index name on sys_menu
 /*==============================================================*/
 create table sys_role
 (
-   id                   bigint not null comment 'id',
+   id                   varchar(32) not null comment 'id',
    name                 varchar(100) not null comment '角色名称',
    description          varchar(200) comment '描述',
    create_by            varchar(100) comment '创建者',
@@ -148,9 +148,9 @@ create index name on sys_role
 /*==============================================================*/
 create table sys_role_menu
 (
-   id                   bigint not null comment 'id',
-   role_id              bigint not null comment '角色id',
-   menu_id              bigint not null comment '菜单id',
+   id                   varchar(32) not null comment 'id',
+   role_id              varchar(32) not null comment '角色id',
+   menu_id              varchar(32) not null comment '菜单id',
    primary key (id)
 );
 
@@ -169,7 +169,7 @@ create index role_id on sys_role_menu
 /*==============================================================*/
 create table sys_user
 (
-   id                   bigint not null comment 'id',
+   id                   varchar(32) not null comment 'id',
    username             varchar(100) not null comment '用户名',
    password             varchar(255) not null comment '密码',
    nick_name            varchar(100) comment '昵称',
@@ -204,9 +204,9 @@ create index username on sys_user
 /*==============================================================*/
 create table sys_user_role
 (
-   id                   bigint not null comment 'id',
-   user_id              bigint not null comment '用户id',
-   role_id              bigint not null comment '角色id',
+   id                   varchar(32) not null comment 'id',
+   user_id              varchar(32) not null comment '用户id',
+   role_id              varchar(32) not null comment '角色id',
    primary key (id)
 );
 
@@ -225,7 +225,7 @@ create index user_id on sys_user_role
 /*==============================================================*/
 create table user_config
 (
-   id                   bigint not null comment '用户id',
+   id                   varchar(32) not null comment '用户id',
    play_mode            char(1) not null comment '播放方式',
    primary key (id)
 );

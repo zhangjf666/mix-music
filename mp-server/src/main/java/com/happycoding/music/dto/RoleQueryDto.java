@@ -14,7 +14,7 @@ import lombok.Data;
 public class RoleQueryDto {
     @ApiModelProperty(value = "id")
     @Query
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "角色名称")
     @Query(match = Query.Matching.INNER_LIKE)

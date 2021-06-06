@@ -23,7 +23,7 @@ public class NeteaseTest {
     //新歌速递
     @Test
     public void topSongTest(){
-        Object dict = neteaseService.topSong(0,100, 0, true);
+        Object dict = neteaseService.topSong("0",90, 0, true);
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
@@ -44,7 +44,7 @@ public class NeteaseTest {
     //歌单详情
     @Test
     public void topPlayListDetailTest(){
-        Object dict = neteaseService.playListDetail("6732079402");
+        Object dict = neteaseService.playListDetail("126995075");
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
@@ -139,13 +139,6 @@ public class NeteaseTest {
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 
-    //排行榜
-    @Test
-    public void rankListTest(){
-        Object dict = neteaseService.rankList("19723756");
-        System.out.println(JSONUtil.toJsonStr(dict));
-    }
-
     //热门歌手
     @Test
     public void hotArtistListTest(){
@@ -157,6 +150,13 @@ public class NeteaseTest {
     @Test
     public void topAlbumListTest(){
         Object dict = neteaseService.topAlbumList("ALL", "new",1,0,2021,5);
+        System.out.println(JSONUtil.toJsonStr(dict));
+    }
+
+    //推荐新歌
+    @Test
+    public void personalizedNewSongTest(){
+        Object dict = neteaseService.personalizedNewSong(10, 0);
         System.out.println(JSONUtil.toJsonStr(dict));
     }
 }

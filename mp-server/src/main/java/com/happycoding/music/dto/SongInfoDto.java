@@ -16,7 +16,7 @@ public class SongInfoDto {
     /**
      * 内部id
      */
-    Long id;
+    String id;
     /**
      * 音乐id
      */

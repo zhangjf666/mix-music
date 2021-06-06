@@ -25,15 +25,15 @@ public class UserRole implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "用户id")
-    private Long userId;
+    private String userId;
 
     @ApiModelProperty(value = "角色id")
-    private Long roleId;
+    private String roleId;
 
-    public UserRole(Long userId, Long roleId) {
+    public UserRole(String userId, String roleId) {
         this.userId = userId;
         this.roleId = roleId;
     }

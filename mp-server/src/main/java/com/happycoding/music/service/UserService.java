@@ -53,7 +53,7 @@ public interface UserService extends BaseService<UserDto, User> {
      * @return
      */
     @Override
-    boolean create(UserDto dto);
+    UserDto create(UserDto dto);
 
     /**
      * 更新用户

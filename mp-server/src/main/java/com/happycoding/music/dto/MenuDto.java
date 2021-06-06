@@ -22,10 +22,10 @@ import javax.validation.constraints.NotNull;
 public class MenuDto extends BaseDto {
     @ApiModelProperty(value = "id")
     @NotNull(groups = Update.class,message = "菜单id不能为空")
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "上级菜单id")
-    private Long pid;
+    private String pid;
 
     @ApiModelProperty(value = "名称")
     @NotBlank(groups = Insert.class,message = "菜单名称不能为空")

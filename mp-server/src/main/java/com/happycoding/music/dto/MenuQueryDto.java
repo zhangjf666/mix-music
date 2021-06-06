@@ -14,11 +14,11 @@ import lombok.Data;
 public class MenuQueryDto {
     @ApiModelProperty(value = "id")
     @Query
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "上级菜单id")
     @Query
-    private Long pid;
+    private String pid;
 
     @ApiModelProperty(value = "名称")
     @Query(match = Query.Matching.INNER_LIKE)

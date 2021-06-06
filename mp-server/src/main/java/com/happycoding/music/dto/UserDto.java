@@ -23,7 +23,7 @@ import java.util.Set;
 public class UserDto extends BaseDto {
     @ApiModelProperty(value = "id")
     @NotNull(groups = {Update.class},message = "用户id不能为空")
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "用户名")
     @NotBlank(groups = Insert.class,message = "用户名不能为空")

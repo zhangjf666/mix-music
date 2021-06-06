@@ -78,7 +78,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapstruct, UserDto, Use
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean create(UserDto dto) {
+    public UserDto create(UserDto dto) {
         User user = baseMapstruct.toEntity(dto);
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         baseMapper.insert(user);
@@ -86,7 +86,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapstruct, UserDto, Use
             UserRole ur = new UserRole(user.getId(),roleDto.getId());
             userRoleMapper.insert(ur);
         }
-        return true;
+        return baseMapstruct.toDto(user);
     }
 
     @Transactional(rollbackFor = Exception.class)

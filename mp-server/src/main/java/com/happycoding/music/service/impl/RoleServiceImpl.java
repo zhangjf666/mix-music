@@ -61,7 +61,7 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleMapstruct, RoleDto, Rol
             return permissions.stream().map(PermissionGrantedAuthority::new)
                     .collect(Collectors.toList());
         }
-        Set<Long> roleIds = userDto.getRoles().stream().map(RoleDto::getId).collect(Collectors.toSet());
+        Set<String> roleIds = userDto.getRoles().stream().map(RoleDto::getId).collect(Collectors.toSet());
         Set<MenuDto> menus = menuService.getMenusByRoleId(roleIds);
         permissions = menus.stream().filter(menu -> StringUtils.isNotBlank(menu.getPermission()))
                 .map(MenuDto::getPermission).collect(Collectors.toSet());
@@ -92,14 +92,14 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleMapstruct, RoleDto, Rol
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean create(RoleDto dto) {
+    public RoleDto create(RoleDto dto) {
         Role role = baseMapstruct.toEntity(dto);
         baseMapper.insert(role);
         for (MenuDto menuDto : dto.getMenus()) {
             RoleMenu rm = new RoleMenu(role.getId(), menuDto.getId());
             roleMenuMapper.insert(rm);
         }
-        return true;
+        return baseMapstruct.toDto(role);
     }
 
     @Transactional(rollbackFor = Exception.class)

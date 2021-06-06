@@ -24,7 +24,7 @@ public interface SongService extends BaseService<SongInfoDto, Song> {
      * @return
      */
     @Override
-    boolean create(SongInfoDto dto);
+    SongInfoDto create(SongInfoDto dto);
 
     /**
      * 查询歌曲
@@ -39,14 +39,14 @@ public interface SongService extends BaseService<SongInfoDto, Song> {
      * @param id 歌曲id
      * @return
      */
-   String queryLyric(Long id);
+   String queryLyric(String id);
 
     /**
      * 获取歌曲url
      * @param id 歌曲id
      * @return
      */
-    SongUrlDto queryUrl(Long id);
+    SongUrlDto queryUrl(String id);
 
     /**
      * 获取歌曲详情(包括url和歌词)
@@ -61,4 +61,12 @@ public interface SongService extends BaseService<SongInfoDto, Song> {
      * @return
      */
     List<SongInfoDto> queryRelative(SongInfoDto dto);
+
+    /**
+     * 根据歌曲id跟平台查找歌曲
+     * @param songId 歌曲id
+     * @param platform 平台
+     * @return
+     */
+    SongInfoDto querySongBySongId(String songId, MusicPlatform platform);
 }

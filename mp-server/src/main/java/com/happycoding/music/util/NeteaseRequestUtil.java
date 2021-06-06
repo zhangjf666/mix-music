@@ -157,9 +157,10 @@ public class NeteaseRequestUtil {
                 response.setCode(200);
             }
 
-            response.setCode(100 < response.getCode() && response.getCode() < 600 ? response.getCode() : 400);
             if(response.getCode() == 200){
                 response.setBody(bodyJson);
+            } else {
+                response.setMessage(bodyJson.getString("message"));
             }
             return response;
         } catch (Exception e) {

@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -28,7 +29,7 @@ public class Song implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "内部id")
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "歌曲id")
     private String songId;
@@ -56,9 +57,9 @@ public class Song implements Serializable {
 
     @ApiModelProperty(value = "歌手信息")
     @TableField(exist = false)
-    List<Singer> singers;
+    Set<Singer> singers;
 
     @ApiModelProperty(value = "所属专辑")
     @TableField(exist = false)
-    List<Album> albums;
+    Set<Album> albums;
 }

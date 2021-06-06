@@ -1,6 +1,7 @@
 package com.happycoding.music.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.happycoding.music.common.annotation.Anonymous;
 import com.happycoding.music.common.model.Response;
 import com.happycoding.music.dto.*;
 import com.happycoding.music.model.MusicPlatform;
@@ -39,6 +40,7 @@ public class PlatformController {
     @Autowired
     private SongService songService;
 
+    @Anonymous
     @ApiOperation("推荐歌单")
     @GetMapping("/recommend")
     public Response<List<PlayListDto>> getRecommendPlayList(@RequestParam(name = "limit", defaultValue = "30") Integer limit) {
@@ -46,6 +48,7 @@ public class PlatformController {
         return Response.ok(playList);
     }
 
+    @Anonymous
     @ApiOperation("歌单信息")
     @GetMapping("/playlistDetail")
     public Response<PlayListDetailDto> getPlayListDetail(String playListId, @RequestParam(name = "platform", defaultValue = "1") MusicPlatform musicPlatform) {
@@ -65,6 +68,7 @@ public class PlatformController {
         return Response.ok(playListDetail);
     }
 
+    @Anonymous
     @ApiOperation("歌曲信息")
     @GetMapping("/song")
     public Response<List<SongInfoDto>> getSongInfo(String songIds, @RequestParam(name = "platform", defaultValue = "1") MusicPlatform musicPlatform) {
@@ -83,26 +87,30 @@ public class PlatformController {
         return Response.ok(songInfoDtoList);
     }
 
+    @Anonymous
     @ApiOperation("获取歌词")
     @GetMapping("/lyric")
-    public Response<String> getLyric(Long songId) {
+    public Response<String> getLyric(String songId) {
         String lyric = songService.queryLyric(songId);
         return Response.ok(lyric);
     }
 
+    @Anonymous
     @ApiOperation("获取歌曲url")
     @GetMapping("/url")
-    public Response<SongUrlDto> getUrl(Long songId) {
+    public Response<SongUrlDto> getUrl(String songId) {
         SongUrlDto songUrlDto = songService.queryUrl(songId);
         return Response.ok(songUrlDto);
     }
 
+    @Anonymous
     @ApiOperation("获取歌曲详情(包括url和歌词)")
     @GetMapping("/songDetail")
     public Response<SongInfoDto> getSongDetail(SongInfoDto songInfo) {
         return Response.ok(songService.queryDetail(songInfo));
     }
 
+    @Anonymous
     @ApiOperation("搜索")
     @GetMapping("/search")
     public Response<SongSearchPage> search(String keyword,
@@ -113,6 +121,7 @@ public class PlatformController {
         return Response.ok(songListPage);
     }
 
+    @Anonymous
     @ApiOperation("首页轮播图")
     @GetMapping("/banner")
     public Response search(@RequestParam(name = "type", defaultValue = "pc") String type) {
@@ -120,6 +129,7 @@ public class PlatformController {
         return Response.ok(result);
     }
 
+    @Anonymous
     @ApiOperation("推荐新歌")
     @GetMapping("/recommend/newsong")
     public Response personalizedNewSongs(
@@ -129,6 +139,7 @@ public class PlatformController {
         return Response.ok(songInfoDtoList);
     }
 
+    @Anonymous
     @ApiOperation("默认搜索关键词")
     @GetMapping("/searchDefaultKeyword")
     public Response searchDefaultKeyword() {
@@ -136,6 +147,7 @@ public class PlatformController {
         return Response.ok(result);
     }
 
+    @Anonymous
     @ApiOperation("热搜列表")
     @GetMapping("/searchHotDetail")
     public Response searchHotDetail() {
@@ -143,6 +155,7 @@ public class PlatformController {
         return Response.ok(result);
     }
 
+    @Anonymous
     @ApiOperation("搜索建议")
     @GetMapping("/searchSuggest")
     public Response searchSuggest(@RequestParam(name = "keywords", defaultValue = "") String keywords,
@@ -151,6 +164,7 @@ public class PlatformController {
         return Response.ok(result);
     }
 
+    @Anonymous
     @ApiOperation("全部歌单分类")
     @GetMapping("/allTags")
     public Response allTags() {
@@ -158,6 +172,7 @@ public class PlatformController {
         return Response.ok(result.get("sub"));
     }
 
+    @Anonymous
     @ApiOperation("精品歌单分类")
     @GetMapping("/highQualityTags")
     public Response highQualityTags() {
@@ -165,6 +180,7 @@ public class PlatformController {
         return Response.ok(result.get("tags"));
     }
 
+    @Anonymous
     @ApiOperation("热门歌单分类")
     @GetMapping("/hotTags")
     public Response hotTags() {
@@ -172,6 +188,7 @@ public class PlatformController {
         return Response.ok(result.get("tags"));
     }
 
+    @Anonymous
     @ApiOperation("精品歌单")
     @GetMapping("/highQualityList")
     public Response<PlayListPage> highQualityList(@RequestParam(name = "cat", defaultValue = "全部") String cat,
@@ -181,6 +198,7 @@ public class PlatformController {
         return Response.ok(result);
     }
 
+    @Anonymous
     @ApiOperation("分类歌单")
     @GetMapping("/categoryList")
     public Response<PlayListPage> categoryList(@RequestParam(name = "cat", defaultValue = "全部") String cat,
@@ -188,6 +206,26 @@ public class PlatformController {
                                                @RequestParam(name = "limit", defaultValue = "50") long limit,
                                                @RequestParam(name = "offset", defaultValue = "0") long offset) {
         PlayListPage result = neteaseService.categoryList(cat, order,limit, offset);
+        return Response.ok(result);
+    }
+
+    @Anonymous
+    @ApiOperation("新歌速递")
+    @GetMapping("/topSong")
+    public Response<List<SongInfoDto>> topSong(@RequestParam(name = "areaId", defaultValue = "0") String areaId,
+                                               @RequestParam(name = "limit", defaultValue = "100") long limit,
+                                               @RequestParam(name = "offset", defaultValue = "0") long offset) {
+        List<SongInfoDto> result = neteaseService.topSong(areaId, limit, offset, true);
+        return Response.ok(result);
+    }
+
+    @Anonymous
+    @ApiOperation("榜单内容摘要")
+    @GetMapping("/topListDetail")
+    public Response topListDetail(@RequestParam(name = "areaId", defaultValue = "0") String areaId,
+                                               @RequestParam(name = "limit", defaultValue = "100") long limit,
+                                               @RequestParam(name = "offset", defaultValue = "0") long offset) {
+        JSONObject result = neteaseService.topListDetail();
         return Response.ok(result);
     }
 }

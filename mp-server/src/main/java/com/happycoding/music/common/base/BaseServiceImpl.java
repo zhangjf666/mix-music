@@ -43,8 +43,10 @@ public class BaseServiceImpl<S extends BaseMapstruct<D,E>,D,M extends BaseMapper
     }
 
     @Override
-    public boolean create(D dto) {
-        return baseMapper.insert(baseMapstruct.toEntity(dto)) >= 1;
+    public D create(D dto) {
+        E e = baseMapstruct.toEntity(dto);
+        baseMapper.insert(e);
+        return baseMapstruct.toDto(e);
     }
 
     @Override

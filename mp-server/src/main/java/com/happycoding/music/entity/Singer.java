@@ -26,7 +26,7 @@ public class Singer implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "歌手id")
     private String singerId;

@@ -34,7 +34,7 @@ public class TestController {
 
     @ApiOperation("测试新歌速递")
     @GetMapping("/topSong")
-    public Response testTopSong(int areaId, int limit, int offset, boolean total){
+    public Response testTopSong(String areaId, int limit, int offset, boolean total){
         Object dict = neteaseService.topSong(areaId, limit, offset, total);
         return Response.ok(dict);
     }

@@ -21,5 +21,5 @@ public interface MenuMapper extends BaseMapper<Menu> {
     @Select("select * from sys_menu where id in (select menu_id from sys_role_menu where role_id = #{roleId})")
     Set<Menu> getRoleMenus(Long roleId);
 
-    LinkedHashSet<Menu> getMenusByRoleId(@Param("roleId") Set<Long> roleId);
+    LinkedHashSet<Menu> getMenusByRoleId(@Param("roleId") Set<String> roleId);
 }

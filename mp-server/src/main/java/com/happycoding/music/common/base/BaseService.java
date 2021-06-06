@@ -27,7 +27,7 @@ public interface BaseService<D,E> extends IService<E> {
      * @param dto Dto
      * @return
      */
-    boolean create(D dto);
+    D create(D dto);
 
     /**
      * 更新

@@ -25,15 +25,15 @@ public class SongAlbum implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "歌曲id")
-    private Long songId;
+    private String songId;
 
     @ApiModelProperty(value = "专辑id")
-    private Long albumId;
+    private String albumId;
 
-    public SongAlbum(Long songId, Long albumId) {
+    public SongAlbum(String songId, String albumId) {
         this.songId = songId;
         this.albumId = albumId;
     }

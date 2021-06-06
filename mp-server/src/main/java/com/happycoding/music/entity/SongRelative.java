@@ -25,15 +25,15 @@ public class SongRelative implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "id")
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "源平台歌曲id")
-    private Long sourceId;
+    private String sourceId;
 
     @ApiModelProperty(value = "目标平台歌曲id")
-    private Long destId;
+    private String destId;
 
-    public SongRelative(Long sourceId, Long destId) {
+    public SongRelative(String sourceId, String destId) {
         this.sourceId = sourceId;
         this.destId = destId;
     }

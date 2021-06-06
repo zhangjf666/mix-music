@@ -66,6 +66,7 @@ public class MiguService {
                         AlbumInfoDto album = new AlbumInfoDto();
                         album.setAlbumId(albumIds[ia]);
                         album.setAlbumName(albumNames[ia]);
+                        album.setPlatform(MusicPlatform.Migu);
                         albumInfoDtos.add(album);
                     }
                 }
@@ -79,6 +80,7 @@ public class MiguService {
                         SingerInfoDto singer = new SingerInfoDto();
                         singer.setSingerId(singerIds[is]);
                         singer.setSingerName(singerNames[is]);
+                        singer.setPlatform(MusicPlatform.Migu);
                         singerInfoDtos.add(singer);
                     }
                 }

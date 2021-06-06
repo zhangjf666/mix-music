@@ -20,8 +20,4 @@
         id, song_id, name, pic_url, duration, url, br, lyric, platform
     </sql>
 
-    <select id="queryRelativeSong" resultType="com.happycoding.music.dto.SongInfoDto">
-        select * from song where id in (select dest_id from song_relative where source_id = #{dto.id})
-    </select>
-
 </mapper>

@@ -42,30 +42,40 @@ public class SongServiceImpl extends BaseServiceImpl<SongMapstruct, SongInfoDto,
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean create(SongInfoDto dto){
+    public SongInfoDto create(SongInfoDto dto){
         Song song = baseMapstruct.toEntity(dto);
-        if(baseMapper.selectCount(Wrappers.<Song>lambdaQuery().eq(Song::getSongId, song.getSongId())
-                .eq(Song::getPlatform, song.getPlatform())) <= 0){
+        Song existSong = baseMapper.selectOne(Wrappers.<Song>lambdaQuery().eq(Song::getSongId, song.getSongId())
+                .eq(Song::getPlatform, song.getPlatform()));
+        if(existSong == null){
             baseMapper.insert(song);
+        } else {
+            song.setId(existSong.getId());
         }
         for (Singer singer : song.getSingers()) {
-            if(singerMapper.selectCount(Wrappers.<Singer>lambdaQuery().eq(Singer::getSingerId, singer.getId())
-                    .eq(Singer::getPlatform, singer.getPlatform())) <= 0) {
+            Singer existSinger = singerMapper.selectOne(Wrappers.<Singer>lambdaQuery().eq(Singer::getSingerName, singer.getSingerName())
+                    .eq(Singer::getPlatform, singer.getPlatform()));
+            if(existSinger == null){
                 singerMapper.insert(singer);
                 SongSinger songSinger = new SongSinger(song.getId(), singer.getId());
+                songSingerMapper.insert(songSinger);
+            } else {
+                SongSinger songSinger = new SongSinger(song.getId(), existSinger.getId());
                 songSingerMapper.insert(songSinger);
             }
         }
         for (Album album : song.getAlbums()) {
-            if(albumMapper.selectCount(Wrappers.<Album>lambdaQuery().eq(Album::getAlbumId, album.getAlbumId())
-                    .eq(Album::getPlatform, album.getPlatform())) <= 0){
+            Album existAlbum = albumMapper.selectOne(Wrappers.<Album>lambdaQuery().eq(Album::getAlbumName, album.getAlbumName())
+                    .eq(Album::getPlatform, album.getPlatform()));
+            if(existAlbum == null){
                 albumMapper.insert(album);
                 SongAlbum songAlbum = new SongAlbum(song.getId(), album.getId());
                 songAlbumMapper.insert(songAlbum);
+            } else {
+                SongAlbum songAlbum = new SongAlbum(song.getId(), existAlbum.getId());
+                songAlbumMapper.insert(songAlbum);
             }
         }
-        dto = baseMapstruct.toDto(song);
-        return true;
+        return baseMapstruct.toDto(song);
     }
 
     @Override
@@ -73,13 +83,13 @@ public class SongServiceImpl extends BaseServiceImpl<SongMapstruct, SongInfoDto,
         Song song = baseMapper.selectOne(Wrappers.<Song>lambdaQuery().eq(Song::getSongId, songId).eq(Song::getPlatform,
                 platform));
         if(song != null){
-            baseMapstruct.toDto(song);
+            return baseMapstruct.toDto(song);
         }
         return null;
     }
 
     @Override
-    public String queryLyric(Long id) {
+    public String queryLyric(String id) {
         String lyric = "";
         Song song = getById(id);
         if(song == null){
@@ -104,7 +114,7 @@ public class SongServiceImpl extends BaseServiceImpl<SongMapstruct, SongInfoDto,
     }
 
     @Override
-    public SongUrlDto queryUrl(Long id) {
+    public SongUrlDto queryUrl(String id) {
         SongUrlDto songUrlDto = new SongUrlDto();
         Song song = getById(id);
         if(song == null){
@@ -149,6 +159,11 @@ public class SongServiceImpl extends BaseServiceImpl<SongMapstruct, SongInfoDto,
 
     @Override
     public List<SongInfoDto> queryRelative(SongInfoDto dto) {
-        return baseMapper.queryRelativeSong(dto);
+        return baseMapstruct.toDto(baseMapper.queryRelativeSong(dto));
+    }
+
+    @Override
+    public SongInfoDto querySongBySongId(String songId, MusicPlatform platform) {
+        return baseMapstruct.toDto(baseMapper.querySongBySongId(songId, platform));
     }
 }
