@@ -70,8 +70,7 @@ public class CodeGenerator {
         //数据库表字段映射到实体的命名策略
         strategy.setColumnNaming(NamingStrategy.underline_to_camel);
         // 需要生成的表
-        strategy.setInclude(new String[]{"user_config","song","singer","album","song_singer","song_album",
-                "song_relative"});
+        strategy.setInclude(new String[]{"user_songlist","songlist_song","user_playlist"});
         strategy.setEntityLombokModel(true);
         strategy.setRestControllerStyle(true);
         strategy.setControllerMappingHyphenStyle(true);

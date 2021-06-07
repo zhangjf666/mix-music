@@ -18,7 +18,7 @@ import java.util.Set;
 @Data
 public class CacheUser implements Serializable {
     @ApiModelProperty(value = "id")
-    private Long id;
+    private String id;
 
     @ApiModelProperty(value = "用户名")
     private String username;

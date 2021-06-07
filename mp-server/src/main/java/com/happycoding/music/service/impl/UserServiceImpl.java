@@ -105,7 +105,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapstruct, UserDto, Use
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean deleteById(Long id) {
+    public boolean deleteById(String id) {
         baseMapper.deleteById(id);
         userRoleMapper.delete(Wrappers.<UserRole>lambdaQuery().eq(UserRole::getUserId, id));
         return true;

@@ -1,6 +1,7 @@
 package com.happycoding.music.common.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.happycoding.music.common.utils.SpringSecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
 
@@ -32,7 +33,7 @@ public class AuditorMetaObjectHandler implements MetaObjectHandler {
 
     private String getCurrentUsername(){
         try {
-            return "";
+            return SpringSecurityUtil.getCurrentUsername();
         } catch (Exception e) {
             log.debug("无法获取用户名,原因:{},将使用system系统用户名",e.getMessage());
             return "system";

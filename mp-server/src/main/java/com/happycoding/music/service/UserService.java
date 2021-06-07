@@ -68,7 +68,7 @@ public interface UserService extends BaseService<UserDto, User> {
      * @param id 用户id
      * @return
      */
-    boolean deleteById(Long id);
+    boolean deleteById(String id);
 
     /**
      * 查询用户名是否已存在

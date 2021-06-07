@@ -40,8 +40,8 @@ public final class SpringSecurityUtil {
      * 获取系统用户ID
      * @return 系统用户ID
      */
-    public static Long getCurrentUserId() {
+    public static String getCurrentUserId() {
         UserDetails userDetails = getCurrentUser();
-        return new JSONObject(new JSONObject(userDetails).get("user")).get("id", Long.class);
+        return new JSONObject(new JSONObject(userDetails).get("user")).get("id", String.class);
     }
 }

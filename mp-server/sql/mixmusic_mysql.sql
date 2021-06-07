@@ -231,3 +231,73 @@ create table user_config
 );
 
 alter table user_config comment '用户配置表';
+
+/*==============================================================*/
+/* Table: songlist_song                                         */
+/*==============================================================*/
+create table songlist_song
+(
+   id                   varchar(32) not null comment 'id',
+   songlist_id          varchar(32) not null comment '歌单id',
+   song_id              varchar(32) not null comment '歌曲id',
+   primary key (id)
+);
+
+alter table songlist_song comment '歌单-歌曲表';
+
+/*==============================================================*/
+/* Index: songlist_id                                           */
+/*==============================================================*/
+create index songlist_id on songlist_song
+(
+   songlist_id
+);
+
+/*==============================================================*/
+/* Table: user_playlist                                         */
+/*==============================================================*/
+create table user_playlist
+(
+   id                   varchar(32) not null comment 'id',
+   user_id              varchar(32) not null comment '用户id',
+   song_id              varchar(32) not null comment '歌曲id',
+   primary key (id)
+);
+
+alter table user_playlist comment '用户播放列表记录';
+
+/*==============================================================*/
+/* Index: user_id                                               */
+/*==============================================================*/
+create index user_id on user_playlist
+(
+   user_id
+);
+
+/*==============================================================*/
+/* Table: user_songlist                                         */
+/*==============================================================*/
+create table user_songlist
+(
+   id                   varchar(32) not null comment 'id',
+   user_id              varchar(32) not null comment '用户id',
+   list_name            varchar(100) not null comment '歌单名称',
+   list_description     varchar(200) comment '歌单描述',
+   pic_url              varchar(200) DEFAULT NULL COMMENT '歌单封面url',
+   song_count           int default 0 comment '歌曲数量',
+   type                 char(1) default '2' comment '歌单类型(1:我喜欢,2:自定义歌单)',
+   create_time          datetime comment '创建时间',
+   update_time          datetime comment '更新时间',
+   del_flag             char(1) default '0' comment '删除标记',
+   primary key (id)
+);
+
+alter table user_songlist comment '用户歌单';
+
+/*==============================================================*/
+/* Index: user_id                                               */
+/*==============================================================*/
+create index user_id on user_songlist
+(
+   user_id
+);
