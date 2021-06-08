@@ -149,51 +149,13 @@
           </view>
           <!-- 新歌 -->
           <view class="newSong">
-            <view class="newSong-head"
-              ><text class="newSong-title">新歌</text></view
-            >
-            <view class="newSong-list">
-              <view
-                class="newSong-list-item"
-                v-for="(item, index) in newSongList"
-                :key="item.id"
-                @click="addToPlay(item, index)"
-                @touchstart="newTouchstart(index)"
-                @touchend="newSongBg = null"
-                :style="
-                  index === newSongBg ? 'background-color:rgba(0,0,0,.1)' : ''
-                "
-              >
-                <u-image
-                  :src="item.picUrl"
-                  mode="widthFix"
-                  width="120"
-                  border-radius="7px"
-                ></u-image>
-                <view class="newSong-list-info">
-                  <view class="newSongName">
-                    <view class="name">{{ item.name }}</view>
-                    <view class="singerName"
-                      >­­­­­­­­­­{{ songSinger(item) }}</view
-                    >
-                  </view>
-                  <u-icon
-                    class="newSongIcon1"
-                    name="volume"
-                    color="#d83d34"
-                    size="44"
-                    v-if="isPlayingSong(item.id)"
-                  ></u-icon>
-                  <view class="newSongIcon" v-else
-                    ><u-icon
-                      name="play-right-fill"
-                      color="#d83d34"
-                      size="24"
-                    ></u-icon
-                  ></view>
-                </view>
+            <view class="newSong-head">
+              <text class="newSong-title">新歌</text>
+              <view class="newSong-btn" hover-class="click-bg" hover-stay-time="200" @click="playNewSong">
+                播放
               </view>
             </view>
+            <music-list :currentList="newSongList"></music-list>
           </view>
           <!-- banner 背景的红色 -->
           <view class="bColorBox"></view>
@@ -210,11 +172,12 @@
 import { recommendSongList, banner, recommendNewSong, songInfo } from "@/api/platform.js";
 import { mapState, mapMutations } from 'vuex';
 import playMusic from '@/my-components/playMusic.vue'
+import musicList from './components/musicList.vue'
 import { handleSingerName } from '@/utils/songUtil.js';
 
 export default {
   components: {
-    playMusic
+    playMusic, musicList
   },
   data() {
     return {
@@ -294,7 +257,7 @@ export default {
     },
     //获取推荐歌曲
     getRecommendNewSongList() {
-      recommendNewSong({ limit: 10 }).then((data) => {
+      recommendNewSong({ limit: 9 }).then((data) => {
         this.newSongList = data;
       });
     },
@@ -358,8 +321,11 @@ export default {
     // 添加并播放
     addToPlay(item, i) {
       this.addAndPlay(item);
-      // let cloneNewSongList = this.$u.deepClone(this.newSongList);
-      // this.setPlayList({list: cloneNewSongList, i: i})
+    },
+    //播放全部新歌
+    playNewSong() {
+      let cloneNewSongList = this.$u.deepClone(this.newSongList);
+      this.setPlayList({list: cloneNewSongList, i: 0})
     },
     //判断新歌列表中歌曲是否是当前播放歌曲
     isPlayingSong(id) {
@@ -556,11 +522,24 @@ $bColor: #d83d34;
 }
 .newSong {
   margin: 40rpx 26.5rpx 160rpx 26.5rpx;
+  display: flex;
+  flex-direction: column;
   .newSong-head {
     margin-bottom: 20rpx;
     .newSong-title {
       font-size: 34rpx;
       font-weight: 800;
+    }
+    .newSong-btn {
+      float: right;
+      width: 130rpx;
+      height: 50rpx;
+      text-align: center;
+      line-height: 46rpx;
+      font-size: 24rpx;
+      color: #555;
+      border: 1px solid #ccc;
+      border-radius: 25px;
     }
   }
   .newSong-list {
@@ -639,5 +618,15 @@ $bColor: #d83d34;
 }
 .swiper-item {
   height: 100%;
+}
+.block-wrapper {
+  margin: 20px 0;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}
+.click-bg {
+	background-color:rgba(0,0,0,.1);
 }
 </style>

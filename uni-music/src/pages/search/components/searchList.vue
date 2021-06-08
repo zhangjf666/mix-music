@@ -1,21 +1,21 @@
 <template>
     <view class="searchList-container">
         <scroll-view scroll-y class="popup" :scroll-top="scrollTop" @scroll="scroll" @scrolltolower="onreachBottom">
-            <div class="music-item" v-for="(item, index) in searchData.data" :key="index" @click="playMusic(item)">
+            <view class="music-item" v-for="(item, index) in searchData.data" :key="index" @click="playMusic(item)">
                 <image v-if="item.picUrl" :src="item.picUrl + '?param=60y60'" mode="" class="musicImg"></image>
-                <div class="rightInfo">
-                    <div class="music-info">
+                <view class="rightInfo">
+                    <view class="music-info">
                         <span style="color:rgb(86,124,166)">{{ item.name }}</span>
                         <span v-if="item.alia && item.alia.length > 0" style="margin-left: 5px;">({{ item.alia[0] }})</span>
-                    </div>
-                    <div class="music-info" style="margin-top:6px;">
+                    </view>
+                    <view class="music-info" style="margin-top:6px;">
                         <template v-if="item.singers && item.singers.length > 0">
                             {{ songSinger(item)}}
                         </template>
                         <span v-if="item.albums && item.albums.length > 0" style="margin-left: 5px;">- {{ item.albums[0].albumName }}</span>
-                    </div>
-                </div>
-            </div>
+                    </view>
+                </view>
+            </view>
         </scroll-view>
     </view>
 </template>
