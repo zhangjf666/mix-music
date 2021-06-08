@@ -1,6 +1,6 @@
 <template>
     <view class="music-list">
-        <swiper next-margin="30rpx" v-if="currentList.length > 0">
+        <swiper :style="'height:100%'" next-margin="50rpx" v-if="currentList.length > 0">
             <swiper-item class="music-swiper-item" v-for="(item, index) in songList" :key="index">
                 <view class="song-item" hover-class="click-bg" hover-stay-time="200" @click="addPlay(k)" v-for="(k) in item" :key="k.id">
                     <u-image class="item-image" v-if="k.picUrl" :src="k.picUrl" mode="widthFix" width="100" height="100" border-radius="7px"></u-image>
@@ -69,6 +69,10 @@ export default {
 
 <style lang="scss" scoped>
 .music-list {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    height: 100%;
     .music-swiper-item {
         // padding-left: 12rpx;
         box-sizing: border-box;

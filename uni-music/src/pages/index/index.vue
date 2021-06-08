@@ -116,7 +116,8 @@
                 "
                 @click="goSongListPage"
               >
-                查看更多
+                <text style="margin-left: 30rpx;">更多</text>
+                <text class="iconfont icon-right-arrow" style="font-size: 26rpx; width: 0rpx;"></text>
               </view>
             </view>
             <view class="recommend-list">
@@ -152,10 +153,11 @@
             <view class="newSong-head">
               <text class="newSong-title">新歌</text>
               <view class="newSong-btn" hover-class="click-bg" hover-stay-time="200" @click="playNewSong">
-                播放
+                <text class="iconfont icon-head-play" style="margin-left: 16rpx; font-size: 40rpx; width: 36rpx"></text>
+                <text>播放</text>
               </view>
             </view>
-            <music-list :currentList="newSongList"></music-list>
+            <music-list class="newSong-list" :currentList="newSongList"></music-list>
           </view>
           <!-- banner 背景的红色 -->
           <view class="bColorBox"></view>
@@ -461,6 +463,7 @@ $bColor: #d83d34;
   justify-content: space-between;
   align-items: center;
   height: 360rpx;
+  margin-bottom: 32rpx;
   .recommend-head {
     width: 697.5rpx;
     .head-title {
@@ -478,6 +481,7 @@ $bColor: #d83d34;
       color: #555;
       border: 1px solid #ccc;
       border-radius: 25px;
+      display: flex;
     }
   }
   .recommend-list {
@@ -521,11 +525,13 @@ $bColor: #d83d34;
   }
 }
 .newSong {
-  margin: 40rpx 26.5rpx 160rpx 26.5rpx;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  height: 400rpx;
   .newSong-head {
-    margin-bottom: 20rpx;
+    width: 697.5rpx;
+    margin-bottom: 10rpx;
     .newSong-title {
       font-size: 34rpx;
       font-weight: 800;
@@ -540,63 +546,14 @@ $bColor: #d83d34;
       color: #555;
       border: 1px solid #ccc;
       border-radius: 25px;
+      display: flex;
+
     }
   }
   .newSong-list {
-    .newSong-list-item {
-      display: flex;
-      margin-bottom: 28rpx;
-      border-radius: 7px;
-      height: 120rpx;
-      .newSong-list-info {
-        position: relative;
-        flex: 1;
-        display: flex;
-        // flex-flow: column;
-        line-height: 50rpx;
-        margin-left: 22rpx;
-        padding-top: 8rpx;
-        .newSongIcon {
-          position: absolute;
-          right: 10rpx;
-          top: 50%;
-          transform: translateY(-55%);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          padding-left: 5rpx;
-          // padding-bottom: 2rpx;
-          width: 46rpx;
-          height: 46rpx;
-          border-radius: 50%;
-          border: 1px solid #e3e3e3;
-        }
-        .newSongIcon1 {
-          position: absolute;
-          right: 10rpx;
-          top: 50%;
-          transform: translateY(-55%);
-        }
-        .newSongName {
-          .name {
-            font-size: 30rpx;
-            font-weight: 600;
-            width: 440rpx;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-          }
-          .singerName {
-            width: 440rpx;
-            font-size: 24rpx;
-            color: #777;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-          }
-        }
-      }
-    }
+    width: 100%;
+    display: flex;
+    margin-left: 50rpx;
   }
 }
 .bColorBox {
