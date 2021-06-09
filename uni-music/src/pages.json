@@ -23,6 +23,10 @@
 			"style": {}
 		},
 		{
+			"path": "pages/newsong/newsong",
+			"style": {}
+		},
+		{
 			"path": "pages/mylist/mylist",
 			"style": {
 				"navigationBarTitleText": "我的歌单"

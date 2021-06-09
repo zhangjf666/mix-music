@@ -145,3 +145,11 @@ export function songInfo(data) {
         data
     })
 }
+//新歌速递
+export function topSong(data) {
+    return request({
+        url: prefix + '/topSong',
+        method: 'GET',
+        data
+    })
+}

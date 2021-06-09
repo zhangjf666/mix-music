@@ -208,14 +208,26 @@ export default {
 		}
     },
     computed: {
-        isSongListNull() {
-            return (i) => {
-                if(this.playLists == null){
-                    return false;
-                }
-                return this.playLists[this.tabsSwiper[i].name] !== null
+        ...mapState(['isPlay', 'playingIndex']),
+        ...mapGetters(['getCurrentSong']),
+        // 处理歌手名字
+		songSinger() {
+			return (song) => {
+                return handleSingerName(song);
             }
-        }
+		},
+        // 播放列表中的歌曲是不是当前显示歌单中的
+        inPlayList(item) {
+			return (item) => {
+				if(this.songs == null) {
+                return false;
+				}
+				if(this.getCurrentSong == null){
+					return false;
+				}
+				return item.id == this.getCurrentSong.id;
+			}
+        },
     },
     watch: {
         current() {

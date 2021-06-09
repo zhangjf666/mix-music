@@ -152,9 +152,9 @@
           <view class="newSong">
             <view class="newSong-head">
               <text class="newSong-title">新歌</text>
-              <view class="newSong-btn" hover-class="click-bg" hover-stay-time="200" @click="playNewSong">
-                <text class="iconfont icon-head-play" style="margin-left: 16rpx; font-size: 40rpx; width: 36rpx"></text>
-                <text>播放</text>
+              <view class="newSong-btn" hover-class="click-bg" hover-stay-time="200" @click="goNewsongPage">
+                <text style="margin-left: 30rpx;">更多</text>
+                <text class="iconfont icon-right-arrow" style="font-size: 26rpx; width: 0rpx;"></text>
               </view>
             </view>
             <music-list class="newSong-list" :currentList="newSongList"></music-list>
@@ -173,8 +173,8 @@
 <script>
 import { recommendSongList, banner, recommendNewSong, songInfo } from "@/api/platform.js";
 import { mapState, mapMutations } from 'vuex';
-import playMusic from '@/my-components/playMusic.vue'
-import musicList from './components/musicList.vue'
+import playMusic from '@/my-components/playMusic.vue';
+import musicList from './components/musicList.vue';
 import { handleSingerName } from '@/utils/songUtil.js';
 
 export default {
@@ -298,6 +298,12 @@ export default {
     goRankListPage() {
       uni.navigateTo({
         url: `../ranklist/ranklist`,
+      });
+    },
+    // 跳转新歌页面
+    goNewsongPage() {
+      uni.navigateTo({
+        url: `../newsong/newsong`,
       });
     },
     // 跳转搜索页面
