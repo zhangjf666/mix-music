@@ -16,7 +16,7 @@
 				<view
 					class="playListBody-item"
 					v-for="(item, i) in playlist"
-					:key="item.id"
+					:key="i"
                     @click="playIndexSong(i)"
 					@touchstart="listTouchstart(i)"
 					@touchend="songBg = null"

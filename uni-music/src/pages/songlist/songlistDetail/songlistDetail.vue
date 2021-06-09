@@ -41,6 +41,8 @@
 					@touchstart="newTouchstart(index)" @touchend="songBg = null" :style="index === songBg ? 'background-color:rgba(0,0,0,.1)' : ''"
 					>
 						<view class="song-list-info">
+							<text class="iconfont icon-ranking song-serial-icon" v-if="inPlayList(item)"></text>
+								<text class="song-serial" v-else>{{ index + 1 }}</text>
 							<view class="songName">
 								<text class="item-songName" :class="inPlayList(item) ? 'color' : ''">{{ item.name }}</text>
 								<text class="horizontal" :class="inPlayList(item) ? 'color' : ''">-</text>
@@ -265,6 +267,19 @@ export default {
 				right: 10rpx;
 				top: 50%;
 				transform: translateY(-55%);
+			}
+			.song-serial {
+				text-align: center;
+				width: 36rpx;
+				font-size: 30rpx;
+				margin-right: 20rpx;
+			}
+			.song-serial-icon {
+				text-align: center;
+				width: 36rpx;
+				font-size: 30rpx;
+				margin-right: 20rpx;
+				color: rgb(255, 61, 61);
 			}
 			.songName {
 				width: 440rpx;

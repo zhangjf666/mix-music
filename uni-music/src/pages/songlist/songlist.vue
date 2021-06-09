@@ -48,6 +48,7 @@
 
 <script>
 import playMusic from '@/my-components/playMusic.vue';
+import { mapMutations, mapState, mapGetters} from 'vuex'
 import { allTags, highQualityTags, hotTags, recommendSongList,categoryList, highQualityList} from "@/api/platform.js";
 
 export default {
