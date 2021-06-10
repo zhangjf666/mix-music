@@ -1,10 +1,11 @@
 import request from '@/utils/request.js'
 
-let prefix = '/platform'
-export function recommendSongList(data) {
+let prefix = '/user'
+export function userConfig(data) {
     return request({
-        url: prefix + '/recommend',
-        method: 'GET',
-        data
+        url: prefix + '/config',
+        method: 'PUT',
+        data,
+        header: {'content-type': 'application/json'}
     })
 }

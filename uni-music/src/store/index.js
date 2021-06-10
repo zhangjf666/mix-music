@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { songUrl } from '../api/platform'
+import { userConfig } from '../api/user'
 
 Vue.use(Vuex);
 
@@ -102,7 +103,9 @@ const store = new Vuex.Store({
         // 播放控件需要的前一曲,当前歌曲,后一曲
         playSongGroup: [],
         // 播放swiper控件当前item位置id
-        playSwiperItemId: 'pre'
+        playSwiperItemId: 'pre',
+        // token
+        token: ''
     },
     getters: {
         playlistLength(state) {
@@ -138,6 +141,10 @@ const store = new Vuex.Store({
         }
     },
     mutations: {
+        // 设置token
+        setToken(state, token){
+            state.token = token;
+        },
         // 跳转音频到指定位置
         seekAudio(state, position) {
             state.audio.seek(position);
@@ -259,6 +266,9 @@ const store = new Vuex.Store({
         // 切换播放模式
         switchPlayMode(state) {
             state.playMode = state.playMode == 1 ? 2 : state.playMode == 2 ? 3 : 1;
+            if(state.token != null) {
+                userConfig({ playMode: state.playMode}).then(data => {});
+            }
         },
         // 切换播放,暂停
         switchPlay(state) {

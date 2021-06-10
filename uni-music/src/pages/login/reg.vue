@@ -15,7 +15,7 @@
 			</view>
 		</view>
 		<view class="btn-row">
-			<button type="primary" class="primary" @tap="login">注册并登录</button>
+			<button type="primary" class="primary" @tap="register">注册并登录</button>
 		</view>
 	</view>
 </template>
@@ -23,6 +23,7 @@
 <script>
 	import mInput from '@/my-components/m-input/m-input.vue';
     import { registerUser, login } from '@/api/auth.js';
+	import { mapMutations } from 'vuex';
 
 	export default {
 		components: {
@@ -36,6 +37,7 @@
 			}
 		},
 		methods: {
+			...mapMutations(['setToken']),
 			register() {
 				/**
 				 * 客户端对账号信息进行一些必要的校验。
@@ -79,10 +81,9 @@
                         password: this.password
                     }
                     login(logindata).then(data => {
-                        console.log(data.token)
-                        console.log(data.user)
-                        uni.setStorageSync('token', data.token)
-                        uni.setStorageSync('user', user)
+						this.setToken(data.token);
+                        uni.setStorageSync('token', data.token);
+                        uni.setStorageSync('user', data.user);
                         uni.reLaunch({
                             url: '../index/index',
                         });
@@ -96,10 +97,8 @@
                     password: this.password
                 }
                 login(logindata).then(data => {
-                    console.log(data.token)
-                    console.log(data.user)
                     uni.setStorageSync('token', data.token)
-                    uni.setStorageSync('user', user)
+                    uni.setStorageSync('user', data.user)
                     uni.reLaunch({
                         url: '../index/index',
                     });

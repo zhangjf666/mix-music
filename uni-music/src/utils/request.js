@@ -8,6 +8,7 @@ function service(options = {}) {
             'content-type': 'application/x-www-form-urlencoded'
         }
     }
+    options.header["Authorization"] = uni.getStorageSync('token');
 
     return new Promise((resolved, rejected) => {
         //成功

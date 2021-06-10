@@ -5,15 +5,16 @@ export function login(data) {
     return request({
         url: prefix + '/login',
         method: 'POST',
-        data
+        data,
+        header: {'content-type': 'application/json'}
     })
 }
 
 export function registerUser(data) {
-    console.log(data)
     return request({
         url: prefix + '/register',
         method: 'POST',
-        data
+        data,
+        header: {'content-type': 'application/json'}
     })
 }
