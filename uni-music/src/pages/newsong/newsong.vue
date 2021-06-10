@@ -14,12 +14,11 @@
 			<u-tabs-swiper
 				ref="tabSwiper"
 				:list="tabsSwiper"
-				gutter="65"
+				gutter="95"
 				:current="current"
 				active-color="#D83D34"
 				font-size="28"
-				swiperWidth="750"
-				bar-width="60"
+				bar-width="50"
 				@change="tabsChange"
 			></u-tabs-swiper>
 		</view>
@@ -28,28 +27,28 @@
 			<!-- 歌曲列表 -->
 			<swiper-item v-for="(item, i) in tabsSwiper" :key="i">
 				<view v-if="playLists[item.name].length > 0" class="scroll">
-                    <!-- 歌曲信息 -->
-                    <view class="playListInfo">
-                        <image :src="playLists[item.name][0].picUrl" mode="widthFix"></image>
-                    </view>
-                    <!-- 播放全部吸顶 -->
-                    <u-sticky offset-top="0">
-                        <view class="playall" hover-class="click-bg" hover-stay-time="200" @click="playSongList(0)">
-                            <text class="iconfont icon-playall playicon"></text>
-                            <text class="playtext">播放全部</text>
-                        </view>
-                    </u-sticky>
                     <!-- 歌单列表 -->
                     <scroll-view scroll-y class="popup" @scrolltolower="onreachBottom">
+						<!-- 歌曲信息 -->
+						<view class="playListInfo">
+							<u-image class="img" width="100%" height="400rpx" :src="playLists[item.name][0].picUrl"></u-image>
+						</view>
+						<!-- 播放全部吸顶 -->
+						<view class="playall" hover-class="click-bg" hover-stay-time="200" @click="playSongList(0)">
+                            <text class="iconfont icon-playall playicon"></text>
+                            <text class="playtext">播放全部 ({{playLists[item.name].length}})</text>
+                        </view>
                         <view class="song-list">
                             <view class="song-list-item" v-for="(item, index) in playLists[item.name]" :key="item.id" @click="addAndPlay(item)"
                             @touchstart="newTouchstart(index)" @touchend="songBg = null" :style="index === songBg ? 'background-color:rgba(0,0,0,.1)' : ''"
                             >
                                 <view class="song-list-info">
+									<text class="iconfont icon-ranking song-serial-icon" v-if="inPlayList(item)"></text>
+									<text class="song-serial" v-else>{{ index + 1 }}</text>
                                     <view class="songName">
-                                        <text class="item-songName" :class="inPlayList(item) ? 'color' : ''">{{ item.name }}</text>
-                                        <text class="horizontal" :class="inPlayList(item) ? 'color' : ''">-</text>
-                                        <text class="item-singer" :class="inPlayList(item) ? 'color' : ''">{{ songSinger(item) }}</text>
+                                        <text class="item-songName">{{ item.name }}</text>
+                                        <text class="horizontal">-</text>
+                                        <text class="item-singer">{{ songSinger(item) }}</text>
                                     </view>
                                     <u-icon class="songIcon1" name="volume" color="#d83d34" size="44" v-if="inPlayList(item)"></u-icon>
                                     <view class="songIcon" v-else>
@@ -60,7 +59,6 @@
                         </view>
                     </scroll-view>
                 </view>
-                <view class="bg" :style="isBg"></view>
 			</swiper-item>
 		</swiper>
 		<play-music></play-music>
@@ -104,7 +102,7 @@ export default {
 		...mapMutations(['setPlayList','addAndPlay']),
 		// 播放该列表
 		playSongList(index) {
-            let cloneSongList = this.$u.deepClone(this.songs);
+            let cloneSongList = this.$u.deepClone(this.playLists[this.tabsSwiper[this.current].name]);
 			this.setPlayList({list: cloneSongList, i: index});
 		},
 		// 得到bg index
@@ -151,7 +149,7 @@ export default {
 				if(this.getCurrentSong == null){
 					return false;
 				}
-				return item.id == this.getCurrentSong.id && this.isPlay;
+				return item.id == this.getCurrentSong.id;
 			}
         },
 		//歌单背景
@@ -174,7 +172,6 @@ export default {
 			} else {
                 topSong({areaId: this.catagory[this.tabsSwiper[this.current].name]}).then(data =>{
                     this.playLists[this.tabsSwiper[this.current].name].push(...data);
-                    console.log(this.playLists)
                 })
             }
         }
@@ -196,17 +193,11 @@ export default {
     .tabSwiper {
         z-index: 0;
 		position: relative;
-		margin-bottom: 20rpx;
+		margin-bottom: 10rpx;
 	}
     .swiper-box {
         flex: 1;
     }
-}
-.playListInfo {
-	display: flex;
-	flex-direction: column;
-	height: calc(100vh - var(--window-top));
-	width: 100%;
 }
 .scroll {
 	display: flex;
@@ -217,18 +208,25 @@ export default {
 .popup {
 	position: absolute;
 	display: flex;
-	top: calc(36vh - var(--window-top));
-	 /* #ifdef MP-WEIXIN */
-	top: calc(36vh - var(--window-top));
 	 /* #endif */
 	width: 100%;
-	height: 90%;
+	height: 100%;
 	background-color: #fff;
 	padding: 0rpx;
 	// border-radius: 30rpx 30rpx 0 0;
 	box-sizing: border-box;
+	.playListInfo {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		.img {
+			width: 100%;
+		}
+	}
 }
 .song-list {
+	display: flex;
+	flex-direction: column;
 	.song-list-item {
 		display: flex;
 		margin-bottom: 20rpx;
@@ -264,6 +262,19 @@ export default {
 				top: 50%;
 				transform: translateY(-55%);
 			}
+			.song-serial {
+				text-align: center;
+				width: 36rpx;
+				font-size: 30rpx;
+				margin-right: 20rpx;
+			}
+			.song-serial-icon {
+				text-align: center;
+				width: 36rpx;
+				font-size: 30rpx;
+				margin-right: 20rpx;
+				color: rgb(255, 61, 61);
+			}
 			.songName {
 				width: 440rpx;
 				overflow: hidden;
@@ -286,24 +297,15 @@ export default {
 		}
 	}
 }
-.bg {
-	position: fixed;
-	top: 0px;
-	left: 0px;
-	height: 40%;
-	width: 110%;
-	margin: -5%;
-	background-size: cover;
-	-webkit-filter: blur(6px) brightness(1.0);
-	-moz-filter: blur(6px) brightness(1.0);
-	filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=10, MakeShadow=false); /* IE6~IE9 */
-	z-index: -99;
-}
 .playall {
+	position: relative;
 	display: flex;
 	height: 100rpx;
 	width: 100%;
 	align-items: center;
+	background-color: #fff;
+	margin-top: -40rpx;
+	border-radius: 30rpx 30rpx 0 0;
 	background-color: #fff;
 	.playicon {
 		font-size: 42rpx;
@@ -316,6 +318,6 @@ export default {
 	}
 }
 .click-bg {
-	background-color:rgba(0,0,0,.1);
+	background-color:rgb(230, 230, 230);
 }
 </style>
