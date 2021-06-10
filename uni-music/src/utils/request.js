@@ -3,8 +3,10 @@ let base_url='http://127.0.0.1:8100';//请求地址
 function service(options = {}) {
     options.url = `${base_url}${options.url}`;
     //配置请求头
-    options.header = {
-        'content-type': 'application/x-www-form-urlencoded'
+    if(options.header == null) {
+        options.header = {
+            'content-type': 'application/x-www-form-urlencoded'
+        }
     }
 
     return new Promise((resolved, rejected) => {

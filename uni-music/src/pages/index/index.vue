@@ -53,7 +53,9 @@
       class="swiper-box"
     >
       <!-- 我的 -->
-      <swiper-item> 我的 </swiper-item>
+      <swiper-item>
+        <view @click="goLoginPage()">我的</view>
+      </swiper-item>
       <!-- 发现页面 -->
       <swiper-item class="find">
         <scroll-view
@@ -279,6 +281,12 @@ export default {
       this.$refs.tabSwiper.setFinishCurrent(current);
       this.swiperCurrent = current;
       this.current = current;
+    },
+    //到登录页面
+    goLoginPage() {
+      uni.navigateTo({
+        url: '../login/login',
+      });
     },
     // 跳转新页面
     goNavNewPage(text) {

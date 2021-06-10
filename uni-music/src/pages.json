@@ -7,6 +7,14 @@
 			}
 		},
 		{
+			"path": "pages/login/login",
+			"style": {}
+		},
+		{
+			"path": "pages/login/reg",
+			"style": {}
+		},
+		{
 			"path": "pages/search/search",
 			"style": {}
 		},
