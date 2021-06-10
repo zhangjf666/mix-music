@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * <p>
@@ -66,5 +67,6 @@ public class User extends BaseEntity implements Serializable {
     @TableLogic
     private String delFlag;
 
-
+    @ApiModelProperty(value = "角色")
+    private Set<Role> roles;
 }

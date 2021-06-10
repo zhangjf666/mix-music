@@ -121,7 +121,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapstruct, UserDto, Use
     public boolean registerUser(RegisterUserDto dto) {
         Role normalRole = roleService.getOne(Wrappers.<Role>lambdaQuery().eq(Role::getName,"普通用户"));
         User user = new User();
-        user.setUsername(dto.getUserName());
+        user.setUsername(dto.getUsername());
         user.setNickName(RandomUtil.randomString(12));
         user.setPassword(new BCryptPasswordEncoder().encode(dto.getPassword()));
         baseMapper.insert(user);

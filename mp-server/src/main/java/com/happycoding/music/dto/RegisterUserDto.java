@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class RegisterUserDto {
     @NotBlank
-    private String userName;
+    private String username;
     @NotBlank
     private String password;
     @NotBlank
