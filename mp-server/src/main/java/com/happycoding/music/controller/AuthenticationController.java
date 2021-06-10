@@ -68,7 +68,7 @@ public class AuthenticationController {
     @ApiOperation("登录授权")
     @Anonymous
     @PostMapping("/login")
-    public Response login(@Validated LoginUserDto loginUserDto, HttpServletRequest request) {
+    public Response login(@Validated @RequestBody LoginUserDto loginUserDto, HttpServletRequest request) {
         //检查验证码
         checkCaptcha(loginUserDto);
         //用户校验
@@ -129,7 +129,7 @@ public class AuthenticationController {
     @ApiOperation("注册用户")
     @Anonymous
     @PostMapping("/register")
-    public Response create(@Validated(Insert.class) @RequestParam RegisterUserDto dto){
+    public Response create(@Validated(Insert.class) @RequestBody RegisterUserDto dto){
         if(userService.checkExist(dto.getUsername())) {
             throw new BusinessException("用户名已存在");
         }
@@ -143,7 +143,7 @@ public class AuthenticationController {
     @ApiOperation("查询用户名是否已存在")
     @Anonymous
     @PostMapping("/check-user")
-    public Response checkUserExist(@RequestParam UserQueryDto dto){
+    public Response checkUserExist(@RequestBody UserQueryDto dto){
         return Response.ok(userService.checkExist(dto.getUsername()));
     }
 
@@ -182,7 +182,7 @@ public class AuthenticationController {
     @ApiOperation("踢出用户")
     @PostMapping("/online-kickout")
     @PreAuthorize("@ph.check()")
-    public Response kickout(@RequestParam Set<String> userKeys){
+    public Response kickout(Set<String> userKeys){
         for (String key : userKeys) {
             onlineUserService.kickOut(key);
         }

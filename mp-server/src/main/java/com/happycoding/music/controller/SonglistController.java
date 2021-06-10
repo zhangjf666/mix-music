@@ -42,14 +42,14 @@ public class SonglistController {
 
     @ApiOperation("创建歌单")
     @PostMapping
-    public Response<UserSonglistDto> createSonglist(@RequestBody UserSonglistDto dto) {
+    public Response<UserSonglistDto> createSonglist(UserSonglistDto dto) {
         dto = userSonglistService.create(dto);
         return Response.ok(dto);
     }
 
     @ApiOperation("更新歌单")
     @PutMapping
-    public Response updateSonglist(@RequestBody UserSonglistDto dto) {
+    public Response updateSonglist(UserSonglistDto dto) {
         return Response.ok(userSonglistService.update(dto));
     }
 
@@ -68,19 +68,19 @@ public class SonglistController {
 
     @ApiOperation("歌单添加歌曲")
     @PostMapping("/addSong")
-    public Response addSong(String songlistId, @RequestBody SongInfoDto dto) {
+    public Response addSong(String songlistId, SongInfoDto dto) {
         return Response.ok(userSonglistService.addSong(songlistId, dto));
     }
 
     @ApiOperation("歌单删除歌曲")
     @DeleteMapping("/delSong")
-    public Response delSong(String songlistId, @RequestBody SongInfoDto dto) {
+    public Response delSong(String songlistId, SongInfoDto dto) {
         return Response.ok(userSonglistService.deleteSong(songlistId, dto));
     }
 
     @ApiOperation("更新歌单歌曲")
     @PutMapping("/updateSongs")
-    public Response updateSongs(String songlistId, @RequestBody List<String> songIds) {
+    public Response updateSongs(String songlistId, List<String> songIds) {
         return Response.ok(userSonglistService.updateSongs(songlistId, songIds));
     }
 }

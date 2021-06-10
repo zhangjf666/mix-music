@@ -134,7 +134,8 @@ public class SongServiceImpl extends BaseServiceImpl<SongMapstruct, SongInfoDto,
             }
             song.setUrl(songUrlDto.getUrl());
             song.setBr(songUrlDto.getBr());
-            updateById(song);
+            //不保存歌曲url,网易歌曲url随机生成,过一段时间后就无效了
+            //updateById(song);
         } else {
             songUrlDto.setUrl(song.getUrl());
             songUrlDto.setBr(song.getBr());

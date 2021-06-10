@@ -80,7 +80,7 @@ public class UserController {
     @ApiOperation("删除用户")
     @DeleteMapping
     @PreAuthorize("@ph.check('system:user:del')")
-    public Response delete(@RequestBody Set<String> ids){
+    public Response delete(Set<String> ids){
         for (String id: ids) {
             userService.deleteById(id);
         }
@@ -96,7 +96,7 @@ public class UserController {
 
     @ApiOperation("更改用户配置")
     @PutMapping("/config")
-    public Response<UserConfig> putConfig(@RequestBody UserConfigDto dto){
+    public Response putConfig(@RequestBody UserConfigDto dto){
         dto.setId(SpringSecurityUtil.getCurrentUserId());
         userConfigService.updateById(userConfigMapstruct.toEntity(dto));
         return Response.ok();
@@ -110,7 +110,7 @@ public class UserController {
 
     @ApiOperation("更新用户播放列表")
     @PutMapping("/playlist")
-    public Response<List<SongInfoDto>> putPlaylist(@RequestBody List<String> songIds){
+    public Response<List<SongInfoDto>> putPlaylist(List<String> songIds){
         userPlaylistService.updateUserPlayList(SpringSecurityUtil.getCurrentUserId(), songIds);
         return Response.ok();
     }
