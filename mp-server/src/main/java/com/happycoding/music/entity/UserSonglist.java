@@ -3,6 +3,7 @@ package com.happycoding.music.entity;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.Version;
+import com.happycoding.music.model.UserSongListType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -46,7 +47,7 @@ public class UserSonglist implements Serializable {
     private Integer songCount;
 
     @ApiModelProperty(value = "歌单类型(1:我喜欢,2:自定义歌单)")
-    private String type;
+    private UserSongListType type;
 
     @ApiModelProperty(value = "创建时间")
     private LocalDateTime createTime;

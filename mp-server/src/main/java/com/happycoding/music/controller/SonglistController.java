@@ -6,6 +6,7 @@ import com.happycoding.music.common.utils.SpringSecurityUtil;
 import com.happycoding.music.dto.SongInfoDto;
 import com.happycoding.music.dto.UserSonglistDto;
 import com.happycoding.music.entity.UserSonglist;
+import com.happycoding.music.model.UserSongListType;
 import com.happycoding.music.service.UserSonglistService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,10 +35,15 @@ public class SonglistController {
 
     @ApiOperation("获取用户歌单列表")
     @GetMapping
-    public Response<List<UserSonglistDto>> getList() {
-        List<UserSonglistDto> list =
-                userSonglistService.queryList(Wrappers.<UserSonglist>lambdaQuery().eq(UserSonglist::getUserId,
-                        SpringSecurityUtil.getCurrentUserId()));
+    public Response<List<UserSonglistDto>> getList(@RequestParam(name = "type", defaultValue = "0") UserSongListType type) {
+        List<UserSonglistDto> list = new ArrayList<>();
+        if(type == UserSongListType.ALL){
+            list = userSonglistService.queryList(Wrappers.<UserSonglist>lambdaQuery().eq(UserSonglist::getUserId,
+                            SpringSecurityUtil.getCurrentUserId()));
+        } else {
+            list = userSonglistService.queryList(Wrappers.<UserSonglist>lambdaQuery().eq(UserSonglist::getUserId,
+                    SpringSecurityUtil.getCurrentUserId()).eq(UserSonglist::getType, type));
+        }
         return Response.ok(list);
     }
 
@@ -73,13 +80,13 @@ public class SonglistController {
     }
 
     @ApiOperation("歌单删除歌曲")
-    @DeleteMapping("/delSong")
+    @PostMapping("/delSong")
     public Response delSong(String songlistId, SongInfoDto dto) {
         return Response.ok(userSonglistService.deleteSong(songlistId, dto));
     }
 
     @ApiOperation("更新歌单歌曲")
-    @PutMapping("/updateSongs")
+    @PostMapping("/updateSongs")
     public Response updateSongs(String songlistId, List<String> songIds) {
         return Response.ok(userSonglistService.updateSongs(songlistId, songIds));
     }
