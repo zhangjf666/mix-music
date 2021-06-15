@@ -53,8 +53,8 @@
       class="swiper-box"
     >
       <!-- 我的 -->
-      <swiper-item>
-        <view @click="goLoginPage()">我的</view>
+      <swiper-item class="mine">
+        <scroll-view scroll-y style="height: 100%;width: 100%;" class="swiper-item"><mine></mine></scroll-view>
       </swiper-item>
       <!-- 发现页面 -->
       <swiper-item class="find">
@@ -174,14 +174,15 @@
 
 <script>
 import { recommendSongList, banner, recommendNewSong, songInfo } from "@/api/platform.js";
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations, mapGetters } from 'vuex';
 import playMusic from '@/my-components/playMusic.vue';
 import musicList from './components/musicList.vue';
+import mine from '@/pages/mine/mine.vue';
 import { handleSingerName } from '@/utils/songUtil.js';
 
 export default {
   components: {
-    playMusic, musicList
+    playMusic, musicList, mine
   },
   data() {
     return {
@@ -220,9 +221,13 @@ export default {
     this.getBanner();
     this.getRecommendList();
     this.getRecommendNewSongList();
+    if(this.loginFlag){
+        this.updateUserSonglist();
+    }
   },
   computed: {
     ...mapState(['playlist','playingIndex']),
+    ...mapGetters(['loginFlag']),
     // banner图是否自动播放
     autoPlay() {
       return this.swiperCurrent == 1;
@@ -239,7 +244,7 @@ export default {
 		}
   },
   methods: {
-    ...mapMutations(['addAndPlay','setPlayingIndex','setPlayList']),
+    ...mapMutations(['addAndPlay','setPlayingIndex','setPlayList','updateUserSonglist']),
     //获取banner
     getBanner() {
       banner().then((data) => {
@@ -281,12 +286,6 @@ export default {
       this.$refs.tabSwiper.setFinishCurrent(current);
       this.swiperCurrent = current;
       this.current = current;
-    },
-    //到登录页面
-    goLoginPage() {
-      uni.navigateTo({
-        url: '../login/login',
-      });
     },
     // 跳转新页面
     goNavNewPage(text) {

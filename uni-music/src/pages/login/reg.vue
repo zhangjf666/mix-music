@@ -37,7 +37,7 @@
 			}
 		},
 		methods: {
-			...mapMutations(['setToken']),
+			...mapMutations(['setToken','setUser']),
 			register() {
 				/**
 				 * 客户端对账号信息进行一些必要的校验。
@@ -82,6 +82,7 @@
                     }
                     login(logindata).then(data => {
 						this.setToken(data.token);
+						this.setUser(data.user);
                         uni.setStorageSync('token', data.token);
                         uni.setStorageSync('user', data.user);
                         uni.reLaunch({

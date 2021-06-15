@@ -7,6 +7,10 @@
 			}
 		},
 		{
+			"path": "pages/mine/mine",
+			"style": {}
+		},
+		{
 			"path": "pages/login/login",
 			"style": {}
 		},

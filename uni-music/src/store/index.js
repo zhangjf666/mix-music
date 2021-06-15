@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { songUrl } from '../api/platform'
+import { userSonglist, createSonglist, updateSonglist, deleteSonglist, getSonglistDetail, addSong, delSong, updateSongs} from '../api/songlist'
 import { userConfig } from '../api/user'
 
 Vue.use(Vuex);
@@ -105,7 +106,15 @@ const store = new Vuex.Store({
         // 播放swiper控件当前item位置id
         playSwiperItemId: 'pre',
         // token
-        token: ''
+        token: '',
+        // user
+        user: {},
+        // 我喜欢的歌单
+        favouriteList: {},
+        // 创建的歌单
+        createList: [],
+        // 收藏的歌单
+        collectList: []
     },
     getters: {
         playlistLength(state) {
@@ -138,12 +147,20 @@ const store = new Vuex.Store({
         // 返回当前播放的歌曲
         getCurrentSong(state) {
             return state.playingIndex != null ? state.playlist[state.playingIndex] : null;
+        },
+        // 返回是否已登录
+        loginFlag(state) {
+            return state.token != null && state.token != '';
         }
     },
     mutations: {
         // 设置token
         setToken(state, token){
             state.token = token;
+        },
+        // 设置user
+        setUser(state, user){
+            state.user = user;
         },
         // 跳转音频到指定位置
         seekAudio(state, position) {
@@ -334,6 +351,27 @@ const store = new Vuex.Store({
                 }
             }
             state.playSongGroup = songs;
+        },
+        //更新用户歌单
+		updateUserSonglist(state) {
+			if(state.token != null && state.token != ''){
+				userSonglist({type: '0'}).then(data => {
+					for (var i=0;i<data.length;i++) { 
+						var item = data[i];
+						if(item.type == '1') {
+							state.favouriteList = item;
+						} else if(item.type == '2') {
+							state.createList.push(item);
+						} else if(item.type == '3'){
+							state.collectList.push(item);
+						}
+					}
+				})
+			}
+		},
+        // 歌单添加歌曲
+        addToSonglist(state, song) {
+            
         }
     }
 })
