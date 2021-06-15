@@ -17,7 +17,7 @@
 				</view>
 				<view class="item-info">
 					<view class="info-name">我喜欢的音乐</view>
-					<view class="info-songcount" v-if="favouriteList.songCount">{{ favouriteList.songCount }}首</view>
+					<view class="info-songcount" v-if="favouriteList.id != null">{{ favouriteList.songCount }}首</view>
 				</view>
 			</view>
 		</view>
@@ -82,7 +82,7 @@ export default {
 		}
 	},
 	computed: {
-		...mapState(['user', 'token','favouriteList','createList']),
+		...mapState(['user', 'token','favouriteList','createList','collectList']),
 		...mapGetters(['loginFlag']),
 		userName() {
 			return this.user.nickName;

@@ -64,6 +64,15 @@ export function delSong(data) {
     })
 }
 
+//歌单中是否存在歌曲
+export function existSong(data) {
+    return request({
+        url: prefix + '/existSong',
+        method: 'GET',
+        data
+    })
+}
+
 //更新歌单歌曲
 export function updateSongs(data) {
     return request({

@@ -87,7 +87,7 @@
                 </view>
                 <!-- 按钮功能区 -->
                 <view class="play-btn">
-                    <text class="iconfont icon-like"></text>
+                    <text class="iconfont" :class="inFavourite ? 'icon-like1':'icon-like'" @click="changeFavourite()"></text>
                     <text class="iconfont" :class="playModeIcon" @click="clickSwitchPlayMode()"></text>
                     <text class="iconfont icon-top-music" @click="previousMusic"></text>
                     <!-- 播放与暂停 -->
@@ -116,6 +116,7 @@
 import { mapState, mapMutations, mapGetters } from 'vuex';
 import playList from './playList.vue';
 import { songLyric } from '@/api/platform.js';
+import { existSong } from '@/api/songlist.js';
 import { handleSingerName } from '../utils/songUtil.js'
 
 export default {
@@ -164,6 +165,8 @@ export default {
             songPre: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
 			songCurrent: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
 			songNext: {name:'没有歌曲了', picUrl:'../static/image/play_disc.png', singerName:'无'},
+			//当前歌曲是否在我喜欢列表中
+			inFavourite: false
         }
     },
 	mounted() {
@@ -172,7 +175,7 @@ export default {
 		}
 	},
     methods: {
-		...mapMutations(['playPrevious', 'seekAudio','playNext', 'switchPlay', 'switchSong','setPlaySwiperItemId','setPlayingIndex','setShowPlayList', 'setShowPlayPage','setPlayMode', 'removePlayListSong','switchPlayMode','setVolume']),
+		...mapMutations(['playPrevious', 'seekAudio','playNext', 'switchPlay', 'switchSong','setPlaySwiperItemId','setPlayingIndex','setShowPlayList', 'setShowPlayPage','setPlayMode', 'removePlayListSong','switchPlayMode','setVolume','addToFavourite','delToFavourite']),
 		// current值发生改变时触发的事件
 		getCurrent(e) {
 			if (e.detail.source === 'touch') {
@@ -266,6 +269,8 @@ export default {
 					this.lyrics = song.lyric.replace(/\[/g, 'sb[').split('sb');	
 				}
 			}
+			//更新我喜欢标识
+			this.isFavourite();
 		},
 		//切换播放模式
 		clickSwitchPlayMode() {
@@ -275,11 +280,38 @@ export default {
                 duration: 1000,
                 position: 'bottom'
             })
-		}
+		},
+		//保存或者删除到我喜欢
+		changeFavourite() {
+			if(!this.loginFlag) {
+				this.$refs.uToast.show({
+					title: '请先登录',
+					duration: 1000,
+					position: 'bottom'
+				})
+				return;
+			}
+			if(this.inFavourite){
+				this.delToFavourite(this.getCurrentSong);
+				this.inFavourite = false;
+			} else {
+				this.addToFavourite(this.getCurrentSong);
+				this.inFavourite = true;
+			}
+		},
+		// 当前歌曲是否是我喜欢中的歌曲
+        isFavourite() {
+            if(this.getCurrentSong == null) {
+                this.inFavourite = false;
+            }
+            existSong({songlistId: this.favouriteList.id, songId: this.getCurrentSong.id}).then(data => {
+				this.inFavourite = data;
+            })
+        }
 	},
 	computed: {
-        ...mapGetters(['playlistLength','playModeIcon','playModeText','nowPlayTime','endTime']),
-		...mapState(['volume','currentTime', 'totalTime','isPlay', 'isShowPlayList', 'isShowPlayPage', 'playlist', 'playingIndex','playSongGroup','playMode','playSwiperItemId']),
+        ...mapGetters(['loginFlag','playlistLength','playModeIcon','playModeText','nowPlayTime','endTime','getCurrentSong']),
+		...mapState(['favouriteList','volume','currentTime', 'totalTime','isPlay', 'isShowPlayList', 'isShowPlayPage', 'playlist', 'playingIndex','playSongGroup','playMode','playSwiperItemId']),
         isShow: {
             get() {
                 return this.isShowPlayPage;
@@ -306,6 +338,9 @@ export default {
 			return (song) => {
                 return handleSingerName(song);
             }
+		},
+		favouriteClass() {
+			return this.isFavourite ? 'icon-like1':'icon-like';
 		}
 	},
     watch: {
@@ -434,7 +469,7 @@ export default {
 		align-items: center;
 		margin-top: 40rpx;
 		text {
-			font-size: 38rpx;
+			font-size: 40rpx;
 		}
 		.playPause {
 			text {
@@ -454,6 +489,10 @@ export default {
 				right: -8rpx;
 				top: -10rpx;
 			}
+		}
+		.icon-like1 {
+			color: #FA3534;
+			font-size: 44rpx;
 		}
 	}
 	.progress-bar {

@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { songUrl } from '../api/platform'
-import { userSonglist, createSonglist, updateSonglist, deleteSonglist, getSonglistDetail, addSong, delSong, updateSongs} from '../api/songlist'
+import { userSonglist, createSonglist, updateSonglist, deleteSonglist, getSonglistDetail, addSong, delSong, updateSongs, existSong} from '../api/songlist'
 import { userConfig } from '../api/user'
 
 Vue.use(Vuex);
@@ -211,11 +211,11 @@ const store = new Vuex.Store({
             this.commit('playNewSong', state.playlist[state.playingIndex]);
         },
         async playNewSong(state, song) {
-            await getSongUrl(song);
-            if(song.url != null) {
-                state.audio.src = song.url;
+            await songUrl({songId: song.id, musicPlatform: song.musicPlatform}).then(data => {
+                song.br = data.br;
+                state.audio.src = data.url;
                 state.isPlay = true;
-            }
+            });
             this.commit('playSongGroup');
         },
         addToNext(state, song) {
@@ -369,9 +369,15 @@ const store = new Vuex.Store({
 				})
 			}
 		},
-        // 歌单添加歌曲
-        addToSonglist(state, song) {
-            
+        // 我喜欢添加歌曲
+        async addToFavourite(state, song) {
+            await addSong({songlistId:state.favouriteList.id, songId: song.id});
+            this.commit('updateUserSonglist');
+        },
+        // 我喜欢删除歌曲
+        async delToFavourite(state, song) {
+            await delSong({songlistId:state.favouriteList.id, songId: song.id});
+            this.commit('updateUserSonglist');
         }
     }
 })
