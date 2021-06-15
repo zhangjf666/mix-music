@@ -13,4 +13,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface SonglistSongService extends IService<SonglistSong> {
 
+    boolean existSong(String songlistId, String songId);
 }

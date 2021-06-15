@@ -54,21 +54,29 @@ public class UserSonglistServiceImpl extends BaseServiceImpl<UserSonglistMapstru
         return songService.getBaseMapstruct().toDto(songList);
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean addSong(String id, SongInfoDto dto) {
-        SonglistSong sls = new SonglistSong(id, dto.getId());
+    public boolean addSong(String id, String songId) {
+        SonglistSong sls = new SonglistSong(id, songId);
         if(songlistSongService.count(Wrappers.<SonglistSong>lambdaQuery()
-                .eq(SonglistSong::getSonglistId, id).eq(SonglistSong::getSongId, dto.getId())) > 0){
+                .eq(SonglistSong::getSonglistId, id).eq(SonglistSong::getSongId, songId)) > 0){
             return true;
         }
-        return songlistSongService.save(sls);
+        songlistSongService.save(sls);
+        UserSonglist userSonglist = getById(id);
+        userSonglist.setSongCount(userSonglist.getSongCount() + 1);
+        return updateById(userSonglist);
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean deleteSong(String id, SongInfoDto dto) {
+    public boolean deleteSong(String id, String songId) {
         songlistSongService.remove(Wrappers.<SonglistSong>lambdaQuery()
-                .eq(SonglistSong::getSonglistId, id).eq(SonglistSong::getSongId, dto.getId()));
-        return true;
+                .eq(SonglistSong::getSonglistId, id).eq(SonglistSong::getSongId, songId));
+        int count = songlistSongService.count(Wrappers.<SonglistSong>lambdaQuery().eq(SonglistSong::getSonglistId,id));
+        UserSonglist userSonglist = getById(id);
+        userSonglist.setSongCount(count);
+        return updateById(userSonglist);
     }
 
     @Transactional(rollbackFor = Throwable.class)

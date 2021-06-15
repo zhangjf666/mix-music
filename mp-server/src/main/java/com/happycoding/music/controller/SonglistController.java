@@ -7,6 +7,7 @@ import com.happycoding.music.dto.SongInfoDto;
 import com.happycoding.music.dto.UserSonglistDto;
 import com.happycoding.music.entity.UserSonglist;
 import com.happycoding.music.model.UserSongListType;
+import com.happycoding.music.service.SonglistSongService;
 import com.happycoding.music.service.UserSonglistService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,6 +33,8 @@ import java.util.List;
 public class SonglistController {
     @Autowired
     private UserSonglistService userSonglistService;
+    @Autowired
+    private SonglistSongService songlistSongService;
 
     @ApiOperation("获取用户歌单列表")
     @GetMapping
@@ -75,14 +78,20 @@ public class SonglistController {
 
     @ApiOperation("歌单添加歌曲")
     @PostMapping("/addSong")
-    public Response addSong(String songlistId, SongInfoDto dto) {
-        return Response.ok(userSonglistService.addSong(songlistId, dto));
+    public Response addSong(String songlistId, String songId) {
+        return Response.ok(userSonglistService.addSong(songlistId, songId));
     }
 
     @ApiOperation("歌单删除歌曲")
     @PostMapping("/delSong")
-    public Response delSong(String songlistId, SongInfoDto dto) {
-        return Response.ok(userSonglistService.deleteSong(songlistId, dto));
+    public Response delSong(String songlistId, String songId) {
+        return Response.ok(userSonglistService.deleteSong(songlistId, songId));
+    }
+
+    @ApiOperation("歌单中是否存在歌曲")
+    @GetMapping("/existSong")
+    public Response existSong(String songlistId, String songId) {
+        return Response.ok(songlistSongService.existSong(songlistId, songId));
     }
 
     @ApiOperation("更新歌单歌曲")

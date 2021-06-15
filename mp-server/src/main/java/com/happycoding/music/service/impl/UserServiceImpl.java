@@ -10,14 +10,13 @@ import com.happycoding.music.dto.RegisterUserDto;
 import com.happycoding.music.dto.RoleDto;
 import com.happycoding.music.dto.UserDto;
 import com.happycoding.music.dto.UserQueryDto;
-import com.happycoding.music.entity.Role;
-import com.happycoding.music.entity.User;
-import com.happycoding.music.entity.UserConfig;
-import com.happycoding.music.entity.UserRole;
+import com.happycoding.music.entity.*;
 import com.happycoding.music.mapper.UserConfigMapper;
 import com.happycoding.music.mapper.UserMapper;
 import com.happycoding.music.mapper.UserRoleMapper;
+import com.happycoding.music.mapper.UserSonglistMapper;
 import com.happycoding.music.mapstruct.UserMapstruct;
+import com.happycoding.music.model.UserSongListType;
 import com.happycoding.music.service.RoleService;
 import com.happycoding.music.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +45,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapstruct, UserDto, Use
     private final RoleService roleService;
 
     private final UserConfigMapper userConfigMapper;
+
+    private final UserSonglistMapper userSonglistMapper;
 
     @Override
     public UserDto findByUsername(String username) {
@@ -125,14 +126,21 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapstruct, UserDto, Use
         user.setNickName(RandomUtil.randomString(12));
         user.setPassword(new BCryptPasswordEncoder().encode(dto.getPassword()));
         baseMapper.insert(user);
-
+        //用户校色
         UserRole userRole = new UserRole(user.getId(), normalRole.getId());
         userRoleMapper.insert(userRole);
-
+        //用户配置
         UserConfig userConfig = new UserConfig();
         userConfig.setId(user.getId());
         userConfig.setPlayMode("1");
         userConfigMapper.insert(userConfig);
+        //我喜欢歌单
+        UserSonglist userSonglist = new UserSonglist();
+        userSonglist.setListName("我喜欢的音乐");
+        userSonglist.setSongCount(0);
+        userSonglist.setType(UserSongListType.FAVORITE);
+        userSonglist.setUserId(user.getId());
+        userSonglistMapper.insert(userSonglist);
         return true;
     }
 }

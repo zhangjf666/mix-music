@@ -34,18 +34,18 @@ public interface UserSonglistService extends BaseService<UserSonglistDto, UserSo
     /**
      * 歌单添加歌曲
      * @param id 歌单id
-     * @param dto 歌曲dto
+     * @param songId 歌曲id
      * @return
      */
-    boolean addSong(String id, SongInfoDto dto);
+    boolean addSong(String id, String songId);
 
     /**
      * 歌单删除歌曲
      * @param id 歌单id
-     * @param dto 歌曲dto
+     * @param songId 歌曲id
      * @return
      */
-    boolean deleteSong(String id, SongInfoDto dto);
+    boolean deleteSong(String id, String songId);
 
     /**
      * 歌单更新歌曲
