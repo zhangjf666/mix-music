@@ -40,9 +40,7 @@
 		},
 		{
 			"path": "pages/mylist/mylist",
-			"style": {
-				"navigationBarTitleText": "我的歌单"
-			}
+			"style": {}
 		}
 	],
 	"globalStyle": {

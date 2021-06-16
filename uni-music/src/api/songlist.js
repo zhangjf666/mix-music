@@ -40,7 +40,7 @@ export function deleteSonglist(data) {
 }
 
 // 获取歌单歌曲详情
-export function getSonglistDetail(data) {
+export function userSonglistDetail(data) {
     return request({
         url: prefix + '/detail',
         method: 'GET',

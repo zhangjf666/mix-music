@@ -6,15 +6,6 @@ import { userConfig } from '../api/user'
 
 Vue.use(Vuex);
 
-async function getSongUrl(song) {
-    if(song.url == null) {
-        await songUrl({songId: song.id, musicPlatform: song.musicPlatform}).then(data => {
-            song.url = data.url;
-            song.br = data.br;
-        });
-    }
-}
-
 //生成从minNum到maxNum的随机整数
 function randomNum(minNum,maxNum){ 
     switch(arguments.length){ 
@@ -32,13 +23,9 @@ function randomNum(minNum,maxNum){
 
 //查找元素下标
 function indexOf(arr, item) {
-    if (Array.prototype.indexOf) {
-        return arr.indexOf(item);
-    } else {
-        for (var i = 0; i < arr.length; i++) {
-            if (arr[i] === item) {
-                return i;
-            }
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].id === item.id) {
+            return i;
         }
     }
     return -1;
@@ -233,6 +220,7 @@ const store = new Vuex.Store({
                 return;
             } else if(i < index) {
                 state.playlist.splice(i, 1);
+                state.playingIndex -= 1;
             } else {
                 state.playlist.splice(i, 1);
                 index += 1;
@@ -394,12 +382,12 @@ const store = new Vuex.Store({
         },
         //歌单添加歌曲
         async addToSonglist(state, data) {
-            await addSong({songlistId: data.songlistId, songId: data.id});
+            await addSong({songlistId: data.songlistId, songId: data.songId});
             this.commit('updateUserSonglist');
         },
         //歌单删除歌曲
         async delToSonglist(state, data) {
-            await delSong({songlistId: data.songlistId, songId: data.id});
+            await delSong({songlistId: data.songlistId, songId: data.songId});
             this.commit('updateUserSonglist');
         }
     }

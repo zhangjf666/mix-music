@@ -15,7 +15,7 @@
 				<view class="item-cover">
 					<text class="iconfont icon-like1"></text>
 				</view>
-				<view class="item-info">
+				<view class="item-info" @click="goUserSonglistDetails(favouriteList.id, favouriteList.type)">
 					<view class="info-name">我喜欢的音乐</view>
 					<view class="info-songcount" v-if="favouriteList.id != null">{{ favouriteList.songCount }}首</view>
 				</view>
@@ -31,7 +31,7 @@
 				<view class="item-cover">
 					<u-image class="item-image" v-if="item.picUrl" :src="item.picUrl" mode="widthFix" width="100rpx" height="100rpx" border-radius="7px"></u-image>
 				</view>
-				<view class="item-info">
+				<view class="item-info" @click="goUserSonglistDetails(item.id, item.type)">
 					<view class="info-name">{{item.listName}}</view>
 					<view class="info-songcount">{{item.songCount}}首</view>
 				</view>
@@ -49,7 +49,7 @@
 				<view class="item-cover">
 					<text class="iconfont icon-like1"></text>
 				</view>
-				<view class="item-info">
+				<view class="item-info" @click="goUserSonglistDetails(item.id, item.type)">
 					<view class="info-name">{{item.listName}}</view>
 					<view class="info-songcount">{{item.songCount}}首</view>
 				</view>
@@ -88,14 +88,19 @@
 				<input :value="listName" placeholder="请输入歌单名称" @input="inputChange"/>
 			</view>
 		</u-modal>
+		<play-music></play-music>
 	</view>
 </template>
 
 <script>
 import { mapState, mapMutations, mapGetters } from 'vuex';
+import playMusic from '@/my-components/playMusic.vue';
 
 export default {
 	name: 'Mine',
+	components: {
+        playMusic
+    },
 	data() {
 		return {
 			//添加歌单名称内容
@@ -144,6 +149,12 @@ export default {
 		//输入变化
 		inputChange(e) {
 			this.listName = e.detail.value
+		},
+		// 去歌单详情页
+		goUserSonglistDetails(id, type){
+			uni.navigateTo({
+				url:`../mylist/mylist?id=${id}&type=${type}`
+			})
 		}
 	},
 	computed: {
