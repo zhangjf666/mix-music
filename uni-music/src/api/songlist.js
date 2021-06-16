@@ -15,7 +15,8 @@ export function createSonglist(data) {
     return request({
         url: prefix,
         method: 'POST',
-        data
+        data,
+        header: {'content-type': 'application/json'}
     })
 }
 
@@ -33,7 +34,8 @@ export function deleteSonglist(data) {
     return request({
         url: prefix,
         method: 'DELETE',
-        data
+        data,
+        header: {'content-type': 'application/json'}
     })
 }
 

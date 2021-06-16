@@ -24,30 +24,37 @@
 		<!-- 创建的歌单 -->
 		<view class="card">
 			<view class="card-item">
-				<view>创建的歌单: {{ createList.length }}个</view>
+				<view class="item-title">创建的歌单: ({{ createList.length }}个)</view>
+				<text class="iconfont icon-add" v-if="loginFlag" @click="showCreate"></text>
 			</view>
 			<view class="card-item" v-for="(item, i) in createList" :key="i">
 				<view class="item-cover">
-					<text class="iconfont icon-like1"></text>
+					<u-image class="item-image" v-if="item.picUrl" :src="item.picUrl" mode="widthFix" width="100rpx" height="100rpx" border-radius="7px"></u-image>
 				</view>
 				<view class="item-info">
-					<view class="info-name">{{item.name}}</view>
+					<view class="info-name">{{item.listName}}</view>
 					<view class="info-songcount">{{item.songCount}}首</view>
+				</view>
+				<view class="item-menu" @click="openMenu(item)">
+					<text class="iconfont icon-gengduo"></text>
 				</view>
 			</view>
 		</view>
 		<!-- 收藏的歌单 -->
 		<view class="card">
 			<view class="card-item">
-				<view>收藏的歌单: {{ collectList.length }}个</view>
+				<view class="item-title">收藏的歌单: ({{ collectList.length }}个)</view>
 			</view>
 			<view class="card-item" v-for="(item, i) in collectList" :key="i">
 				<view class="item-cover">
 					<text class="iconfont icon-like1"></text>
 				</view>
 				<view class="item-info">
-					<view class="info-name">{{item.name}}</view>
+					<view class="info-name">{{item.listName}}</view>
 					<view class="info-songcount">{{item.songCount}}首</view>
+				</view>
+				<view class="item-menu" @click="openMenu(item)">
+					<text class="iconfont icon-gengduo"></text>
 				</view>
 			</view>
 		</view>
@@ -60,6 +67,27 @@
 		
 		<!-- last -->
 		<view class="last">到底啦&nbsp;~</view>
+
+		<!-- 歌单菜单 -->
+		<u-popup class="pop-menu" v-model="menuShow" mode="bottom" border-radius="24">
+			<view class="pop-menu-title">歌单: {{ currentList.listName }}</view>
+			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" v-if="currentList.type == '2'">
+				<text class="iconfont icon-order"></text>
+				<text style="margin-left: 20rpx">编辑歌单信息</text>
+			</view>
+			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" @click="doDeleteSonglist">
+				<text class="iconfont icon-delete"></text>
+				<text style="margin-left: 20rpx">删除</text>
+			</view>
+		</u-popup>
+
+		<!-- 添加歌单名称 -->
+		<u-modal v-model="addListShow" title="新建歌单" show-cancel-button @confirm="doCreate">
+			<view style="margin: 10rpx 0 20rpx 20rpx;">歌单名称:</view>
+			<view style="margin: 10rpx 0 20rpx 20rpx;">
+				<input :value="listName" placeholder="请输入歌单名称" @input="inputChange"/>
+			</view>
+		</u-modal>
 	</view>
 </template>
 
@@ -68,17 +96,54 @@ import { mapState, mapMutations, mapGetters } from 'vuex';
 
 export default {
 	name: 'Mine',
-	props: {},
 	data() {
 		return {
+			//添加歌单名称内容
+			listName: 'ces',
+			//添加歌单对话框是否显示
+			addListShow: false,
+			//歌单菜单是否显示
+			menuShow: false,
+			//当前菜单选中的歌单
+			currentList: {}
 		};
 	},
 	methods: {
+		...mapMutations(['addSonglist','delSonglist']),
 		//到登录页面
 		goLoginPage() {
 			uni.navigateTo({
 				url: '../login/login',
 			});
+		},
+		//打开菜单
+		openMenu(item) {
+			this.menuShow = true;
+			this.currentList = item;
+		},
+		//删除歌单
+		doDeleteSonglist() {
+			this.delSonglist(this.currentList);
+			this.menuShow = false;
+		},
+		//创建歌单点击
+		showCreate() {
+			this.listName = '';
+			this.addListShow = true;
+		},
+		//创建歌单
+		doCreate() {
+			if(this.listName == ''){
+				return;
+			}
+			let list = {};
+			list['listName'] = this.listName;
+			list['type'] = '2';
+			this.addSonglist(list);
+		},
+		//输入变化
+		inputChange(e) {
+			this.listName = e.detail.value
 		}
 	},
 	computed: {
@@ -112,6 +177,11 @@ export default {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
+		.item-title {
+			font-size: 20rpx;
+			color: #929292;
+			width: 100%;
+		}
 		.item-cover{
 			width: 100rpx;
 			height: 100rpx;
@@ -131,6 +201,9 @@ export default {
 				font-size: 20rpx;
 				color: #929292;
 			}
+		}
+		.item-menu {
+			margin-left: auto;
 		}
 	}
 }
@@ -195,5 +268,22 @@ export default {
 	text-align: center;
 	font-size: 12px;
 	color: #ababab;
+}
+.pop-menu {
+	font-size: 32rpx;
+	.pop-menu-title {
+		font-size: 26rpx;
+		margin: 30rpx 30rpx 0rpx 30rpx;
+		padding-bottom: 20rpx;
+		border-bottom: #c0c0c0 solid 1px;
+	}
+	.pop-menu-item {
+		height: 100rpx;
+		padding: 30rpx 30rpx 30rpx 30rpx;
+		// margin: 30rpx 30rpx 30rpx 30rpx;
+	}
+}
+.click-bg {
+	background-color:rgba(0,0,0,.1);
 }
 </style>

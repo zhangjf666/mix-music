@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 2568364 */
-  src: url('//at.alicdn.com/t/font_2568364_3l9cczfuhbe.woff2?t=1623163726039') format('woff2'),
-       url('//at.alicdn.com/t/font_2568364_3l9cczfuhbe.woff?t=1623163726039') format('woff'),
-       url('//at.alicdn.com/t/font_2568364_3l9cczfuhbe.ttf?t=1623163726039') format('truetype');
+  src: url('//at.alicdn.com/t/font_2568364_mizuejt5xa.woff2?t=1623813791494') format('woff2'),
+       url('//at.alicdn.com/t/font_2568364_mizuejt5xa.woff?t=1623813791494') format('woff'),
+       url('//at.alicdn.com/t/font_2568364_mizuejt5xa.ttf?t=1623813791494') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,26 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-delete:before {
+  content: "\e720";
+}
+
+.icon-shoucang:before {
+  content: "\e730";
+}
+
+.icon-xiayishoubofang:before {
+  content: "\e740";
+}
+
+.icon-list-add:before {
+  content: "\e750";
+}
+
+.icon-add:before {
+  content: "\e710";
 }
 
 .icon-right-arrow:before {

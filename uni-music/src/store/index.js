@@ -355,6 +355,9 @@ const store = new Vuex.Store({
         //更新用户歌单
 		updateUserSonglist(state) {
 			if(state.token != null && state.token != ''){
+                //清空数组
+                state.createList = [];
+                state.collectList = [];
 				userSonglist({type: '0'}).then(data => {
 					for (var i=0;i<data.length;i++) { 
 						var item = data[i];
@@ -377,6 +380,26 @@ const store = new Vuex.Store({
         // 我喜欢删除歌曲
         async delToFavourite(state, song) {
             await delSong({songlistId:state.favouriteList.id, songId: song.id});
+            this.commit('updateUserSonglist');
+        },
+        //创建用户歌单
+        async addSonglist(state, list) {
+            await createSonglist(list);
+            this.commit('updateUserSonglist');
+        },
+        //删除用户歌单
+        async delSonglist(state, list) {
+            await deleteSonglist(list.id);
+            this.commit('updateUserSonglist');
+        },
+        //歌单添加歌曲
+        async addToSonglist(state, data) {
+            await addSong({songlistId: data.songlistId, songId: data.id});
+            this.commit('updateUserSonglist');
+        },
+        //歌单删除歌曲
+        async delToSonglist(state, data) {
+            await delSong({songlistId: data.songlistId, songId: data.id});
             this.commit('updateUserSonglist');
         }
     }
