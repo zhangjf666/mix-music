@@ -167,4 +167,9 @@ public class SongServiceImpl extends BaseServiceImpl<SongMapstruct, SongInfoDto,
     public SongInfoDto querySongBySongId(String songId, MusicPlatform platform) {
         return baseMapstruct.toDto(baseMapper.querySongBySongId(songId, platform));
     }
+
+    @Override
+    public SongInfoDto querySongById(String id) {
+        return baseMapstruct.toDto(baseMapper.querySongById(id));
+    }
 }

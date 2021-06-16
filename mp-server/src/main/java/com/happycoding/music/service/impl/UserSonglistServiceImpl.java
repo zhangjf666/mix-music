@@ -3,6 +3,7 @@ package com.happycoding.music.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.happycoding.music.common.base.BaseServiceImpl;
 import com.happycoding.music.dto.PlayListDetailDto;
+import com.happycoding.music.dto.PlayListDto;
 import com.happycoding.music.dto.SongInfoDto;
 import com.happycoding.music.dto.UserSonglistDto;
 import com.happycoding.music.entity.Song;
@@ -10,6 +11,7 @@ import com.happycoding.music.entity.SonglistSong;
 import com.happycoding.music.entity.UserSonglist;
 import com.happycoding.music.mapper.UserSonglistMapper;
 import com.happycoding.music.mapstruct.UserSonglistMapstruct;
+import com.happycoding.music.model.MusicPlatform;
 import com.happycoding.music.model.UserSongListType;
 import com.happycoding.music.service.SongService;
 import com.happycoding.music.service.SonglistSongService;
@@ -50,24 +52,36 @@ public class UserSonglistServiceImpl extends BaseServiceImpl<UserSonglistMapstru
     }
 
     @Override
-    public List<SongInfoDto> getSonglistDetailById(String id) {
-        List<Song> songList = new ArrayList<>();
+    public PlayListDetailDto getSonglistDetailById(String id) {
+        PlayListDetailDto playListDetailDto = null;
         UserSonglist userSonglist = getById(id);
         if(userSonglist != null){
             UserSongListType type = userSonglist.getType();
             if(type == UserSongListType.COLLECT){
                 //收藏的歌单,直接获取网易的
-                PlayListDetailDto playListDetailDto = neteaseService.playListDetail(userSonglist.getCollectListId());
-                return playListDetailDto.getSongs();
+                return neteaseService.playListDetail(userSonglist.getCollectListId());
             } else {
                 //其他歌单
                 List<SonglistSong> songlistSongs =
                         songlistSongService.list(Wrappers.<SonglistSong>lambdaQuery().eq(SonglistSong::getSonglistId, id));
                 List<String> songIds = songlistSongs.stream().map(SonglistSong::getSongId).collect(Collectors.toList());
-                songList = songService.list(Wrappers.<Song>lambdaQuery().in(Song::getId, songIds));
+                playListDetailDto = new PlayListDetailDto();
+                List<SongInfoDto> list = new ArrayList<>();
+                for (String songId : songIds) {
+                    list.add(songService.querySongById(songId));
+                }
+                playListDetailDto.setSongs(list);
+                PlayListDto playListDto = new PlayListDto();
+                playListDto.setTrackCount(userSonglist.getSongCount().longValue());
+                playListDto.setId(userSonglist.getId());
+                playListDto.setPicUrl(userSonglist.getPicUrl());
+                playListDto.setName(userSonglist.getListName());
+                playListDto.setMusicPlatform(MusicPlatform.Netease);
+                playListDto.setSummary(userSonglist.getListDescription());
+                playListDetailDto.setPlayList(playListDto);
             }
         }
-        return songService.getBaseMapstruct().toDto(songList);
+        return playListDetailDto;
     }
 
     @Transactional(rollbackFor = Throwable.class)

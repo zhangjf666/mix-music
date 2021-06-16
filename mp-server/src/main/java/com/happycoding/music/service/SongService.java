@@ -69,4 +69,11 @@ public interface SongService extends BaseService<SongInfoDto, Song> {
      * @return
      */
     SongInfoDto querySongBySongId(String songId, MusicPlatform platform);
+
+    /**
+     * 根据id跟平台查找歌曲
+     * @param id 歌曲id
+     * @return
+     */
+    SongInfoDto querySongById(String id);
 }

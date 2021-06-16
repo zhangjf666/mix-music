@@ -1,6 +1,7 @@
 package com.happycoding.music.service;
 
 import com.happycoding.music.common.base.BaseService;
+import com.happycoding.music.dto.PlayListDetailDto;
 import com.happycoding.music.dto.SongInfoDto;
 import com.happycoding.music.dto.UserSonglistDto;
 import com.happycoding.music.entity.UserSonglist;
@@ -29,7 +30,7 @@ public interface UserSonglistService extends BaseService<UserSonglistDto, UserSo
      * @param id 歌单id
      * @return
      */
-    List<SongInfoDto> getSonglistDetailById(String id);
+    PlayListDetailDto getSonglistDetailById(String id);
 
     /**
      * 歌单添加歌曲

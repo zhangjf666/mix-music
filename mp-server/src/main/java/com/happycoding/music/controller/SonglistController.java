@@ -3,6 +3,7 @@ package com.happycoding.music.controller;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.happycoding.music.common.model.Response;
 import com.happycoding.music.common.utils.SpringSecurityUtil;
+import com.happycoding.music.dto.PlayListDetailDto;
 import com.happycoding.music.dto.SongInfoDto;
 import com.happycoding.music.dto.UserSonglistDto;
 import com.happycoding.music.entity.UserSonglist;
@@ -70,11 +71,11 @@ public class SonglistController {
         return Response.ok(userSonglistService.deleteById(id));
     }
 
-    @ApiOperation("获取歌单歌曲详情")
+    @ApiOperation("获取歌单详情")
     @GetMapping("/detail")
-    public Response<List<SongInfoDto>> getSonglistDetail(String id) {
-        List<SongInfoDto> list = userSonglistService.getSonglistDetailById(id);
-        return Response.ok(list);
+    public Response<PlayListDetailDto> getSonglistDetail(String id) {
+        PlayListDetailDto detail = userSonglistService.getSonglistDetailById(id);
+        return Response.ok(detail);
     }
 
     @ApiOperation("歌单添加歌曲")

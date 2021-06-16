@@ -45,4 +45,17 @@ public interface SongMapper extends BaseMapper<Song> {
             @Result(property = "albums", javaType = Set.class,column = "id",many = @Many(select = "com.happycoding.music.mapper.AlbumMapper.getSongAlbums"))
     })
     Song querySongBySongId(String songId, MusicPlatform platform);
+
+    /**
+     * 根据id跟平台查找歌曲
+     * @param id 歌曲id
+     * @return
+     */
+    @Select("select * from song s where s.id = #{id}")
+    @Results({
+            @Result(property = "id",column = "id",id = true),
+            @Result(property = "singers", javaType = Set.class,column = "id",many = @Many(select = "com.happycoding.music.mapper.SingerMapper.getSongSingers")),
+            @Result(property = "albums", javaType = Set.class,column = "id",many = @Many(select = "com.happycoding.music.mapper.AlbumMapper.getSongAlbums"))
+    })
+    Song querySongById(String id);
 }
