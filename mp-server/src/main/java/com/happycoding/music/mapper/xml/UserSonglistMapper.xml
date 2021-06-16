@@ -11,6 +11,7 @@
         <result column="pic_url" property="picUrl" />
         <result column="song_count" property="songCount" />
         <result column="type" property="type" />
+        <result column="collect_list_id" property="collectListId" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
         <result column="del_flag" property="delFlag" />
@@ -18,7 +19,8 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, user_id, list_name, list_description, pic_url,song_count, type, create_time, update_time, del_flag
+        id, user_id, list_name, list_description, pic_url,song_count, type, collect_list_id, create_time,
+        update_time, del_flag
     </sql>
 
 </mapper>

@@ -52,20 +52,21 @@ public class SonglistController {
 
     @ApiOperation("创建歌单")
     @PostMapping
-    public Response<UserSonglistDto> createSonglist(UserSonglistDto dto) {
+    public Response<UserSonglistDto> createSonglist(@RequestBody UserSonglistDto dto) {
+        dto.setUserId(SpringSecurityUtil.getCurrentUserId());
         dto = userSonglistService.create(dto);
         return Response.ok(dto);
     }
 
     @ApiOperation("更新歌单")
     @PutMapping
-    public Response updateSonglist(UserSonglistDto dto) {
+    public Response updateSonglist(@RequestBody UserSonglistDto dto) {
         return Response.ok(userSonglistService.update(dto));
     }
 
     @ApiOperation("删除歌单")
     @DeleteMapping
-    public Response deleteSonglist(String id) {
+    public Response deleteSonglist(@RequestBody String id) {
         return Response.ok(userSonglistService.deleteById(id));
     }
 

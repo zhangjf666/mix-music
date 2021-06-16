@@ -50,7 +50,7 @@ public enum UserSongListType implements IEnum<String> {
         return type;
     }
 
-    @JsonCreator
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static UserSongListType findLevelEmum(String type){
         for (UserSongListType item : UserSongListType.values()) {
             if (item.getId().equals(type)) {

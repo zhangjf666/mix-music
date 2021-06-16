@@ -44,8 +44,11 @@ public class UserSonglist implements Serializable {
     @ApiModelProperty(value = "歌曲数量")
     private Integer songCount;
 
-    @ApiModelProperty(value = "歌单类型(1:我喜欢,2:自定义歌单)")
+    @ApiModelProperty(value = "歌单类型(1:我喜欢,2:自定义歌单,3:收藏的歌单)")
     private UserSongListType type;
+
+    @ApiModelProperty(value = "收藏的歌单id")
+    private String collectListId;
 
     @ApiModelProperty(value = "创建时间")
     @TableField(value = "create_time",fill = FieldFill.INSERT)
