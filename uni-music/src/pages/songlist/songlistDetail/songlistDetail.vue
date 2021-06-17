@@ -11,7 +11,7 @@
 		></u-navbar>
 		<view v-if="songlistDetail" class="scroll">
 			<!-- 歌单信息 -->
-			<view class="playListInfo">
+			<view class="playListInfo" v-if="songlistDetail.playList">
 				<view class="imgBox">
 					<image :src="songlistDetail.playList.picUrl" class="img" mode="widthFix"></image>
 					<view class="playNumber">
@@ -32,6 +32,7 @@
 				<view class="playall" hover-class="click-bg" hover-stay-time="200" @click="playSongList(0)">
 					<text class="iconfont icon-playall playicon"></text>
 					<text class="playtext">播放全部</text>
+					<text class="iconfont collect-icon" :class="isCollect ? 'icon-chenggong':'icon-shoucang'" @click.stop="doCollectSonglist"></text>
 				</view>
 			</u-sticky>
 			<!-- 歌单列表 -->
@@ -44,20 +45,44 @@
 							<text class="iconfont icon-ranking song-serial-icon" v-if="inPlayList(item)"></text>
 								<text class="song-serial" v-else>{{ index + 1 }}</text>
 							<view class="songName">
-								<text class="item-songName" :class="inPlayList(item) ? 'color' : ''">{{ item.name }}</text>
-								<text class="horizontal" :class="inPlayList(item) ? 'color' : ''">-</text>
-								<text class="item-singer" :class="inPlayList(item) ? 'color' : ''">{{ songSinger(item) }}</text>
+								<text class="item-songName">{{ item.name }}</text>
+								<text class="horizontal">-</text>
+								<text class="item-singer">{{ songSinger(item) }}</text>
 							</view>
-							<u-icon class="songIcon1" name="volume" color="#d83d34" size="44" v-if="inPlayList(item)"></u-icon>
-							<view class="songIcon" v-else>
-								<u-icon name="play-right-fill" color="#d83d34" size="24"></u-icon>
+							<view class="item-menu" @click.stop="openMenu(item)">
+								<text class="iconfont icon-gengduo"></text>
 							</view>
 						</view>
 					</view>
 				</view>
 			</scroll-view>
 		</view>
+		<!-- 弹出菜单 -->
+		<u-popup class="pop-menu" v-model="menuShow" mode="bottom" border-radius="24">
+			<view class="pop-menu-title">歌曲: {{ menuSong.name }}</view>
+			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" @click="doNextPlay">
+				<text class="iconfont icon-xiayishoubofang"></text>
+				<text style="margin-left: 20rpx">下一首播放</text>
+			</view>
+			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" @click="doOpenSonglist">
+				<text class="iconfont icon-shoucang"></text>
+				<text style="margin-left: 20rpx">收藏到歌单</text>
+			</view>
+		</u-popup>
+		<!-- 歌单菜单 -->
+		<u-popup class="pop-menu" v-model="openSonglist" mode="bottom" border-radius="24">
+			<view class="pop-menu-title">收藏到歌单</view>
+			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" @click="doAddSonglist(favouriteList.id)">
+				<u-image class="item-image" :src="favouriteList.picUrl" mode="widthFix" width="80rpx" height="80rpx" border-radius="7px"></u-image>
+				<text style="margin-left: 20rpx">{{favouriteList.listName}}</text>
+			</view>
+			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" v-for="(item,i) in createList" :key="i" @click="doAddSonglist(item.id)">
+				<u-image class="item-image" :src="item.picUrl" mode="widthFix" width="80rpx" height="80rpx" border-radius="7px"></u-image>
+				<text style="margin-left: 20rpx">{{item.listName}}</text>
+			</view>
+		</u-popup>
 		<view class="bg" :style="isBg"></view>
+		<u-toast ref="uToast" />
 		<play-music></play-music>
 	</view>
 </template>
@@ -66,6 +91,7 @@
 import playMusic from '@/my-components/playMusic.vue';
 import { mapMutations, mapState, mapGetters} from 'vuex'
 import { songListDetail } from "@/api/platform.js";
+import { existCollectSonglist, createSonglist, deleteSonglist } from "@/api/songlist.js";
 import { handleSingerName } from '@/utils/songUtil.js'
 
 export default {
@@ -78,16 +104,22 @@ export default {
 			id: null,
             // 歌单平台
             musicPlatform: null,
-			songlistDetail: null,
+			songlistDetail: {},
             songs: null,
-			isPopup: true,
-			trackIds:[],
-			musicId:'',
 			start:0,
 			end:50,
 			PlaysList:[],
 			songList:[],
-			songBg:null
+			songBg:null,
+			//显示菜单
+			menuShow: false,
+			//显示歌单列表
+			openSonglist: false,
+			menuSong: {},
+			//是否已收藏歌单
+			isCollect: false,
+			//用户收藏的歌单id
+			userSonglistId: ''
 		};
 	},
 	onLoad(option) {
@@ -98,12 +130,19 @@ export default {
 		this.id = option.id;
         this.musicPlatform = option.musicPlatform;
 		this.getSonglistDetail();
+		//判断我的歌单中是否收藏了该歌单
+		existCollectSonglist({collectSonglistId: this.id}).then(data => {
+			if(data != null){
+				this.userSonglistId = data.id;
+				this.isCollect = true;
+			}
+		})
 	},
 	components: {
 		playMusic
 	},
 	methods: {
-		...mapMutations(['setPlayList','addAndPlay']),
+		...mapMutations(['setPlayList','addAndPlay','addToNext','addToSonglist','updateUserSonglist']),
 		// 获得歌单数据
 		async getSonglistDetail() {
 			await songListDetail({playListId: this.id, musicPlatform: this.musicPlatform}).then(data=>{
@@ -127,10 +166,63 @@ export default {
 		// 处理播放数
 		isPlayCount(count) {
 			return count > 100000 ? (count / 10000).toFixed() + "万" : count;
+		},
+		//打开菜单
+		openMenu(item) {
+			this.menuSong = item;
+			this.menuShow = true;
+		},
+		//打开歌单菜单
+		doOpenSonglist() {
+			this.menuShow = false;
+			this.openSonglist = true;
+		},
+		//收藏歌曲到歌单
+		doAddSonglist(id) {
+			this.addToSonglist({songlistId: id, songId: this.menuSong.id});
+			this.openSonglist = false;
+		},
+		//下一首播放
+		doNextPlay() {
+			this.addToNext(this.menuSong);
+			this.menuShow = false;
+		},
+		//收藏歌单
+		async doCollectSonglist() {
+			if(this.isCollect){
+				await deleteSonglist(this.userSonglistId).then(data =>{
+					this.isCollect = false;
+					this.$refs.uToast.show({
+						title: '取消收藏',
+						duration: 1000,
+						position: 'bottom'
+					});
+				})
+				this.updateUserSonglist();
+			} else {
+				let list = {};
+				console.log(this.id)
+				list['collectListId'] = this.id;
+				list['listName'] = this.songlistDetail.playList.name;
+				list['listDescription'] = this.songlistDetail.playList.summary;
+				list['picUrl'] = this.songlistDetail.playList.picUrl;
+				list['songCount'] = this.songlistDetail.playList.trackCount;
+				list['type'] = '3';
+				await createSonglist(list).then(data => {
+					this.userSonglistId = data.id;
+					this.isCollect = true;
+					this.$refs.uToast.show({
+						title: '已收藏',
+						duration: 1000,
+						position: 'bottom'
+					});
+				})
+				this.updateUserSonglist();
+			}
 		}
 	},
 	computed:{
-		...mapState(['isPlay', 'playingIndex']),
+		...mapState(['isPlay', 'playingIndex','createList','favouriteList']),
         ...mapGetters(['getCurrentSong']),
         // 处理歌手名字
 		songSinger() {
@@ -152,7 +244,7 @@ export default {
         },
 		//歌单背景
 		isBg() {
-			if(this.songlistDetail == null) {
+			if(this.songlistDetail.playList == null) {
 				return;
 			}
 			return `background: url(${this.songlistDetail.playList.picUrl}) left;`;
@@ -300,6 +392,10 @@ export default {
 					font-size: 24rpx;
 				}
 			}
+			.item-menu {
+				margin-left: auto;
+				margin-right: 20rpx;
+			}
 		}
 	}
 }
@@ -330,6 +426,26 @@ export default {
 	.playtext {
 		font-size: 30rpx;
 		font-weight: 600;
+	}
+	.collect-icon {
+		margin-left: auto;
+		margin-right: 30rpx;
+		font-size: 40rpx;
+	}
+}
+.pop-menu {
+	font-size: 32rpx;
+	.pop-menu-title {
+		font-size: 26rpx;
+		margin: 30rpx 30rpx 0rpx 30rpx;
+		padding-bottom: 20rpx;
+		border-bottom: #c0c0c0 solid 1px;
+	}
+	.pop-menu-item {
+		height: 100rpx;
+		padding: 30rpx 30rpx 30rpx 30rpx;
+		display: flex;
+		align-items: center;
 	}
 }
 .click-bg {

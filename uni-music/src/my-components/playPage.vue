@@ -25,19 +25,19 @@
                         @transition="pageTransition"
                         @animationfinish="pageAnimationfinish"
                     >
-                        <swiper-item item-id="pre" @click="switchLyric()">
+                        <swiper-item item-id="pre" @click="switchLyric()" v-if="songPre">
                             <view class="imgBox" :class="[isPlay && isSpin ? 'spin' : 'noSpin']">
                                 <image style="width: 540rpx;height: 540rpx;" src="../static/image/play_disc.png"></image>
                                 <image class="songImg" style="width: 320rpx;height: 320rpx;border-radius: 50%;" :src="songPre.picUrl"></image>
                             </view>
                         </swiper-item>
-                        <swiper-item item-id="current" @click="switchLyric()">
+                        <swiper-item item-id="current" @click="switchLyric()" v-if="songCurrent">
                             <view class="imgBox" :class="[isPlay && isSpin ? 'spin' : 'noSpin']">
                                 <image style="width: 540rpx;height: 540rpx;" src="../static/image/play_disc.png"></image>
                                 <image class="songImg" style="width: 320rpx;height: 320rpx;border-radius: 50%;" :src="songCurrent.picUrl"></image>
                             </view>
                         </swiper-item>
-                        <swiper-item item-id="next" @click="switchLyric()">
+                        <swiper-item item-id="next" @click="switchLyric()" v-if="songNext">
                             <view class="imgBox" :class="[isPlay && isSpin ? 'spin' : 'noSpin']">
                                 <image style="width: 540rpx;height: 540rpx;" src="../static/image/play_disc.png"></image>
                                 <image class="songImg" style="width: 320rpx;height: 320rpx;border-radius: 50%;" :src="songNext.picUrl"></image>

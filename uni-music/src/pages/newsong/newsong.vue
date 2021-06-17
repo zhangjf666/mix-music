@@ -50,10 +50,9 @@
                                         <text class="horizontal">-</text>
                                         <text class="item-singer">{{ songSinger(item) }}</text>
                                     </view>
-                                    <u-icon class="songIcon1" name="volume" color="#d83d34" size="44" v-if="inPlayList(item)"></u-icon>
-                                    <view class="songIcon" v-else>
-                                        <u-icon name="play-right-fill" color="#d83d34" size="24"></u-icon>
-                                    </view>
+                                    <view class="item-menu" @click.stop="openMenu(item)">
+										<text class="iconfont icon-gengduo"></text>
+									</view>
                                 </view>
                             </view>
                         </view>
@@ -61,6 +60,30 @@
                 </view>
 			</swiper-item>
 		</swiper>
+		<!-- 弹出菜单 -->
+		<u-popup class="pop-menu" v-model="menuShow" mode="bottom" border-radius="24">
+			<view class="pop-menu-title">歌曲: {{ menuSong.name }}</view>
+			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" @click="doNextPlay">
+				<text class="iconfont icon-xiayishoubofang"></text>
+				<text style="margin-left: 20rpx">下一首播放</text>
+			</view>
+			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" @click="doOpenSonglist">
+				<text class="iconfont icon-shoucang"></text>
+				<text style="margin-left: 20rpx">收藏到歌单</text>
+			</view>
+		</u-popup>
+		<!-- 歌单菜单 -->
+		<u-popup class="pop-menu" v-model="openSonglist" mode="bottom" border-radius="24">
+			<view class="pop-menu-title">收藏到歌单</view>
+			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" @click="doAddSonglist(favouriteList.id)">
+				<u-image class="item-image" :src="favouriteList.picUrl" mode="widthFix" width="80rpx" height="80rpx" border-radius="7px"></u-image>
+				<text style="margin-left: 20rpx">{{favouriteList.listName}}</text>
+			</view>
+			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" v-for="(item,i) in createList" :key="i" @click="doAddSonglist(item.id)">
+				<u-image class="item-image" :src="item.picUrl" mode="widthFix" width="80rpx" height="80rpx" border-radius="7px"></u-image>
+				<text style="margin-left: 20rpx">{{item.listName}}</text>
+			</view>
+		</u-popup>
 		<play-music></play-music>
 	</view>
 </template>
@@ -85,7 +108,12 @@ export default {
             playLists: { '推荐': [], '华语': [], '欧美': [], '韩国': [], '日本': []},
             // 新歌的分类,全部:0 华语:7 欧美:96 日本:8 韩国:16
             catagory: {推荐:'0', 华语:'7', 欧美:'96', 韩国:'16', 日本:'8'},
-            songBg: null
+            songBg: null,
+			//显示菜单
+			menuShow: false,
+			//显示歌单列表
+			openSonglist: false,
+			menuSong: {}
 		};
 	},
 	onLoad(option) {
@@ -99,7 +127,7 @@ export default {
 		playMusic
 	},
 	methods: {
-		...mapMutations(['setPlayList','addAndPlay']),
+		...mapMutations(['setPlayList','addAndPlay','addToNext','addToSonglist']),
 		// 播放该列表
 		playSongList(index) {
             let cloneSongList = this.$u.deepClone(this.playLists[this.tabsSwiper[this.current].name]);
@@ -132,10 +160,30 @@ export default {
 		//整屏滑动 tabs通知swiper切换
 		tabsChange(index) {
 			this.swiperCurrent = index;
+		},
+		//打开菜单
+		openMenu(item) {
+			this.menuSong = item;
+			this.menuShow = true;
+		},
+		//打开歌单菜单
+		doOpenSonglist() {
+			this.menuShow = false;
+			this.openSonglist = true;
+		},
+		//收藏到歌单
+		doAddSonglist(id) {
+			this.addToSonglist({songlistId: id, songId: this.menuSong.id});
+			this.openSonglist = false;
+		},
+		//下一首播放
+		doNextPlay() {
+			this.addToNext(this.menuSong);
+			this.menuShow = false;
 		}
 	},
 	computed:{
-		...mapState(['isPlay', 'playingIndex']),
+		...mapState(['isPlay', 'playingIndex','createList','favouriteList']),
         ...mapGetters(['getCurrentSong']),
         // 处理歌手名字
 		songSinger() {
@@ -294,6 +342,10 @@ export default {
 					font-size: 24rpx;
 				}
 			}
+			.item-menu {
+				margin-left: auto;
+				margin-right: 20rpx;
+			}
 		}
 	}
 }
@@ -315,6 +367,21 @@ export default {
 	.playtext {
 		font-size: 30rpx;
 		font-weight: 600;
+	}
+}
+.pop-menu {
+	font-size: 32rpx;
+	.pop-menu-title {
+		font-size: 26rpx;
+		margin: 30rpx 30rpx 0rpx 30rpx;
+		padding-bottom: 20rpx;
+		border-bottom: #c0c0c0 solid 1px;
+	}
+	.pop-menu-item {
+		height: 100rpx;
+		padding: 30rpx 30rpx 30rpx 30rpx;
+		display: flex;
+		align-items: center;
 	}
 }
 .click-bg {

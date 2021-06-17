@@ -10,7 +10,7 @@
 			@transition="playTransition"
 			@animationfinish="playAnimationfinish"
 		>
-			<swiper-item item-id="pre" @click="setShowPlayPage(true)">
+			<swiper-item item-id="pre" @click="setShowPlayPage(true)" v-if="songPre">
 				<u-image class="songImg" :src="songPre.picUrl" mode="widthFix" width="80" height="80" shape="circle"></u-image>
 				<view class="songInfo">
 					<view>
@@ -20,7 +20,7 @@
 					</view>
 				</view>
 			</swiper-item>
-			<swiper-item item-id="current" @click="setShowPlayPage(true)">
+			<swiper-item item-id="current" @click="setShowPlayPage(true)" v-if="songCurrent">
 				<u-image class="songImg" :src="songCurrent.picUrl" mode="widthFix" width="80" height="80" shape="circle"></u-image>
 				<view class="songInfo">
 					<view>
@@ -30,7 +30,7 @@
 					</view>
 				</view>
 			</swiper-item>
-			<swiper-item item-id="next" @click="setShowPlayPage(true)">
+			<swiper-item item-id="next" @click="setShowPlayPage(true)" v-if="songNext">
 				<u-image class="songImg" :src="songNext.picUrl" mode="widthFix" width="80" height="80" shape="circle"></u-image>
 				<view class="songInfo">
 					<view>

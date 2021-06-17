@@ -47,7 +47,7 @@
 			</view>
 			<view class="card-item" v-for="(item, i) in collectList" :key="i">
 				<view class="item-cover">
-					<text class="iconfont icon-like1"></text>
+					<u-image class="item-image" v-if="item.picUrl" :src="item.picUrl" mode="widthFix" width="100rpx" height="100rpx" border-radius="7px"></u-image>
 				</view>
 				<view class="item-info" @click="goUserSonglistDetails(item.id, item.type)">
 					<view class="info-name">{{item.listName}}</view>
@@ -67,9 +67,9 @@
 		
 		<!-- last -->
 		<view class="last">到底啦&nbsp;~</view>
-
+		
 		<!-- 歌单菜单 -->
-		<u-popup class="pop-menu" v-model="menuShow" mode="bottom" border-radius="24">
+		<u-popup class="pop-menu" v-model="menuShow" mode="bottom" border-radius="24" :height="menuHeight">
 			<view class="pop-menu-title">歌单: {{ currentList.listName }}</view>
 			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" v-if="currentList.type == '2'">
 				<text class="iconfont icon-order"></text>
@@ -88,7 +88,6 @@
 				<input :value="listName" placeholder="请输入歌单名称" @input="inputChange"/>
 			</view>
 		</u-modal>
-		<play-music></play-music>
 	</view>
 </template>
 
@@ -158,10 +157,13 @@ export default {
 		}
 	},
 	computed: {
-		...mapState(['user', 'token','favouriteList','createList','collectList']),
+		...mapState(['user', 'token','favouriteList','createList','collectList','playingIndex']),
 		...mapGetters(['loginFlag']),
 		userName() {
 			return this.user.nickName;
+		},
+		menuHeight() {
+			return this.playingIndex != null ? '400rpx': 'auto'
 		}
 	}
 };
@@ -291,7 +293,8 @@ export default {
 	.pop-menu-item {
 		height: 100rpx;
 		padding: 30rpx 30rpx 30rpx 30rpx;
-		// margin: 30rpx 30rpx 30rpx 30rpx;
+		display: flex;
+		align-items: center;
 	}
 }
 .click-bg {

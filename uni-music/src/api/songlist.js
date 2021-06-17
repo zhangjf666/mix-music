@@ -83,3 +83,12 @@ export function updateSongs(data) {
         data
     })
 }
+
+//是否收藏该歌单,并返回歌单信息
+export function existCollectSonglist(data) {
+    return request({
+        url: prefix + '/existCollectSonglist',
+        method: 'GET',
+        data
+    })
+}

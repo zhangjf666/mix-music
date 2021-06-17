@@ -7,6 +7,7 @@
       :background="{ background: '#d83d34' }"
       height="0"
       class="navbar"
+      z-index="0"
     ></u-navbar>
     <!-- #endif -->
     <!-- 整屏滑动头部 -->
@@ -354,7 +355,6 @@ export default {
         this.goPlaylistDetail(item.targetId);
       } else if(item.targetType == 1) {
         songInfo({ songIds:item.targetId, musicPlatform: "1"}).then(data => {
-          console.log(data)
           this.addAndPlay(data[0]);
         })
       }

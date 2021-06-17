@@ -236,14 +236,14 @@
 }
 
 .login-type-btn.act {
-    color: #0FAEFF;
-    border-bottom: solid 1px #0FAEFF;
+    color: #d83d34;
+    border-bottom: solid 1px #d83d34;
 }
 
 .send-code-btn {
     width: 100px;
     text-align: center;
-    background-color: #0FAEFF;
+    background-color: #d83d34;
     color: #FFFFFF;
 }
 
@@ -254,7 +254,7 @@
 }
 
 .action-row navigator {
-    color: #007aff;
+    color: #a8a8a8;
     padding: 0 10px;
 }
 
