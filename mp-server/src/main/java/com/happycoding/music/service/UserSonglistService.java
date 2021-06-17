@@ -1,8 +1,7 @@
 package com.happycoding.music.service;
 
 import com.happycoding.music.common.base.BaseService;
-import com.happycoding.music.dto.PlayListDetailDto;
-import com.happycoding.music.dto.SongInfoDto;
+import com.happycoding.music.dto.UserSonglistDetailDto;
 import com.happycoding.music.dto.UserSonglistDto;
 import com.happycoding.music.entity.UserSonglist;
 
@@ -30,7 +29,7 @@ public interface UserSonglistService extends BaseService<UserSonglistDto, UserSo
      * @param id 歌单id
      * @return
      */
-    PlayListDetailDto getSonglistDetailById(String id);
+    UserSonglistDetailDto getSonglistDetailById(String id);
 
     /**
      * 歌单添加歌曲
@@ -55,4 +54,11 @@ public interface UserSonglistService extends BaseService<UserSonglistDto, UserSo
      * @return
      */
     boolean updateSongs(String id, List<String> songIds);
+
+    /**
+     * 歌单更新歌曲
+     * @param collectSonglistId 收藏歌单id
+     * @return
+     */
+    UserSonglistDto existCollectSonglist(String collectSonglistId);
 }

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.happycoding.music.common.model.Response;
 import com.happycoding.music.common.utils.SpringSecurityUtil;
 import com.happycoding.music.dto.PlayListDetailDto;
-import com.happycoding.music.dto.SongInfoDto;
+import com.happycoding.music.dto.UserSonglistDetailDto;
 import com.happycoding.music.dto.UserSonglistDto;
 import com.happycoding.music.entity.UserSonglist;
 import com.happycoding.music.model.UserSongListType;
@@ -73,8 +73,8 @@ public class SonglistController {
 
     @ApiOperation("获取歌单详情")
     @GetMapping("/detail")
-    public Response<PlayListDetailDto> getSonglistDetail(String id) {
-        PlayListDetailDto detail = userSonglistService.getSonglistDetailById(id);
+    public Response<UserSonglistDetailDto> getSonglistDetail(String id) {
+        UserSonglistDetailDto detail = userSonglistService.getSonglistDetailById(id);
         return Response.ok(detail);
     }
 
@@ -100,5 +100,11 @@ public class SonglistController {
     @PostMapping("/updateSongs")
     public Response updateSongs(String songlistId, List<String> songIds) {
         return Response.ok(userSonglistService.updateSongs(songlistId, songIds));
+    }
+
+    @ApiOperation("是否收藏该歌单,并返回歌单信息")
+    @GetMapping("/existCollectSonglist")
+    public Response<UserSonglistDto> existCollectSonglist(String collectSonglistId) {
+        return Response.ok(userSonglistService.existCollectSonglist(collectSonglistId));
     }
 }

@@ -43,7 +43,4 @@ public class UserSonglistDto {
 
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime updateTime;
-
-    @ApiModelProperty(value = "删除标记")
-    private String delFlag;
 }

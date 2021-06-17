@@ -289,7 +289,6 @@ create table user_songlist
    collect_list_id      varchar(32) comment '收藏的歌单id',
    create_time          datetime comment '创建时间',
    update_time          datetime comment '更新时间',
-   del_flag             char(1) default '0' comment '删除标记',
    primary key (id)
 );
 

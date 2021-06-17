@@ -2,16 +2,16 @@ package com.happycoding.music.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.happycoding.music.common.base.BaseServiceImpl;
+import com.happycoding.music.common.utils.SpringSecurityUtil;
 import com.happycoding.music.dto.PlayListDetailDto;
-import com.happycoding.music.dto.PlayListDto;
 import com.happycoding.music.dto.SongInfoDto;
+import com.happycoding.music.dto.UserSonglistDetailDto;
 import com.happycoding.music.dto.UserSonglistDto;
 import com.happycoding.music.entity.Song;
 import com.happycoding.music.entity.SonglistSong;
 import com.happycoding.music.entity.UserSonglist;
 import com.happycoding.music.mapper.UserSonglistMapper;
 import com.happycoding.music.mapstruct.UserSonglistMapstruct;
-import com.happycoding.music.model.MusicPlatform;
 import com.happycoding.music.model.UserSongListType;
 import com.happycoding.music.service.SongService;
 import com.happycoding.music.service.SonglistSongService;
@@ -52,36 +52,29 @@ public class UserSonglistServiceImpl extends BaseServiceImpl<UserSonglistMapstru
     }
 
     @Override
-    public PlayListDetailDto getSonglistDetailById(String id) {
-        PlayListDetailDto playListDetailDto = null;
+    public UserSonglistDetailDto getSonglistDetailById(String id) {
+        UserSonglistDetailDto userSonglistDetailDto = new UserSonglistDetailDto();
         UserSonglist userSonglist = getById(id);
         if(userSonglist != null){
+            userSonglistDetailDto.setSongList(baseMapstruct.toDto(userSonglist));
             UserSongListType type = userSonglist.getType();
             if(type == UserSongListType.COLLECT){
                 //收藏的歌单,直接获取网易的
-                return neteaseService.playListDetail(userSonglist.getCollectListId());
+                PlayListDetailDto playListDetailDto = neteaseService.playListDetail(userSonglist.getCollectListId());
+                userSonglistDetailDto.setSongs(playListDetailDto.getSongs());
             } else {
                 //其他歌单
                 List<SonglistSong> songlistSongs =
                         songlistSongService.list(Wrappers.<SonglistSong>lambdaQuery().eq(SonglistSong::getSonglistId, id));
                 List<String> songIds = songlistSongs.stream().map(SonglistSong::getSongId).collect(Collectors.toList());
-                playListDetailDto = new PlayListDetailDto();
                 List<SongInfoDto> list = new ArrayList<>();
                 for (String songId : songIds) {
                     list.add(songService.querySongById(songId));
                 }
-                playListDetailDto.setSongs(list);
-                PlayListDto playListDto = new PlayListDto();
-                playListDto.setTrackCount(userSonglist.getSongCount().longValue());
-                playListDto.setId(userSonglist.getId());
-                playListDto.setPicUrl(userSonglist.getPicUrl());
-                playListDto.setName(userSonglist.getListName());
-                playListDto.setMusicPlatform(MusicPlatform.Netease);
-                playListDto.setSummary(userSonglist.getListDescription());
-                playListDetailDto.setPlayList(playListDto);
+                userSonglistDetailDto.setSongs(list);
             }
         }
-        return playListDetailDto;
+        return userSonglistDetailDto;
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -93,8 +86,10 @@ public class UserSonglistServiceImpl extends BaseServiceImpl<UserSonglistMapstru
             return true;
         }
         songlistSongService.save(sls);
+        Song song = songService.getById(songId);
         UserSonglist userSonglist = getById(id);
         userSonglist.setSongCount(userSonglist.getSongCount() + 1);
+        userSonglist.setPicUrl(song.getPicUrl());
         return updateById(userSonglist);
     }
 
@@ -120,5 +115,17 @@ public class UserSonglistServiceImpl extends BaseServiceImpl<UserSonglistMapstru
         }
         songlistSongService.saveBatch(slsList);
         return true;
+    }
+
+    @Override
+    public UserSonglistDto existCollectSonglist(String collectSonglistId) {
+        UserSonglistDto dto = null;
+        UserSonglist userSonglist =
+                baseMapper.selectOne(Wrappers.<UserSonglist>lambdaQuery().eq(UserSonglist::getUserId,
+                SpringSecurityUtil.getCurrentUserId()).eq(UserSonglist::getCollectListId, collectSonglistId));
+        if(userSonglist != null){
+            dto = baseMapstruct.toDto(userSonglist);
+        }
+        return dto;
     }
 }

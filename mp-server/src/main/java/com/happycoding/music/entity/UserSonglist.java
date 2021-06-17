@@ -58,10 +58,4 @@ public class UserSonglist implements Serializable {
     @Version
     @TableField(value = "update_time",fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
-
-    @ApiModelProperty(value = "删除标记")
-    @TableLogic
-    private String delFlag;
-
-
 }
