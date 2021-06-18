@@ -3,7 +3,6 @@ package com.happycoding.music.controller;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.happycoding.music.common.model.Response;
 import com.happycoding.music.common.utils.SpringSecurityUtil;
-import com.happycoding.music.dto.PlayListDetailDto;
 import com.happycoding.music.dto.UserSonglistDetailDto;
 import com.happycoding.music.dto.UserSonglistDto;
 import com.happycoding.music.entity.UserSonglist;
@@ -18,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -98,8 +98,9 @@ public class SonglistController {
 
     @ApiOperation("更新歌单歌曲")
     @PostMapping("/updateSongs")
-    public Response updateSongs(String songlistId, List<String> songIds) {
-        return Response.ok(userSonglistService.updateSongs(songlistId, songIds));
+    public Response updateSongs(String songlistId, String songIds) {
+        String[] ids = songIds.split(",");
+        return Response.ok(userSonglistService.updateSongs(songlistId, Arrays.asList(ids)));
     }
 
     @ApiOperation("是否收藏该歌单,并返回歌单信息")

@@ -123,3 +123,5 @@ system:
   single-login: true
   #开启验证码
   enable-captcha: false
+  #网易云国外访问ip
+  netease-ip: 222.178.70.188

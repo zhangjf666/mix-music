@@ -14,4 +14,6 @@ public class SystemProperties {
     private Boolean singleLogin = true;
 
     private Boolean enableCaptcha = true;
+
+    private String neteaseIp = "";
 }

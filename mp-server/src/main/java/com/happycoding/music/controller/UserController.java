@@ -22,8 +22,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @Author: zjf
@@ -80,8 +80,9 @@ public class UserController {
     @ApiOperation("删除用户")
     @DeleteMapping
     @PreAuthorize("@ph.check('system:user:del')")
-    public Response delete(Set<String> ids){
-        for (String id: ids) {
+    public Response delete(String ids){
+        String[] userIds = ids.split(",");
+        for (String id: userIds) {
             userService.deleteById(id);
         }
         return Response.ok();
@@ -110,8 +111,9 @@ public class UserController {
 
     @ApiOperation("更新用户播放列表")
     @PutMapping("/playlist")
-    public Response<List<SongInfoDto>> putPlaylist(List<String> songIds){
-        userPlaylistService.updateUserPlayList(SpringSecurityUtil.getCurrentUserId(), songIds);
+    public Response<List<SongInfoDto>> putPlaylist(String songIds){
+        String[] ids = songIds.split(",");
+        userPlaylistService.updateUserPlayList(SpringSecurityUtil.getCurrentUserId(), Arrays.asList(ids));
         return Response.ok();
     }
 }

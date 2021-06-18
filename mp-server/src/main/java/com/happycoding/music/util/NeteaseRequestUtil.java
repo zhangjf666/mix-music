@@ -7,12 +7,15 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.happycoding.music.common.model.ResponseCode;
+import com.happycoding.music.common.utils.SpringContextUtil;
+import com.happycoding.music.config.properties.SystemProperties;
 import com.happycoding.music.model.NeteaseOption;
 import com.happycoding.music.model.NeteaseResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,6 +66,10 @@ public class NeteaseRequestUtil {
         }
         if(url.contains("music.163.com")){
             header.put("Referer", "https://music.163.com");
+        }
+        SystemProperties properties = SpringContextUtil.getBean(SystemProperties.class);
+        if(properties != null && !StringUtils.isEmpty(properties.getNeteaseIp())){
+            header.put("X-Real-IP", properties.getNeteaseIp());
         }
         if(options.getCookie() != null && !options.getCookie().isEmpty()){
             StringBuilder sb = new StringBuilder();

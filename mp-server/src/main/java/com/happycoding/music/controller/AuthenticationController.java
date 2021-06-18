@@ -37,7 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.happycoding.music.common.constants.Constants.CAPTCHA_KEY;
@@ -182,8 +181,9 @@ public class AuthenticationController {
     @ApiOperation("踢出用户")
     @PostMapping("/online-kickout")
     @PreAuthorize("@ph.check()")
-    public Response kickout(Set<String> userKeys){
-        for (String key : userKeys) {
+    public Response kickout(String userKeys){
+        String[] uks = userKeys.split(",");
+        for (String key : uks) {
             onlineUserService.kickOut(key);
         }
         return Response.ok();
