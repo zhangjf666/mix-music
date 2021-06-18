@@ -1,12 +1,17 @@
 <script>
+	import { userInfo } from '@/api/auth.js';
 	export default {
 		onLaunch: function() {
 			console.log('App Launch')
 			let token = uni.getStorageSync('token')
-			let user = uni.getStorageSync('user')
-			if (token && user) {
-				this.$store.commit('setToken', token);
-				this.$store.commit('setUser', user);
+			if (token) {
+				userInfo().then(data => {
+					this.$store.commit('setToken', token);
+					this.$store.commit('setUser', data.user);
+				}).catch(data =>{
+					uni.setStorageSync('token', null);
+					uni.setStorageSync('user', null);
+				})
 			}
 		},
 		onShow: function() {

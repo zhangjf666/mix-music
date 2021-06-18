@@ -1,5 +1,14 @@
 <template>
 	<view class="content">
+		<u-navbar
+			class="navbar"
+			:background="{ backgroundColor: '#D83D34' }"
+			back-icon-color="#fff"
+			back-icon-size="38"
+			back-text="登录"
+            z-index="0"
+			:back-text-style="{ color: '#fff', fontSize: '34rpx', marginLeft: '10rpx' }"
+		></u-navbar>
 		<view class="login-type">
 			<view v-for="(item,index) in loginTypeList" :key="index" @click="loginType = index" :class="{act: loginType === index}"
 			 class="login-type-btn">{{item}}</view>
@@ -225,6 +234,11 @@
 
 <style lang="scss" scoped>
 @import "page.css";
+.navbar {
+	/deep/ .u-border-bottom:after {
+		border-bottom-width: 0px;
+	}
+}
 .login-type {
     display: flex;
     justify-content: center;

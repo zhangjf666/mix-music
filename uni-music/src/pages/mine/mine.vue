@@ -11,11 +11,11 @@
 		</view>
 		<!-- 我喜欢 -->
 		<view class="card">
-			<view class="card-item">
+			<view class="card-item" hover-class="click-bg" hover-stay-time="200" @click="goUserSonglistDetails(favouriteList.id, favouriteList.type)">
 				<view class="item-cover">
 					<text class="iconfont icon-like1"></text>
 				</view>
-				<view class="item-info" @click="goUserSonglistDetails(favouriteList.id, favouriteList.type)">
+				<view class="item-info">
 					<view class="info-name">我喜欢的音乐</view>
 					<view class="info-songcount" v-if="favouriteList.id != null">{{ favouriteList.songCount }}首</view>
 				</view>
@@ -27,15 +27,15 @@
 				<view class="item-title">创建的歌单: ({{ createList.length }}个)</view>
 				<text class="iconfont icon-add" v-if="loginFlag" @click="showCreate"></text>
 			</view>
-			<view class="card-item" v-for="(item, i) in createList" :key="i">
+			<view class="card-item" hover-class="click-bg" hover-stay-time="200" v-for="(item, i) in createList" :key="i" @click="goUserSonglistDetails(item.id, item.type)">
 				<view class="item-cover">
 					<u-image class="item-image" v-if="item.picUrl" :src="item.picUrl" mode="widthFix" width="100rpx" height="100rpx" border-radius="7px"></u-image>
 				</view>
-				<view class="item-info" @click="goUserSonglistDetails(item.id, item.type)">
+				<view class="item-info">
 					<view class="info-name">{{item.listName}}</view>
 					<view class="info-songcount">{{item.songCount}}首</view>
 				</view>
-				<view class="item-menu" @click="openMenu(item)">
+				<view class="item-menu" @click.stop="openMenu(item)">
 					<text class="iconfont icon-gengduo"></text>
 				</view>
 			</view>
@@ -45,15 +45,15 @@
 			<view class="card-item">
 				<view class="item-title">收藏的歌单: ({{ collectList.length }}个)</view>
 			</view>
-			<view class="card-item" v-for="(item, i) in collectList" :key="i">
+			<view class="card-item" hover-class="click-bg" hover-stay-time="200" v-for="(item, i) in collectList" :key="i" @click="goUserSonglistDetails(item.id, item.type)">
 				<view class="item-cover">
 					<u-image class="item-image" v-if="item.picUrl" :src="item.picUrl" mode="widthFix" width="100rpx" height="100rpx" border-radius="7px"></u-image>
 				</view>
-				<view class="item-info" @click="goUserSonglistDetails(item.id, item.type)">
+				<view class="item-info">
 					<view class="info-name">{{item.listName}}</view>
 					<view class="info-songcount">{{item.songCount}}首</view>
 				</view>
-				<view class="item-menu" @click="openMenu(item)">
+				<view class="item-menu" @click.stop="openMenu(item)">
 					<text class="iconfont icon-gengduo"></text>
 				</view>
 			</view>
@@ -66,7 +66,9 @@
 		</view>
 		
 		<!-- last -->
-		<view class="last">到底啦&nbsp;~</view>
+		<view class="btn-logout">
+			<button type="primary" class="primary" v-if="loginFlag" @tap="doLogout">退出</button>
+		</view>
 		
 		<!-- 歌单菜单 -->
 		<u-popup class="pop-menu" v-model="menuShow" mode="bottom" border-radius="24" :height="menuHeight">
@@ -94,6 +96,7 @@
 <script>
 import { mapState, mapMutations, mapGetters } from 'vuex';
 import playMusic from '@/my-components/playMusic.vue';
+import { logout } from '@/api/auth.js';
 
 export default {
 	name: 'Mine',
@@ -113,7 +116,7 @@ export default {
 		};
 	},
 	methods: {
-		...mapMutations(['addSonglist','delSonglist']),
+		...mapMutations(['addSonglist','delSonglist','setToken','setUser','updateUserSonglist']),
 		//到登录页面
 		goLoginPage() {
 			uni.navigateTo({
@@ -154,6 +157,15 @@ export default {
 			uni.navigateTo({
 				url:`../mylist/mylist?id=${id}&type=${type}`
 			})
+		},
+		//退出
+		doLogout() {
+			logout();
+			this.setToken('');
+			this.setUser('');
+			this.updateUserSonglist();
+			uni.setStorageSync('token', null);
+			uni.setStorageSync('user', null);
 		}
 	},
 	computed: {
@@ -299,5 +311,13 @@ export default {
 }
 .click-bg {
 	background-color:rgba(0,0,0,.1);
+}
+.btn-logout {
+	width: 100%;
+	margin-top: 25px;
+    padding: 10px;
+	button.primary {
+		background-color: #d83d34;
+	}
 }
 </style>

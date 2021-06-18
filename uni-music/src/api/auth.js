@@ -18,3 +18,21 @@ export function registerUser(data) {
         header: {'content-type': 'application/json'}
     })
 }
+
+export function logout() {
+    var data = {};
+    return request({
+        url: prefix + '/logout',
+        method: 'POST',
+        data
+    })
+}
+
+export function userInfo() {
+    var data = {};
+    return request({
+        url: prefix + '/user-info',
+        method: 'POST',
+        data
+    })
+}

@@ -67,7 +67,7 @@
 				<text class="iconfont icon-xiayishoubofang"></text>
 				<text style="margin-left: 20rpx">下一首播放</text>
 			</view>
-			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" @click="doOpenSonglist">
+			<view class="pop-menu-item" v-if="loginFlag" hover-class="click-bg" hover-stay-time="200" @click="doOpenSonglist">
 				<text class="iconfont icon-shoucang"></text>
 				<text style="margin-left: 20rpx">收藏到歌单</text>
 			</view>
@@ -184,7 +184,7 @@ export default {
 	},
 	computed:{
 		...mapState(['isPlay', 'playingIndex','createList','favouriteList']),
-        ...mapGetters(['getCurrentSong']),
+        ...mapGetters(['getCurrentSong','loginFlag']),
         // 处理歌手名字
 		songSinger() {
 			return (song) => {

@@ -32,7 +32,7 @@
 				<view class="playall" hover-class="click-bg" hover-stay-time="200" @click="playSongList(0)">
 					<text class="iconfont icon-playall playicon"></text>
 					<text class="playtext">播放全部</text>
-					<text class="iconfont collect-icon" :class="isCollect ? 'icon-chenggong':'icon-shoucang'" @click.stop="doCollectSonglist"></text>
+					<text class="iconfont collect-icon" :class="isCollect ? 'icon-chenggong':'icon-shoucang'" v-if="loginFlag" @click.stop="doCollectSonglist"></text>
 				</view>
 			</u-sticky>
 			<!-- 歌单列表 -->
@@ -64,7 +64,7 @@
 				<text class="iconfont icon-xiayishoubofang"></text>
 				<text style="margin-left: 20rpx">下一首播放</text>
 			</view>
-			<view class="pop-menu-item" hover-class="click-bg" hover-stay-time="200" @click="doOpenSonglist">
+			<view class="pop-menu-item" v-if="loginFlag" hover-class="click-bg" hover-stay-time="200" @click="doOpenSonglist">
 				<text class="iconfont icon-shoucang"></text>
 				<text style="margin-left: 20rpx">收藏到歌单</text>
 			</view>
@@ -223,7 +223,7 @@ export default {
 	},
 	computed:{
 		...mapState(['isPlay', 'playingIndex','createList','favouriteList']),
-        ...mapGetters(['getCurrentSong']),
+        ...mapGetters(['getCurrentSong','loginFlag']),
         // 处理歌手名字
 		songSinger() {
 			return (song) => {

@@ -358,7 +358,11 @@ const store = new Vuex.Store({
 						}
 					}
 				})
-			}
+			} else {
+                state.favouriteList = {}
+                state.createList = [];
+                state.collectList = [];
+            }
 		},
         // 我喜欢添加歌曲
         async addToFavourite(state, song) {
